@@ -1,0 +1,11 @@
+
+.q-radio {
+  &__inner { width:16px; height:16px; font-size:initial; margin-right:8px; border:solid 1px rgba(0, 0, 0, 0.24); transition:border-color .1s;
+    &--truthy { border:solid 3px $primary; }
+    // &:not(.q-radio__inner--truthy) { color:rgba(0, 0, 0, 0.24); }
+    &:before { display:none; }
+  }
+  &__bg { display:none !important; }
+  //&__bg { border-width:1px !important; top:0; left:0; width:100%; height:100%; }
+  //&__check { display:none; }
+}

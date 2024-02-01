@@ -1,0 +1,9 @@
+
+.q-table {
+  &__card { box-shadow:$app-shadow; }
+  tbody {
+    td { font-size:14px; }
+  }
+  th { color:#6B7280; text-transform:uppercase; font-weight:500; }
+  &__bottom { font-size:14px; }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= productName %></title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="<%= productDescription %>">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+
+    <link rel="icon" type="image/png" sizes="128x128" href="icons/favicon-128x128.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="icon" type="image/ico" href="favicon.ico">
+
+    <style>
+      .splash-screen { position:fixed; top:0; left:0; right:0; bottom:0; z-index:4999; background:#F5F5F5; display:flex; align-items:center; justify-content:center; transition:opacity .5s; }
+      .splash-screen.fade { opacity:0; pointer-events:none; }
+      .splash-screen__content { display:flex; flex-direction:column; align-items:center; justify-content:center; width:180px; }
+      .splash-screen__logo svg { fill:#4674d6; transition:fill .5s; }
+      .splash-screen__loader { width:100%; height:4px; position:relative; background:#e7e7e9; margin-top:15px; }
+      .splash-screen__loader:before { content:''; display:block; position:absolute; top:0; left:0; height:100%; width:0; background:#71c825; transition:width 5s; }
+      .splash-screen.start .splash-screen__loader:before { width:80%; }
+      .splash-screen.ready .splash-screen__loader:before { transition:width .5s; width:100%; }
+      .splash-screen.error .splash-screen__logo svg { fill:#f44336; }
+      .splash-screen.error .splash-screen__loader { opacity:0; }
+    </style>
+  </head>
+  <body>
+    <!-- Splash screen -->
+    <div class="splash-screen">
+      <div class="splash-screen__content">
+        <div class="splash-screen__logo">
+          <svg xmlns="http://www.w3.org/2000/svg" height="100px" width="100px" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15 4v7H5.17l-.59.59-.58.58V4h11m1-2H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1zm5 4h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1z"/></svg>
+        </div>
+        <div class="splash-screen__loader"></div>
+      </div>
+    </div>
+    <script>
+      window['splash-screen'] = document.querySelector('.splash-screen');
+      setTimeout(function () {
+        window['splash-screen'].classList.add('start');
+      }, 100);
+    </script>
+    <!-- DO NOT touch the following DIV -->
+    <div id="q-app"></div>
+  </body>
+</html>

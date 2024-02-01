@@ -1,0 +1,28 @@
+// app global css in SCSS form
+
+@import "quasar.variables";
+
+@import "fonts";
+@import "base";
+
+// quasar components
+@import "quasar/q-breadcrumbs";
+@import "quasar/q-btn";
+@import "quasar/q-card";
+@import "quasar/q-checkbox";
+@import "quasar/q-dialog";
+@import "quasar/q-field";
+@import "quasar/q-header";
+@import "quasar/q-item";
+@import "quasar/q-menu";
+@import "quasar/q-page";
+@import "quasar/q-pagination";
+@import "quasar/q-radio";
+@import "quasar/q-tab";
+@import "quasar/q-table";
+@import "quasar/q-toolbar";
+
+// app components
+@import "components/drawer-left";
+@import "components/login-window";
+@import "components/tables";

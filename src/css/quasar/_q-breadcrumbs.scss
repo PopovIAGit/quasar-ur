@@ -1,0 +1,13 @@
+
+.q-breadcrumbs { font-size:13px; line-height:1;
+  .q-gutter-sm { margin-left:-4px;
+    & > * { margin-left:4px; }
+  }
+  &--last { color:#9e9e9e; }
+}
+
+.q-page {
+  .container {
+    > .q-breadcrumbs { margin-top:-8px; margin-bottom:15px; }
+  }
+}

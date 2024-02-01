@@ -1,0 +1,15 @@
+
+.q-field {
+  &--outlined {
+    .q-field {
+      &__control { height:initial; min-height:42px; padding:0 16px;
+        &:before, &:hover:before { border-color:#D1D5DB; }
+        &:after { border-width:1px !important; }
+      }
+    }
+  }
+  &__marginal { height:initial; min-height:42px; font-size:21px; }
+  &--auto-height {
+    .q-field__control, .q-field__native { min-height:42px; }
+  }
+}

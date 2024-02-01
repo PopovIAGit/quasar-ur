@@ -1,0 +1,7 @@
+
+.q-pagination {
+  .q-btn { min-width:30px !important;
+    &:before { box-shadow:none !important; }
+    &--flat { color:$dark !important; }
+  }
+}

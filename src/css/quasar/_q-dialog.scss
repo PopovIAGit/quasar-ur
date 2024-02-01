@@ -1,0 +1,21 @@
+
+.q-dialog {
+  &__header { display:flex; align-items:flex-start; justify-content:space-between;
+    &-content { padding-right:16px; }
+    .text-grey { font-size:12px; margin-bottom:3px; text-transform: capitalize; }
+    .q-btn { margin:-5px -10px -10px 0; opacity:.35;
+      .q-focus-helper { display:none !important; }
+      &:hover { opacity:1; }
+    }
+    & + .q-dialog__body { padding-top:0; }
+  }
+  &__title { font-size:18px; font-weight:700; line-height:1.3; letter-spacing:0; }
+  &__body {
+    & + .q-dialog__footer { padding-top:10px; }
+  }
+  &__footer { display:flex; align-items:center; justify-content:flex-end;
+    .q-btn { min-width:85px;
+      & + .q-btn { margin-left:7px; }
+    }
+  }
+}

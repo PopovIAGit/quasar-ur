@@ -1,0 +1,29 @@
+
+.q-table {
+  th, td {
+    &:first-child:not([data-filed]) { width:1px; padding-right:0; }
+    &:not(:last-child)[data-field="id"] { width:1px; padding-right:0; }
+  }
+  th {
+    &[data-field="action"] { text-align:right; font-size:0; width:1px; }
+  }
+  td { padding-top:18px; padding-bottom:18px;
+    &:not([data-field]), &[data-field="action"] { padding-top:7px; padding-bottom:7px; }
+    &[data-field="id"] { color:#999; }
+    .link { display:inline-block; padding:7px 0; margin:-7px 0; }
+  }
+}
+
+.table {
+  &-top { width:100%;
+    &__tabs { margin-top:-7px; }
+    &__assets { display:flex; align-items:center; justify-content:space-between; width:100%; padding:15px 0;
+      .left, .right { display:flex; align-items:center; }
+    }
+  }
+  &-bottom { display:flex; align-items:center; justify-content:space-between; width:100%; padding:15px 0;
+    &__show { }
+    &__pagination { }
+  }
+  &--users { }
+}

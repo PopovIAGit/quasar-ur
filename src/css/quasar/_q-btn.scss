@@ -1,0 +1,10 @@
+
+.q-btn { font-weight:500;
+  &--rectangle {
+    &:not(.q-btn--dense) { min-height:42px; padding-left:24px; padding-right:24px; }
+  }
+  &--dense { min-height:34px; padding-left:14px; padding-right:14px; font-size:12px; }
+  &--outline-muted {
+    &:before { border-color:#ccc; }
+  }
+}

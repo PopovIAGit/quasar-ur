@@ -1,0 +1,22 @@
+
+.q-header { height:60px;
+  .q-toolbar { min-height:100%; padding-left:30px; padding-right:30px;
+    &__title { padding-left:0; }
+  }
+
+  &__btn-menu { display:none; margin-right:12px; }
+
+  @media (max-width:1500px) {
+    .q-toolbar { padding-left:25px; padding-right:25px; }
+  }
+
+  @media (max-width:1200px) {
+    .q-toolbar { padding-left:9px; padding-right:15px; }
+    &__btn-menu { display:inline-flex; }
+  }
+
+  @media (max-width:600px) {
+    &__btn-logout { display:none; }
+  }
+
+}

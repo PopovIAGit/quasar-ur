@@ -1,0 +1,27 @@
+
+body { background:#F5F5F5; color:$dark; min-height:100vh;
+  #q-app { min-height:100vh; }
+}
+
+h1, h2, h3, h4, h5, h6  { margin-top:0; }
+@media (max-width:800px) {
+  h1 { font-size:28px; }
+  h2 { font-size:24px; }
+  h3 { font-size:20px; }
+  h4 { font-size:18px; }
+  h5 { font-size:16px; }
+  h6 { font-size:16px; }
+}
+
+@media (max-width:500px) {
+  h1 { font-size:24px; }
+  h2 { font-size:20px; }
+  h3 { font-size:18px; }
+}
+
+.container { padding-left:30px; padding-right:30px;
+  @media (max-width:1500px) { padding-left:25px; padding-right:25px; }
+  @media (max-width:1200px) { padding-left:15px; padding-right:15px; }
+}
+
+.label { font-weight:500; margin-bottom:6px; }

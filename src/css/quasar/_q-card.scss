@@ -1,0 +1,7 @@
+
+.q-card { box-shadow:$app-shadow;
+  &__section { padding:24px; }
+  @media (max-width:600px) {
+    &__section { padding:16px; }
+  }
+}

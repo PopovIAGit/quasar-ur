@@ -205,7 +205,7 @@ export default defineComponent({
             [sortBy, descending ? 'DESC' : 'ASC']
           ],
           where: {
-            roleId: 1
+            roleId
           },
           // roleId
           // limit: rowsPerPage,

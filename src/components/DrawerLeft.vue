@@ -21,11 +21,23 @@
           </q-item-section>
           <q-item-section>Главная</q-item-section>
         </q-item>
-        <q-item to="/users">
+        <q-item to="/users" v-if="this.$q.appStore.user.roleId < 3">
           <q-item-section avatar>
             <q-icon name="supervisor_account"/>
           </q-item-section>
           <q-item-section>Пользователи</q-item-section>
+        </q-item>
+        <q-item to="/tickets">
+          <q-item-section avatar>
+            <q-icon name="list_alt"/>
+          </q-item-section>
+          <q-item-section>Тикеты</q-item-section>
+        </q-item>
+        <q-item to="/chat">
+          <q-item-section avatar>
+            <q-icon name="question_answer"/>
+          </q-item-section>
+          <q-item-section>Чат</q-item-section>
         </q-item>
         <q-item to="/style">
           <q-item-section avatar>

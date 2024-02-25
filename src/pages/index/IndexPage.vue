@@ -2,100 +2,243 @@
   <q-page>
     <div class="container">
       <h1>Главная</h1>
-      <div class="colum-container">
-        <div class="colum" v-if="User.roleId == 'super'|'administrator'">
-          <q-list>
-            <q-expansion-item
-              expand-separator
-              icon="perm_identity"
-              label="Account settings"
-              caption="John Doe"
-            >
-              <q-card>
-                <q-card-section>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Quidem, eius reprehenderit eos corrupti commodi magni quaerat
-                  ex numquam, dolorum officiis modi facere maiores architecto
-                  suscipit iste eveniet doloribus ullam aliquid.
-                </q-card-section>
-              </q-card>
+      <div
+        class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width" >
+        <!-- для пользователей   v-if="User.roleId == 3"-->
+        <div class="q-pa-sm col-lg-3 col-md-12 col-xs-12">
+          <q-card>
+            <q-card-section>
+              <h4>ТЕМЫ</h4>
+              <div class="q-gutter-md q-pb-md">
+                <q-btn
+                  unelevated
+                  no-caps
+                  color="primary"
+                  label="Создать тикет"
+                />
+              </div>
+              <!-- выбор темы если есть только 3 уровня вложенности
+             <q-list bordered class="rounded-borders">
+                <q-expansion-item
+                  expand-separator
+                  label="Тема"
+                  caption="Выберете тему обращения"
+                >
+                  <template v-slot:default>
+                    <q-list>
+                      <template v-for="item in topLevelThemeList">
+                        <template v-if="hasChildren(item)">
+                          <q-expansion-item
+                            :key="item.id"
+                            :label="item.title"
+                            :caption="item.description"
+                          >
+                            <template v-slot:header>
+                              <q-item-section>
+                                <q-item-label>
+                                  {{ item.title }}
+                                </q-item-label>
+                                <q-item-label caption lines="1">
+                                  {{ item.description }}
+                                </q-item-label>
+                              </q-item-section>
+                            </template>
+                            <q-list>
+                              <template v-for="child in getChildItems(item)">
+                                <template v-if="hasChildren(child)">
+                                  <q-expansion-item
+                                    :header-inset-level="0.5"
+                                    :key="child.id"
+                                    :label="child.title"
+                                    :caption="child.description"
+                                  >
+                                    <template v-slot:header>
+                                      <q-item-section>
+                                        <q-item-label>
+                                          {{ child.title }}
+                                        </q-item-label>
+                                        <q-item-label caption lines="1">
+                                          {{ child.description }}
+                                        </q-item-label>
+                                      </q-item-section>
+                                    </template>
+                                    <q-list>
+                                      <template
+                                        v-for="subChild in getChildItems(child)"
+                                      >
+                                        <template v-if="hasChildren(subChild)">
+                                          <q-expansion-item
+                                            :header-inset-level="1"
+                                            :key="subChild.id"
+                                            :label="subChild.title"
+                                            :caption="subChild.description"
+                                          >
+                                            <template v-slot:header>
+                                              <q-item-section>
+                                                <q-item-label>
+                                                  {{ subChild.title }}
+                                                </q-item-label>
+                                                <q-item-label caption lines="1">
+                                                  {{ subChild.description }}
+                                                </q-item-label>
+                                              </q-item-section>
+                                            </template>
+
+                                          </q-expansion-item>
+                                        </template>
+                                        <template v-else>
+                                          <q-item :key="subChild.id">
+                                            <q-item-section>
+                                              <q-item-label>
+                                                {{ subChild.title }}
+                                              </q-item-label>
+                                              <q-item-label caption lines="1">
+                                                {{ subChild.description }}
+                                              </q-item-label>
+                                            </q-item-section>
+                                          </q-item>
+                                        </template>
+                                      </template>
+                                    </q-list>
+                                  </q-expansion-item>
+                                </template>
+                                <template v-else>
+                                  <q-item :key="child.id">
+                                    <q-item-section>
+                                      <q-item-label>
+                                        {{ child.title }}
+                                      </q-item-label>
+                                      <q-item-label caption lines="1">
+                                        {{ child.description }}
+                                      </q-item-label>
+                                    </q-item-section>
+                                  </q-item>
+                                </template>
+                              </template>
+                            </q-list>
+                          </q-expansion-item>
+                        </template>
+                        <template v-else>
+                          <q-item :key="item.id">
+                            <q-item-section>
+                              <q-item-label>
+                                {{ item.title }}
+                              </q-item-label>
+                              <q-item-label caption lines="1">
+                                {{ item.description }}
+                              </q-item-label>
+                            </q-item-section>
+                          </q-item>
+                        </template>
+                      </template>
+                    </q-list>
+                  </template>
+                </q-expansion-item>
+              </q-list>-->
+
+              <q-list>
+                <q-expansion-item
+                  expand-separator
+                  label="Тема"
+                  caption="Выберете тему обращения"
+                >
+                <ThemeItem
+                  v-for="child in topLevelThemeList"
+                  :theme="child"
+                  :themeList="themeList"
+                  :key="child.id"
+                />
               </q-expansion-item>
-          </q-list>
+
+              </q-list>
+            </q-card-section>
+          </q-card>
         </div>
+        <!-- для всех-->
+        <div class="q-pa-sm col-lg-9 col-md-12 col-xs-12 col-grow">
+          <q-table
+            v-if="ready"
+            class="table--users"
+            :grid="$q.screen.lt.md"
+            color="primary"
+            :rows="rows"
+            :columns="columns"
+            row-key="data"
+            rows-per-page-label="Количество на странице"
+            :rows-per-page-options="[5]"
+            binary-state-sort
+            v-model:pagination="pagination"
+            @request="getData"
+            :loading="loading"
+          >
+            <template v-slot:top="props">
+              <div class="table-top">
+                <div class="table-top__tabs"></div>
+                <div class="table-top__assets">
+                  <div class="left col-xs-12">
+                    <h4>ТИКЕТЫ</h4>
+                  </div>
+                  <div class="right col-auto">
+                    <div class="q-pb-md">
+                      <q-btn
+                        unelevated
+                        no-caps
+                        color="primary"
+                        label="Создать тикет"
+                        v-if="this.$q.appStore.user.roleId == 3"
+                      ></q-btn>
+                      <q-btn
+                        unelevated
+                        no-caps
+                        color="primary"
+                        label="Добавит тему"
+                        v-if="this.$q.appStore.user.roleId < 2"
+                      ></q-btn>
 
-
-
-        <q-table
-          v-if="ready"
-          class="table--users"
-          color="primary"
-          :rows="rows"
-          :columns="columns"
-          row-key="data"
-          rows-per-page-label="Количество на странице"
-          :rows-per-page-options="[5]"
-          binary-state-sort
-          v-model:pagination="pagination"
-          @request="getData"
-          :loading="loading"
-        >
-          <template v-slot:top="props">
-            <div class="table-top">
-              <div class="table-top__tabs"></div>
-              <div class="table-top__assets">
-                <div class="left">
-                  <h4>ТИКЕТЫ</h4>
-                </div>
-                <div class="right">
-                  <div class="q-gutter-md q-pb-md">
-                    <q-btn
-                      unelevated
-                      no-caps
-                      color="primary"
-                      label="Создать тикет"
-                      v-if="User.roleId == 3"
-                    ></q-btn>
-                    <q-select
-                      outlined
-                      bg-color="white"
-                      v-model="selectStatus"
-                      :options="optionsStatus"
-                    />
+                    </div>
+                    <div class=" q-pb-md">
+                      <q-select
+                        outlined
+                        bg-color="white"
+                        v-model="selectStatus"
+                        :options="optionsStatus"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </template>
-          <template v-slot:bottom="props">
-            <div class="table-bottom">
-              <div class="table-bottom__show">
-                <span>Показано:</span> <strong>1-5</strong> <span>из</span>
-                <strong>9</strong>
+            </template>
+            <template v-slot:bottom="props">
+              <div class="table-bottom">
+                <div class="table-bottom__show">
+                  <span>Показано:</span> <strong>1-5</strong> <span>из</span>
+                  <strong>9</strong>
+                </div>
+                <div class="table-bottom__pagination">
+                  <q-pagination
+                    v-model="pagination.page"
+                    color="primary"
+                    :max="pagesNumber"
+                    :max-pages="6"
+                    direction-links
+                    :ripple="false"
+                  />
+                </div>
               </div>
-              <div class="table-bottom__pagination">
-                <q-pagination
-                  v-model="pagination.page"
-                  color="primary"
-                  :max="pagesNumber"
-                  :max-pages="6"
-                  direction-links
-                  :ripple="false"
-                />
-              </div>
-            </div>
-          </template>
-          <template v-slot:no-data> Нет данных </template>
-          <template v-slot:header-cell="props">
-            <q-th :props="props" :data-field="props.col.name">
-              {{ props.col.label }}
-            </q-th>
-          </template>
-          <template v-slot:body-cell="props">
-            <q-td :props="props" :data-field="props.col.name">
-              {{ props.value }}
-            </q-td>
-          </template>
-        </q-table>
+            </template>
+            <template v-slot:no-data> Нет данных </template>
+            <template v-slot:header-cell="props">
+              <q-th :props="props" :data-field="props.col.name">
+                {{ props.col.label }}
+              </q-th>
+            </template>
+            <template v-slot:body-cell="props">
+              <q-td :props="props" :data-field="props.col.name">
+                {{ props.value }}
+              </q-td>
+            </template>
+          </q-table>
+        </div>
       </div>
     </div>
   </q-page>
@@ -106,10 +249,12 @@ import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import UserClass from "src/utils/classes/User.Class";
-
+import ThemeItem from "components/ThemeItem.vue";
 export default defineComponent({
   name: "IndexPage",
-
+  components: {
+    ThemeItem,
+  },
   setup() {
     const User = new UserClass();
 
@@ -149,6 +294,10 @@ export default defineComponent({
       rowsNumber: 0,
     };
 
+    const themeList = null;
+
+    const topLevelThemeList = null;
+
     return {
       rows: ref([]),
       columns,
@@ -159,6 +308,14 @@ export default defineComponent({
       selectStatus: ref("Все"),
       optionsStatus: ["Все", "Новый", "Открыт", "Зыкрыт", "Восстановлен"],
       User,
+      themeList,
+      topLevelThemeList,
+    };
+  },
+
+  data(){
+    return {
+        isMobile: window.innerWidth < 600 // настройте значение ширины экрана в пикселях по вашему усмотрению
     };
   },
 
@@ -195,7 +352,6 @@ export default defineComponent({
           // offset: 0
         },
       });
-      console.log("ответ", response);
       // Если ошибка получения списка пользователей
       if (response.type === "error") {
         this.$q.dialogStore.set({
@@ -219,25 +375,53 @@ export default defineComponent({
           response.args.count / this.pagination.rowsPerPage
         );
       }
+
+      const responseTheme = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "service",
+        method: "getGroupList",
+        args: {},
+      });
+      if (response.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка тем",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (response.type === "answer") {
+        this.themeList = responseTheme.args.rows;
+        this.topLevelThemeList = responseTheme.args.rows.filter(
+          (row) => row.parentId === null
+        );
+      }
       this.ready = true;
       this.loading = false;
+    },
+
+    getChildItems(parentItem) {
+      if (parentItem && parentItem.id) {
+        return this.themeList.filter((item) => item.parentId === parentItem.id);
+      } else {
+        return []; // или другое значение по умолчанию
+      }
+    },
+    hasChildren(item) {
+      return this.themeList.some((child) => child.parentId === item.id);
     },
   },
 });
 </script>
 
 <style lang="scss">
-.colum-container {
-  display: flex;
-  width: 100%;
-  flex-wrap: nowrap;
-
-  .column {
-    flex: 1;
-    // Дополнительные стили столбцов
-    & + .column {
-      margin-left: 10px; // Пример отступа между столбцами
-    }
+.example-row-column-width {
+  .row > div {
+    padding: 10px 15px;
+  }
+  .row + .row {
+    margin-top: 1rem;
   }
 }
 </style>

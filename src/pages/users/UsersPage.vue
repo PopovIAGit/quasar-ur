@@ -18,6 +18,7 @@
       <q-table
         v-if="ready"
         class="table--users"
+        :grid="$q.screen.lt.md"
         color="primary"
         :rows="rows"
         :columns="columns"

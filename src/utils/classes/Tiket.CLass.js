@@ -20,10 +20,10 @@ class Tiket {
         type: "string",
         default: "",
         min: 2,
-        max: 30,
+        max: 300,
         required: true,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
+          return val && val.length >= 2 && val.length <= 300;
         },
       },
       description: {
@@ -31,9 +31,9 @@ class Tiket {
         type: "string",
         default: "",
         min: 2,
-        max: 300,
+        max: 3000,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
+          return val && val.length >= 2 && val.length <= 3000;
         },
       },
       groupId: {

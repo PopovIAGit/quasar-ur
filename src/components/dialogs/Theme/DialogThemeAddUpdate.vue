@@ -11,32 +11,32 @@
         <q-card-section class="q-dialog__body">
           <!-- Название -->
           <div class="q-mb-md">
-            <div class="label">{{ Theme.fields.name.label }} {{ Theme.fields.name.required ? '*': '' }}</div>
+            <div class="label">{{ Theme.fields.title.label }} {{ Theme.fields.title.required ? '*': '' }}</div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.name"
-              :min="Theme.fields.name.min"
-              :max="Theme.fields.name.max"
-              :required="Theme.fields.name.required"
-              :rules="[ val => Theme.fields.name.rules(val) ]"
+              v-model="dialog.data.label"
+              :min="Theme.fields.title.min"
+              :max="Theme.fields.title.max"
+              :required="Theme.fields.title.required"
+              :rules="[ val => Theme.fields.title.rules(val) ]"
             />
           </div>
           <!-- Родительская тема -->
           <div class="q-mb-md">
-            <div class="label">{{ Theme.fields.roleId.label }} {{ Theme.fields.roleId.required ? '*': '' }}</div>
+            <div class="label">{{ Theme.fields.groupId.label }} {{ Theme.fields.groupId.required ? '*': '' }}</div>
             <q-select
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.roleId"
+              v-model="dialog.data.groupId"
               :options="this.$q.helperTablesStore.roles"
               option-label="name"
               option-value="id"
               map-options
               emit-value
-              :rules="[ val => User.fields.roleId.rules(val) ]"
+              :rules="[ val => Theme.fields.roleId.rules(val) ]"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -49,16 +49,16 @@
           </div>
           <!-- Описание -->
           <div class="q-mb-md">
-            <div class="label">{{ Theme.fields.patronymic.label }} {{ Theme.fields.patronymic.required ? '*': '' }}</div>
+            <div class="label">{{ Theme.fields.description.label }} {{ Theme.fields.description.required ? '*': '' }}</div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.patronymic"
-              :min="User.fields.patronymic.min"
-              :max="User.fields.patronymic.max"
-              :required="User.fields.patronymic.required"
-              :rules="[ val => User.fields.patronymic.rules(val) ]"
+              v-model="dialog.data.description"
+              :min="Theme.fields.description.min"
+              :max="Theme.fields.description.max"
+              :required="Theme.fields.description.required"
+              :rules="[ val => Theme.fields.description.rules(val) ]"
             />
           </div>
         </q-card-section>

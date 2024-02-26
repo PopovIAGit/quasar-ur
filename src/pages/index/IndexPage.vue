@@ -186,6 +186,7 @@
                         color="primary"
                         label="Создать тикет"
                         v-if="this.$q.appStore.user.roleId == 3"
+                        @click="showDialogTicketAddUpdate"
                       ></q-btn>
                       <q-btn
                         unelevated
@@ -193,6 +194,7 @@
                         color="primary"
                         label="Добавит тему"
                         v-if="this.$q.appStore.user.roleId < 2"
+                        @click="showDialogThemeAddUpdate"
                       ></q-btn>
 
                     </div>
@@ -242,6 +244,14 @@
       </div>
     </div>
   </q-page>
+  <dialog-theme-add-update
+    :dialog="dialogThemeAddUpdate"
+    @onSave="onThemeSave"
+  />
+  <dialog-ticket-add-update
+    :dialog="dialogTicketAddUpdate"
+    @onSave="onTicketSave"
+  />
 </template>
 
 <script>
@@ -249,14 +259,26 @@ import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import UserClass from "src/utils/classes/User.Class";
+import ThemeClass from "src/utils/classes/User.Class";
+import TicketClass from "src/utils/classes/User.Class";
 import ThemeItem from "components/ThemeItem.vue";
+import DialogTicketAddUpdate from 'components/dialogs/ticket/DialogTicketAddUpdate'
+import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate'
+
 export default defineComponent({
   name: "IndexPage",
   components: {
     ThemeItem,
+    DialogThemeAddUpdate,
+    DialogTicketAddUpdate
   },
   setup() {
     const User = new UserClass();
+    const Theme = new ThemeClass();
+    const Ticket = new TicketClass();
+
+    const dialogTicketAddUpdateDefault = Ticket.dialogAddUpdateDefault;
+    const dialogThemeAddUpdateDefault = Theme.dialogAddUpdateDefault;
 
     /** Columns */
     const columns = [
@@ -310,12 +332,10 @@ export default defineComponent({
       User,
       themeList,
       topLevelThemeList,
-    };
-  },
-
-  data(){
-    return {
-        isMobile: window.innerWidth < 600 // настройте значение ширины экрана в пикселях по вашему усмотрению
+      dialogTicketAddUpdate: ref({}),
+      dialogThemeAddUpdateDefault,
+      dialogThemeAddUpdate: ref({}),
+      dialogTicketAddUpdateDefault,
     };
   },
 
@@ -401,16 +421,76 @@ export default defineComponent({
       this.loading = false;
     },
 
-    getChildItems(parentItem) {
-      if (parentItem && parentItem.id) {
-        return this.themeList.filter((item) => item.parentId === parentItem.id);
-      } else {
-        return []; // или другое значение по умолчанию
+    showDialogTicketAddUpdate () {
+      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const data = {};
+      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach(key => {
+        if (!excludeFields.includes(key)){
+          data[key] = this.dialogTicketAddUpdateDefault.data[key];
+        }
+      });
+      this.dialogTicketAddUpdate = {
+        show: true,
+        method: 'add',
+        onHide: () => this.dialogTicketAddUpdate = structuredClone(this.dialogTicketAddUpdateDefault),
+        data
       }
     },
-    hasChildren(item) {
-      return this.themeList.some((child) => child.parentId === item.id);
+    showDialogThemeAddUpdate () {
+      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const data = {};
+      Object.keys(this.dialogThemeAddUpdateDefault.data).forEach(key => {
+        if (!excludeFields.includes(key)){
+          data[key] = this.dialogThemeAddUpdateDefault.data[key];
+        }
+      });
+      this.dialogThemeAddUpdate = {
+        show: true,
+        method: 'add',
+        onHide: () => this.dialogThemeAddUpdate = structuredClone(this.dialogThemeAddUpdateDefault),
+        data
+      }
     },
+    onThemeSave (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success && result.user) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тема создана'
+        });
+        this.dialogThemeAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onTicketSave (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success && result.user) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тикет создан'
+        });
+        this.dialogTicketAddUpdate.show = false;
+        this.getData();
+      }
+    }
   },
 });
 </script>

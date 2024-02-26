@@ -168,10 +168,10 @@
 <script>
 import { defineComponent, ref } from 'vue'
 
-import UserClass from 'src/utils/classes/User.Class'
+import TicketClass from 'src/utils/classes/Tiket.CLass'
 
 export default defineComponent({
-  name: 'DialogUserAddUpdate',
+  name: 'DialogTicketAddUpdate',
 
   props: [
     'dialog'
@@ -182,40 +182,18 @@ export default defineComponent({
   },
 
   setup () {
-    const User = new UserClass();
+    const Ticket = new TicketClass();
     return {
-      User,
-      showPassword: ref(false),
+      Ticket,
     }
   },
 
   methods: {
 
-    userRoleName () {
-      console.log(this.dialog.data);
-      let string = '';
-      switch (this.dialog.data.roleId) {
-        case 4:
-          string = 'клиент';
-          break;
-        case 3:
-          string = 'оператор';
-          break;
-        case 2:
-          string = 'администратор';
-          break;
-        case 1:
-          string = 'суперадминистратор';
-          break;
-        default: break;
-      }
-      return string;
-    },
-
     async onSubmit () {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.User.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
+      const result = await this.Ticket.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
       this.processing = false;
       this.$emit('onSave', result);
     }

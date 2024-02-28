@@ -1,19 +1,19 @@
 import { useQuasar } from "quasar";
 
-class Tiket {
+class Service {
   constructor() {
     this.$q = useQuasar();
 
     // DB fields
     this.fields = {
       id: {
-        label: 'ID',
-        type: 'number',
+        label: "ID",
+        type: "number",
         default: undefined,
         index: true,
         rules: (val) => {
-          return val !== null && typeof val === 'number';
-        }
+          return val !== null && typeof val === "number";
+        },
       },
       title: {
         label: "Заголовок",
@@ -36,57 +36,13 @@ class Tiket {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      startDateTime: {
-        label: "Дата создания",
+      groupId: {
+        label: "id группы",
         type: "number",
         default: undefined,
         required: true,
         rules: (val) => {
           return typeof val === "number" && val > 0;
-        },
-      },
-      stopDateTime: {
-        label: "Дата закрытия",
-        type: "number",
-        default: undefined,
-        required: true,
-        rules: (val) => {
-          return typeof val === "number" && val > 0;
-        },
-      },
-      isDeleted: {
-        label: 'Удален',
-        type: 'boolean',
-        default: false,
-        rules: (val) => {
-          return typeof val === 'boolean';
-        }
-      },
-      ticketStatusId: {
-        label: "Статус тикета",
-        type: "number",
-        default: undefined,
-        index: true,
-        rules: (val) => {
-          return val !== null && typeof val === "number";
-        },
-      },
-      ownerID: {
-        label: "ID создателя",
-        type: "number",
-        default: undefined,
-        index: true,
-        rules: (val) => {
-          return val !== null && typeof val === "number";
-        },
-      },
-      serviceID: {
-        label: "ID услуги",
-        type: "number",
-        default: undefined,
-        index: true,
-        rules: (val) => {
-          return val !== null && typeof val === "number";
         },
       },
     };
@@ -124,7 +80,7 @@ class Tiket {
       const _data = structuredClone(data);
       const response = await this.$q.ws.sendRequest({
         type: 'query',
-        iface: 'ticket',
+        iface: 'service',
         method: 'add',
         args: {
           service: {

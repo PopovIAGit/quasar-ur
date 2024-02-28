@@ -132,7 +132,7 @@
             </q-input>
           </div>
           <!-- Роль -->
-          <div class="q-mb-md">
+          <div class="q-mb-md" v-if="this.$q.appStore.user.roleId < 3">
             <div class="label">{{ User.fields.roleId.label }} {{ User.fields.roleId.required ? '*': '' }}</div>
             <q-select
               outlined

@@ -1,22 +1,22 @@
 import { useQuasar } from "quasar";
 
-class Tiket {
+class Message {
   constructor() {
     this.$q = useQuasar();
 
     // DB fields
     this.fields = {
       id: {
-        label: 'ID',
-        type: 'number',
+        label: "ID сообщения",
+        type: "number",
         default: undefined,
         index: true,
         rules: (val) => {
-          return val !== null && typeof val === 'number';
-        }
+          return val !== null && typeof val === "number";
+        },
       },
-      title: {
-        label: "Заголовок",
+      content: {
+        label: "Текст сообщения",
         type: "string",
         default: "",
         min: 2,
@@ -36,8 +36,8 @@ class Tiket {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      startDateTime: {
-        label: "Дата создания",
+      sentDateTime: {
+        label: "Время отпраки сообщения",
         type: "number",
         default: undefined,
         required: true,
@@ -45,8 +45,8 @@ class Tiket {
           return typeof val === "number" && val > 0;
         },
       },
-      stopDateTime: {
-        label: "Дата закрытия",
+      getDateTime: {
+        label: "Время получения сообщения",
         type: "number",
         default: undefined,
         required: true,
@@ -62,8 +62,8 @@ class Tiket {
           return typeof val === 'boolean';
         }
       },
-      ticketStatusId: {
-        label: "Статус тикета",
+      messageStatusId: {
+        label: "Статус сообщения",
         type: "number",
         default: undefined,
         index: true,
@@ -80,8 +80,8 @@ class Tiket {
           return val !== null && typeof val === "number";
         },
       },
-      serviceID: {
-        label: "ID услуги",
+      ticketID: {
+        label: "ID тикета",
         type: "number",
         default: undefined,
         index: true,
@@ -118,13 +118,13 @@ class Tiket {
    * @param dataWas
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
-  async save (method, data, dataWas) {
+  async send (method, data, dataWas) {
     // Если add
     if (method === 'add' && data) {
       const _data = structuredClone(data);
       const response = await this.$q.ws.sendRequest({
         type: 'query',
-        iface: 'ticket',
+        iface: 'service',
         method: 'add',
         args: {
           service: {
@@ -149,50 +149,6 @@ class Tiket {
       }
     }
     // Если update и переданы data и dataWas для сравнения
-    else if (method === 'update' && data && dataWas) {
-      const _data = {};
-      Object.keys(data).forEach(key => {
-        if(data[key] !== dataWas[key]){
-          _data[key] = data[key];
-        }
-      });
-      // Если нет никаких изменений
-      if (Object.keys(_data).length === 0) {
-        return {
-          success: false,
-          noChanges: true
-        }
-      }
-      // Если есть изменения, то сохраняем их
-      else {
-        const response = await this.$q.ws.sendRequest({
-          type: 'query',
-          iface: 'service',
-          method: 'update',
-          args: {
-            service: {
-              id: data.id,
-              ..._data
-            }
-          }
-        });
-        // Если ошибка сохранения
-        if (response.type === 'error') {
-          return {
-            success: false,
-            message: response.args.message || 'Ошибка'
-          }
-        }
-        // Если всё ОК
-        else if (response.type === 'answer') {
-          const ticket = response.args;
-          return {
-            success: true,
-            ticket
-          }
-        }
-      }
-    }
   }
 }
 

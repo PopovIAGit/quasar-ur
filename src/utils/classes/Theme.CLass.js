@@ -40,7 +40,7 @@ class Theme {
         label: "Родительская тема",
         type: "number",
         default: undefined,
-        required: true,
+        required: false,
         rules: (val) => {
           return (typeof val === "number" && val > 0) || val == null;
         },

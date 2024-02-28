@@ -74,7 +74,7 @@
 <script>
 import { defineComponent, ref } from 'vue'
 
-import ThemeClass from 'src/utils/classes/Theme.CLass'
+import ThemeClass from 'src/utils/classes/Theme.Class'
 
 export default defineComponent({
   name: 'DialogThemeAddUpdate',

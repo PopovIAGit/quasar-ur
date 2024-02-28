@@ -4,8 +4,8 @@
       <h1>Главная</h1>
       <div
         class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width" >
-        <!-- для пользователей   v-if="User.roleId == 3"-->
-        <div class="q-pa-sm col-lg-3 col-md-12 col-xs-12">
+        <!-- для пользователей   -->
+        <div class="q-pa-sm col-lg-3 col-md-12 col-xs-12" v-if="this.$q.appStore.user.roleId < 3">
           <q-card>
             <q-card-section>
               <h4>ТЕМЫ</h4>
@@ -14,128 +14,16 @@
                   unelevated
                   no-caps
                   color="primary"
-                  label="Создать тикет"
+                  label="Создать тему"
+                  @click="showDialogThemeAddUpdate"
+                />
+                <q-btn
+                  unelevated
+                  no-caps
+                  color="primary"
+                  label="Создать услугу"
                 />
               </div>
-              <!-- выбор темы если есть только 3 уровня вложенности
-             <q-list bordered class="rounded-borders">
-                <q-expansion-item
-                  expand-separator
-                  label="Тема"
-                  caption="Выберете тему обращения"
-                >
-                  <template v-slot:default>
-                    <q-list>
-                      <template v-for="item in topLevelThemeList">
-                        <template v-if="hasChildren(item)">
-                          <q-expansion-item
-                            :key="item.id"
-                            :label="item.title"
-                            :caption="item.description"
-                          >
-                            <template v-slot:header>
-                              <q-item-section>
-                                <q-item-label>
-                                  {{ item.title }}
-                                </q-item-label>
-                                <q-item-label caption lines="1">
-                                  {{ item.description }}
-                                </q-item-label>
-                              </q-item-section>
-                            </template>
-                            <q-list>
-                              <template v-for="child in getChildItems(item)">
-                                <template v-if="hasChildren(child)">
-                                  <q-expansion-item
-                                    :header-inset-level="0.5"
-                                    :key="child.id"
-                                    :label="child.title"
-                                    :caption="child.description"
-                                  >
-                                    <template v-slot:header>
-                                      <q-item-section>
-                                        <q-item-label>
-                                          {{ child.title }}
-                                        </q-item-label>
-                                        <q-item-label caption lines="1">
-                                          {{ child.description }}
-                                        </q-item-label>
-                                      </q-item-section>
-                                    </template>
-                                    <q-list>
-                                      <template
-                                        v-for="subChild in getChildItems(child)"
-                                      >
-                                        <template v-if="hasChildren(subChild)">
-                                          <q-expansion-item
-                                            :header-inset-level="1"
-                                            :key="subChild.id"
-                                            :label="subChild.title"
-                                            :caption="subChild.description"
-                                          >
-                                            <template v-slot:header>
-                                              <q-item-section>
-                                                <q-item-label>
-                                                  {{ subChild.title }}
-                                                </q-item-label>
-                                                <q-item-label caption lines="1">
-                                                  {{ subChild.description }}
-                                                </q-item-label>
-                                              </q-item-section>
-                                            </template>
-
-                                          </q-expansion-item>
-                                        </template>
-                                        <template v-else>
-                                          <q-item :key="subChild.id">
-                                            <q-item-section>
-                                              <q-item-label>
-                                                {{ subChild.title }}
-                                              </q-item-label>
-                                              <q-item-label caption lines="1">
-                                                {{ subChild.description }}
-                                              </q-item-label>
-                                            </q-item-section>
-                                          </q-item>
-                                        </template>
-                                      </template>
-                                    </q-list>
-                                  </q-expansion-item>
-                                </template>
-                                <template v-else>
-                                  <q-item :key="child.id">
-                                    <q-item-section>
-                                      <q-item-label>
-                                        {{ child.title }}
-                                      </q-item-label>
-                                      <q-item-label caption lines="1">
-                                        {{ child.description }}
-                                      </q-item-label>
-                                    </q-item-section>
-                                  </q-item>
-                                </template>
-                              </template>
-                            </q-list>
-                          </q-expansion-item>
-                        </template>
-                        <template v-else>
-                          <q-item :key="item.id">
-                            <q-item-section>
-                              <q-item-label>
-                                {{ item.title }}
-                              </q-item-label>
-                              <q-item-label caption lines="1">
-                                {{ item.description }}
-                              </q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </template>
-                      </template>
-                    </q-list>
-                  </template>
-                </q-expansion-item>
-              </q-list>-->
-
               <q-list>
                 <q-expansion-item
                   expand-separator
@@ -179,24 +67,13 @@
                     <h4>ТИКЕТЫ</h4>
                   </div>
                   <div class="right col-auto">
-                    <div class="q-pb-md">
+                    <div class="q-pb-md q-pr-md" v-if="this.$q.appStore.user.roleId < 3">
                       <q-btn
                         unelevated
                         no-caps
                         color="primary"
                         label="Создать тикет"
-                        v-if="this.$q.appStore.user.roleId == 3"
-                        @click="showDialogTicketAddUpdate"
                       ></q-btn>
-                      <q-btn
-                        unelevated
-                        no-caps
-                        color="primary"
-                        label="Добавит тему"
-                        v-if="this.$q.appStore.user.roleId < 2"
-                        @click="showDialogThemeAddUpdate"
-                      ></q-btn>
-
                     </div>
                     <div class=" q-pb-md">
                       <q-select
@@ -248,36 +125,31 @@
     :dialog="dialogThemeAddUpdate"
     @onSave="onThemeSave"
   />
-  <dialog-ticket-add-update
-    :dialog="dialogTicketAddUpdate"
-    @onSave="onTicketSave"
-  />
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 
+/// класс работы с юзером
 import UserClass from "src/utils/classes/User.Class";
-import ThemeClass from "src/utils/classes/User.Class";
-import TicketClass from "src/utils/classes/User.Class";
+/// класс работы с темой
+import ThemeClass from "src/utils/classes/Theme.Class";
+/// диалоговое окно создания/изменения темы
+import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate';
+/// компонент отображения списка тема с вложенностью
 import ThemeItem from "components/ThemeItem.vue";
-import DialogTicketAddUpdate from 'components/dialogs/ticket/DialogTicketAddUpdate'
-import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate'
 
 export default defineComponent({
   name: "IndexPage",
   components: {
     ThemeItem,
-    DialogThemeAddUpdate,
-    DialogTicketAddUpdate
+    DialogThemeAddUpdate
   },
   setup() {
     const User = new UserClass();
     const Theme = new ThemeClass();
-    const Ticket = new TicketClass();
 
-    const dialogTicketAddUpdateDefault = Ticket.dialogAddUpdateDefault;
     const dialogThemeAddUpdateDefault = Theme.dialogAddUpdateDefault;
 
     /** Columns */
@@ -332,10 +204,8 @@ export default defineComponent({
       User,
       themeList,
       topLevelThemeList,
-      dialogTicketAddUpdate: ref({}),
       dialogThemeAddUpdateDefault,
       dialogThemeAddUpdate: ref({}),
-      dialogTicketAddUpdateDefault,
     };
   },
 
@@ -358,12 +228,12 @@ export default defineComponent({
           descending,
         },
       });
-
       const response = await this.$q.ws.sendRequest({
         type: "query",
-        iface: "service",
+        iface: "ticket",
         method: "getList",
         args: {
+          id: this.$q.appStore.user.roleId,
           limit: rowsPerPage,
           offset: (page - 1) * rowsPerPage,
           order: [[sortBy, descending ? "DESC" : "ASC"]],
@@ -372,6 +242,7 @@ export default defineComponent({
           // offset: 0
         },
       });
+      console.log("ticket",response);
       // Если ошибка получения списка пользователей
       if (response.type === "error") {
         this.$q.dialogStore.set({
@@ -385,6 +256,7 @@ export default defineComponent({
       }
       // Если получен список пользователей
       else if (response.type === "answer") {
+        this.$q.appStore.set({this.rows});
         this.rows = response.args.rows;
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -402,40 +274,50 @@ export default defineComponent({
         method: "getGroupList",
         args: {},
       });
-      if (response.type === "error") {
+
+      if (responseTheme.type === "error") {
         this.$q.dialogStore.set({
           show: true,
           title: "Ошибка",
-          text: "Ошибка получения списка тем",
+          text: "Ошибка получения списка груп",
           ok: {
             color: "red",
           },
         });
-      } else if (response.type === "answer") {
+      } else if (responseTheme.type === "answer") {
+        this.$q.appStore.theme = responseTheme.args.rows;
         this.themeList = responseTheme.args.rows;
         this.topLevelThemeList = responseTheme.args.rows.filter(
           (row) => row.parentId === null
         );
       }
+
+      const responseServece = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "service",
+        method: "getList",
+        args: {},
+      });
+      if (responseServece.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка сервисов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseServece.type === "answer") {
+        this.$q.appStore.service = responseServece.args.rows;
+        this.themeList = responseServece.args.rows;
+      }
+
+      console.log("store",this.$q.appStore);
+
       this.ready = true;
       this.loading = false;
     },
 
-    showDialogTicketAddUpdate () {
-      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
-      const data = {};
-      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach(key => {
-        if (!excludeFields.includes(key)){
-          data[key] = this.dialogTicketAddUpdateDefault.data[key];
-        }
-      });
-      this.dialogTicketAddUpdate = {
-        show: true,
-        method: 'add',
-        onHide: () => this.dialogTicketAddUpdate = structuredClone(this.dialogTicketAddUpdateDefault),
-        data
-      }
-    },
     showDialogThemeAddUpdate () {
       const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
       const data = {};
@@ -471,26 +353,6 @@ export default defineComponent({
         this.getData();
       }
     },
-    onTicketSave (result) {
-      if (!result.success) {
-        this.$q.dialogStore.set({
-          show: true,
-          title: 'Ошибка',
-          text: result.message,
-          ok: {
-            color: 'red'
-          }
-        });
-      }
-      else if (result.success && result.user) {
-        this.$q.dialogStore.set({
-          show: true,
-          title: 'Тикет создан'
-        });
-        this.dialogTicketAddUpdate.show = false;
-        this.getData();
-      }
-    }
   },
 });
 </script>

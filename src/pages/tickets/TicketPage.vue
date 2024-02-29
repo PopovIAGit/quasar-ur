@@ -37,16 +37,37 @@
               </template>
             </q-select>
             <h4>Ваш тикет</h4>
-            <q-input outlined bg-color="white" v-model="inputText" type="textarea" />
+            <q-input
+              outlined
+              bg-color="white"
+              v-model="inputText"
+              type="textarea"
+            />
             <div class="q-gutter-md q-pb-md">
-              <q-btn unelevated no-caps color="primary" label="Primary" />
-              <q-btn unelevated no-caps color="primary" label="Primary" />
+              <q-btn unelevated outline no-caps color="primary" label="Отмена" />
+              <q-btn unelevated no-caps color="primary" label="Создать" />
             </div>
             <q-separator />
-
+            <q-btn unelevated no-caps
+  icon="attach_file"
+/>
           </q-card-section>
 
         </q-card>
+      </div>
+
+
+
+      <div class="q-gutter-md q-pb-md">
+        <q-card>
+        <q-card-section>
+          <h4>тикет №1</h4>
+          <p>ticket title</p>
+          <h4>текст тикета</h4>
+          <p>ticket discripion</p>
+        </q-card-section>
+      </q-card>
+
       </div>
     </div>
   </q-page>

@@ -189,7 +189,6 @@ export default defineComponent({
     };
 
     const themeList = null;
-
     const topLevelThemeList = null;
 
     return {
@@ -242,7 +241,7 @@ export default defineComponent({
           // offset: 0
         },
       });
-      console.log("ticket",response);
+
       // Если ошибка получения списка пользователей
       if (response.type === "error") {
         this.$q.dialogStore.set({
@@ -256,7 +255,7 @@ export default defineComponent({
       }
       // Если получен список пользователей
       else if (response.type === "answer") {
-        this.$q.appStore.set({this.rows});
+        this.$q.appStore.set({ticket: response.args.rows});
         this.rows = response.args.rows;
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -285,7 +284,7 @@ export default defineComponent({
           },
         });
       } else if (responseTheme.type === "answer") {
-        this.$q.appStore.theme = responseTheme.args.rows;
+        this.$q.appStore.set({theme: responseTheme.args.rows});
         this.themeList = responseTheme.args.rows;
         this.topLevelThemeList = responseTheme.args.rows.filter(
           (row) => row.parentId === null
@@ -308,7 +307,7 @@ export default defineComponent({
           },
         });
       } else if (responseServece.type === "answer") {
-        this.$q.appStore.service = responseServece.args.rows;
+        this.$q.appStore.set({service: responseServece.args.rows});
         this.themeList = responseServece.args.rows;
       }
 

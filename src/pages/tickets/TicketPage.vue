@@ -11,25 +11,22 @@
 
       <h1>Тикеты</h1>
 
-      <div>
+      <div class="q-gutter-md q-pb-md">
         <q-card>
           <q-card-section>
-
-          </q-card-section>
-          <q-card-actions>
             <h4>Тема</h4>
             <q-select
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="model"
-              :options="title"
+              :options="titles"
               option-label="name"
               option-value="id"
               map-options
               emit-value
               label="Выберете тему обращения"
-              :rules="[ val => Theme.fields.roleId.rules(val) ]"
+              :rules="[(val) => Theme.fields.roleId.rules(val)]"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -39,7 +36,16 @@
                 </q-item>
               </template>
             </q-select>
-          </q-card-actions>
+            <h4>Ваш тикет</h4>
+            <q-input outlined bg-color="white" v-model="inputText" type="textarea" />
+            <div class="q-gutter-md q-pb-md">
+              <q-btn unelevated no-caps color="primary" label="Primary" />
+              <q-btn unelevated no-caps color="primary" label="Primary" />
+            </div>
+            <q-separator />
+
+          </q-card-section>
+
         </q-card>
       </div>
     </div>
@@ -56,34 +62,25 @@ export default defineComponent({
   name: "TicketPage",
 
   setup() {
-
-    const title = [];
-
-    console.log("title",title);
-
-
-
     return {
       model: ref(null),
       ready: ref(true),
-      title,
+      loading: ref(false),
+      titles: ref([]),
     };
   },
-  async beforeMount () {
+  async beforeMount() {
     await this.getData();
   },
   methods: {
-    async getData (props) {
+    async getData(props) {
       if (this.loading) return;
       this.loading = true;
 
-      title = this.$q.appStore.theme;
-      console.log('title',title);
-
-
+      if (this.$q.appStore.service != null) {
+        this.titles = this.$q.appStore.service.map((obj) => obj.title);
+      }
     },
-
-
-  }
+  },
 });
 </script>

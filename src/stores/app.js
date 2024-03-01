@@ -6,7 +6,8 @@ export const useAppStore = defineStore('app', {
     user: null,
     theme: [],
     service: [],
-    ticket:[]
+    ticket:[],
+    selectedTicket: null,
   }),
   getters: {},
   actions: {

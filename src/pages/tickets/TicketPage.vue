@@ -11,7 +11,7 @@
 
       <h1>Тикеты</h1>
 
-      <div class="q-gutter-md q-pb-md">
+      <div class="q-gutter-md q-pb-md" v-if="selectTicketID == null">
         <q-card>
           <q-card-section>
             <h4>Тема</h4>
@@ -44,30 +44,60 @@
               type="textarea"
             />
             <div class="q-gutter-md q-pb-md">
-              <q-btn unelevated outline no-caps color="primary" label="Отмена" />
+              <q-btn
+                unelevated
+                outline
+                no-caps
+                color="primary"
+                label="Отмена"
+                to="/"
+              />
               <q-btn unelevated no-caps color="primary" label="Создать" />
             </div>
             <q-separator />
-            <q-btn unelevated no-caps
-  icon="attach_file"
-/>
+            <q-btn unelevated no-caps icon="attach_file" />
           </q-card-section>
-
         </q-card>
       </div>
 
-
-
-      <div class="q-gutter-md q-pb-md">
+      <div class="q-gutter-md q-pb-md" v-else-if="selectTicketID != null">
         <q-card>
-        <q-card-section>
-          <h4>тикет №1</h4>
-          <p>ticket title</p>
-          <h4>текст тикета</h4>
-          <p>ticket discripion</p>
-        </q-card-section>
-      </q-card>
-
+          <q-card-section>
+            <div class="row">
+              <div class="col-lg-9 col-md-9 col-xs-12 q-gutter-md q-pb-md ">
+                <h4>ТИКЕТ</h4>
+                <p>{{ selectTicketID.title }}</p>
+                <h4>Текст тикета</h4>
+                <p>{{ selectTicketID.description }}</p>
+              </div>
+              <div class="row col-lg-3 col-md-3 col-xs-12 q-gutter-md q-pb-md ">
+                <div class="row col-lg-9 col-md-9 col-xs-12">
+                  <div class="col-lg-6 col-md-6 col-xs-12">Статус тикета</div>
+                  <div class="col-lg-6 col-md-6 col-xs-12"></div>
+                </div>
+                <div class="col-lg-9 col-md-9 col-xs-12">
+                  <h4>Назначеный опертатор</h4>
+                </div>
+                <div class="col-lg-9 col-md-9 col-xs-12">
+                  <q-btn
+                    unelevated
+                    no-caps
+                    color="primary"
+                    label="открыть чат"
+                  />
+                </div>
+                <div class="col-lg-9 col-md-9 col-xs-12">
+                  <h4>Файлы</h4>
+                  <q-list  separator>
+                    <q-item v-for="(option, index) in options" :key="index" class="q-my-sm" clickable v-ripple>
+                      <q-item-section>{{ option }}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
   </q-page>
@@ -88,6 +118,8 @@ export default defineComponent({
       ready: ref(true),
       loading: ref(false),
       titles: ref([]),
+      options: ['file1.doc', 'file1.doc', 'file1.doc', 'file1.doc', 'file1.doc'],
+      selectTicketID: ref(null),
     };
   },
   async beforeMount() {
@@ -98,9 +130,17 @@ export default defineComponent({
       if (this.loading) return;
       this.loading = true;
 
-      if (this.$q.appStore.service != null) {
-        this.titles = this.$q.appStore.service.map((obj) => obj.title);
+      console.log("полученый тикет", this.$q.appStore.selectedTicket);
+      this.selectTicketID = this.$q.appStore.selectedTicket;
+      {{ selectTicketID.ticketStatusId }}
+
+        if (selectTicketID == null){
+          if (this.$q.appStore.service != null) {
+          this.titles = this.$q.appStore.service.map((obj) => obj.title);
+        }
+
       }
+
     },
   },
 });

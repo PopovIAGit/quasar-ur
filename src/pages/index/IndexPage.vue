@@ -50,6 +50,7 @@
             :grid="$q.screen.lt.md"
             color="primary"
             :rows="rows"
+            @row-dblclick="handleRowDoubleClick"
             :columns="columns"
             row-key="data"
             rows-per-page-label="Количество на странице"
@@ -57,6 +58,7 @@
             binary-state-sort
             v-model:pagination="pagination"
             @request="getData"
+
             :loading="loading"
           >
             <template v-slot:top="props">
@@ -73,6 +75,7 @@
                         no-caps
                         color="primary"
                         label="Создать тикет"
+                        @click="createTicket"
                       ></q-btn>
                     </div>
                     <div class=" q-pb-md">
@@ -311,8 +314,6 @@ export default defineComponent({
         this.themeList = responseServece.args.rows;
       }
 
-      console.log("store",this.$q.appStore);
-
       this.ready = true;
       this.loading = false;
     },
@@ -352,6 +353,21 @@ export default defineComponent({
         this.getData();
       }
     },
+    handleRowDoubleClick(event, row) {
+    // Получите данные строки и выполните переход на другую страницу
+    this.$q.appStore.set({
+      selectedTicket: row
+    });
+    this.$router.push({ path: '/tickets'});
+  },
+  createTicket() {
+    // Получите данные строки и выполните переход на другую страницу
+    console.log("createTicket");
+    this.$q.appStore.set({
+      selectedTicket: null
+    });
+    this.$router.push({ path: '/tickets'});
+  }
   },
 });
 </script>

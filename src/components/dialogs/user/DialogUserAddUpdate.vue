@@ -192,7 +192,6 @@ export default defineComponent({
   methods: {
 
     userRoleName () {
-      console.log(this.dialog.data);
       let string = '';
       switch (this.dialog.data.roleId) {
         case 4:

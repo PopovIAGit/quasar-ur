@@ -10,7 +10,7 @@
       </q-breadcrumbs>
 
       <h1>Тикеты</h1>
-
+      <!--Создание тикета-->
       <div class="q-gutter-md q-pb-md" v-if="selectTicketID == null">
         <q-card>
           <q-card-section>
@@ -42,13 +42,19 @@
             </div>
             <div class="q-pb-md row">
               <div class="q-dialog__title col-grow">Ваш тикет</div>
+              <div class="text-grey col-lg-2">Заголовок тикета</div>
+            </div>
+            <div class="q-pb-md">
+              <q-input outlined bg-color="white" v-model="ticketTitle"/>
+            </div>
+            <div class="q-pb-md row justify-end">
               <div class="text-grey col-lg-2">Красткое описание тикета</div>
             </div>
             <div class="q-pb-md">
               <q-input
                 outlined
                 bg-color="white"
-                v-model="inputText"
+                v-model="ticketDiscription"
                 type="textarea"
               />
             </div>
@@ -74,23 +80,23 @@
           </q-card-section>
         </q-card>
       </div>
-
+      <!--Работа с открытым тикетом-->
       <div class="q-gutter-md q-pb-md" v-else-if="selectTicketID != null">
         <q-card>
           <q-card-section>
             <div class="row">
-              <div class="col-lg-9 col-md-9 col-xs-12 q-gutter-md q-pb-md">
+              <div class="col-lg-9 col-md-9 col-xs-12 q-gutter-md q-pb-md ">
                 <h4>ТИКЕТ</h4>
                 <p>{{ selectTicketID.title }}</p>
                 <h4>Текст тикета</h4>
                 <p>{{ selectTicketID.description }}</p>
               </div>
-              <div class="row col-lg-3 col-md-3 col-xs-12 q-gutter-md q-pb-md">
-                <div class="row col-lg-9 col-md-9 col-xs-12">
-                  <div class="col-lg-6 col-md-6 col-xs-12">
+              <div class="row col-lg-3 col-md-3 col-xs-12 q-gutter-md q-pb-md items-stretch">
+                <div class="row col-lg-9 col-md-9 col-xs-12 justify-end">
+                  <div class="col-lg-6 col-md-8 col-xs-12">
                     <h4>Статус тикета</h4>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-xs-12">
+                  <div class="col-lg-6 col-md-4 col-xs-12">
                     <q-chip :color="colorStatus" text-color="white">
                       {{ textStatus }}
                     </q-chip>
@@ -155,6 +161,8 @@ export default defineComponent({
       selectTicketID: ref(null),
       colorStatus: ref("positive"),
       textStatus: ref("Новый"),
+      ticketTitle: ref(''),
+      ticketDiscription: ref(""),
     };
   },
   async beforeMount() {
@@ -165,7 +173,6 @@ export default defineComponent({
       if (this.loading) return;
       this.loading = true;
 
-      console.log("полученый тикет", this.$q.appStore.selectedTicket);
       this.selectTicketID = this.$q.appStore.selectedTicket;
 
       if (this.selectTicketID == null) {
@@ -198,27 +205,40 @@ export default defineComponent({
       const item = data.find((obj) => obj.title === title);
       return item ? item.id : null;
     },
-    createTicket() {
-      console.log(this.$q.appStore.service);
-      console.log(this.model);
-      const id = getIdFromTitle(this.model);
-      console.log(id);
-      // this.$q.ws.sendRequest({
-      //   type: 'query',
-      //   iface: 'ticket',
-      //   method: 'add',
-      //   args: {
-      //     ticket: {
-      //       serviceId: 'фывфыв',
-      //       ownerId: 'фывфыв',
-      //       title: 'фывфыв',
-      //       phone: '70000000034',
-      //       description: 'sddsd@mail.ru',
-      //       startDateTime : new Date(),
-      //       roleId: 3
-      //     }
-      //   }
-      // });
+   async createTicket() {
+       const foundItem = this.$q.appStore.service.find(item => item.title === this.model);
+        const foundId = foundItem ? foundItem.id : null;
+
+        const response = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'ticket',
+        method: 'add',
+        args: {
+          ticket: {
+            serviceId: foundId,
+            ownerId: this.$q.appStore.user.id,
+            title: this.ticketTitle,
+            description: this.ticketDiscription,
+            startDateTime : new Date(),
+          }
+        }
+      });
+
+        console.log(response);
+      if (response.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка создания списка тикетов",
+          ok: {
+            color: "red",
+          },
+        });
+      }
+      // Если тикет успешно создан
+      else if (response.type === "answer") {
+        this.$router.push({ path: '/'});
+      }
     },
 
   },

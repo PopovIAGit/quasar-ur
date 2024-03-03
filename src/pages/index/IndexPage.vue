@@ -159,6 +159,20 @@ export default defineComponent({
     const columns = [
       { name: "id", label: "ID", field: "id", align: "left", sortable: true },
       {
+        name: "startDateTime",
+        label: "ДАТА СОЗДАНИЯ",
+        field: "startDateTime",
+        align: "left",
+        sortable: true,
+        format: (val) => {
+            const date = new Date(val);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+          },
+      },
+      {
         name: "title",
         label: "НАЗВАНИЕ",
         field: "title",
@@ -173,11 +187,33 @@ export default defineComponent({
         sortable: true,
       },
       {
-        name: "status",
+        name: "ticketStatusId",
         label: "СТАТУС",
-        field: "status",
+        field: "ticketStatusId",
         align: "left",
         sortable: true,
+        format: (val)=> {
+          let status = "";
+          switch (val) {
+              case 1:
+                  status = "новый";
+                  break;
+              case 2:
+                  status = "открыт";
+                  break;
+              case 3:
+                  status = "закрыт";
+                  break;
+              case 4:
+                  status = "восстановлен";
+                  break;
+              default:
+                  status = "неизвестный статус";
+                  break;
+          }
+
+          return status;
+        }
       },
     ];
 
@@ -244,8 +280,8 @@ export default defineComponent({
           // offset: 0
         },
       });
-
-      // Если ошибка получения списка пользователей
+      console.log(response);
+      // Если ошибка получения списка тикетов
       if (response.type === "error") {
         this.$q.dialogStore.set({
           show: true,
@@ -256,7 +292,7 @@ export default defineComponent({
           },
         });
       }
-      // Если получен список пользователей
+      // Если получен список тикетов
       else if (response.type === "answer") {
         this.$q.appStore.set({ticket: response.args.rows});
         this.rows = response.args.rows;

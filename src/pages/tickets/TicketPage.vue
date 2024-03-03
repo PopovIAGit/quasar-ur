@@ -81,40 +81,47 @@
         </q-card>
       </div>
       <!--Работа с открытым тикетом-->
-      <div class="q-gutter-md q-pb-md" v-else-if="selectTicketID != null">
+      <div class="q-pb-md" v-else-if="selectTicketID != null">
         <q-card>
           <q-card-section>
-            <div class="row">
-              <div class="col-lg-9 col-md-9 col-xs-12 q-gutter-md q-pb-md ">
-                <h4>ТИКЕТ</h4>
+            <div class="row justify-between">
+              <div class="col-lg-8 col-md-8 col-xs-12 ">
+
+                <div class="q-dialog__title">ТИКЕТ</div>
                 <p>{{ selectTicketID.title }}</p>
-                <h4>Текст тикета</h4>
+                <div class="q-dialog__title">Текст тикета</div>
                 <p>{{ selectTicketID.description }}</p>
+
               </div>
-              <div class="row col-lg-3 col-md-3 col-xs-12 q-gutter-md q-pb-md items-stretch">
-                <div class="row col-lg-9 col-md-9 col-xs-12 justify-end">
-                  <div class="col-lg-6 col-md-8 col-xs-12">
-                    <h4>Статус тикета</h4>
+              <div class="col-grow">
+                <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
+                  <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
+                    Статус
                   </div>
-                  <div class="col-lg-6 col-md-4 col-xs-12">
-                    <q-chip :color="colorStatus" text-color="white">
-                      {{ textStatus }}
-                    </q-chip>
+                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
+                    {{ textStatus }}
                   </div>
                 </div>
-                <div class="col-lg-9 col-md-9 col-xs-12">
-                  <h4>Назначеный опертатор</h4>
+                <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
+                  <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
+                    Опертатор
+                  </div>
+                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
+                    заглушка
+                  </div>
                 </div>
-                <div class="col-lg-9 col-md-9 col-xs-12">
+                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12">
                   <q-btn
                     unelevated
                     no-caps
                     color="primary"
                     label="открыть чат"
+                    style="width: 100%"
+                    to="/chat"
                   />
                 </div>
-                <div class="col-lg-9 col-md-9 col-xs-12">
-                  <h4>Файлы</h4>
+                <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
+                  <div class="q-dialog__title">Файлы</div>
                   <q-list separator>
                     <q-item
                       v-for="(option, index) in options"
@@ -183,7 +190,7 @@ export default defineComponent({
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
             this.colorStatus = "positive";
-            this.textStatus = "Ноаый";
+            this.textStatus = "Новый";
             break;
           case 2:
             this.colorStatus = "negative";

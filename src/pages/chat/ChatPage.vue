@@ -11,15 +11,16 @@
 
       <h1>Чат</h1>
 
-      <div class="q-gutter-md q-pb-md">
-        <q-card>
-          <q-card-section class="row q-dialog__header">
-            <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
-            <div class="text-grey">{{ User.name + " " + User.surname }}</div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <!--    <q-infinite-scroll @load="onLoad" :offset="250" reverse>
+      <div class="q-gutter-md q-pb-md row justify-center">
+        <div style="max-width: 800px;" class="col-9">
+          <q-card style="min-width: 320px;">
+            <q-card-section class="row q-dialog__header">
+              <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
+              <div class="text-grey">{{ User.name + " " + User.surname }}</div>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <!--    <q-infinite-scroll @load="onLoad" :offset="250" reverse>
                   <q-chat-message
                       v-for="(message,key) in messages"
                       :key="key"
@@ -31,49 +32,52 @@
                     />
             </q-infinite-scroll>-->
 
-
-
-
-              <q-scroll-area style="height: 400px; max-height: 750px;" ref="scrollAreaRef">
-              <div class="row justify-evenly q-pa-md">
-                <div style="width: 100%; max-width: 800px">
-                  <q-chat-message
-                      v-for="(message) in messages"
+              <q-scroll-area
+                style="height: 400px; max-height: 750px"
+                ref="scrollAreaRef"
+              >
+                <div class="row justify-evenly q-pa-md">
+                  <div style="width: 100%; max-width: 800px">
+                    <q-chat-message
+                      v-for="message in messages"
                       :key="message.id"
                       :name="message.ownerId.toString()"
                       :text="[message.content]"
                       :sent="
-                        message.ownerId == this.$q.appStore.user.id ? true : false
+                        message.ownerId == this.$q.appStore.user.id
+                          ? true
+                          : false
                       "
-
                     />
+                  </div>
                 </div>
-              </div>
-            </q-scroll-area>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <q-input
-              outlined
-              dense
-              bg-color="grey-3"
-              v-model="msgDataToSend"
-              label="Напишите сообщение"
-              @keyup.enter="sendMsg"
-            >
-              <template v-slot:after>
-                <q-btn round dense flat icon="send" @click="sendMsg" />
-              </template>
-            </q-input>
-          </q-card-section>
-        </q-card>
+              </q-scroll-area>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <q-input
+                outlined
+                dense
+                autogrow
+                bg-color="grey-3"
+                v-model="msgDataToSend"
+                label="Напишите сообщение"
+                @keyup.enter="sendMsg"
+              >
+                <template v-slot:after>
+                  <q-btn round dense flat icon="send" @click="sendMsg" />
+                </template>
+              </q-input>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import { defineComponent, ref,nextTick  } from "vue";
+import { defineComponent, ref, nextTick } from "vue";
 import { useRoute } from "vue-router";
 
 import UserClass from "src/utils/classes/User.Class";
@@ -102,7 +106,7 @@ export default defineComponent({
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "message") {
         // this.messages.push(data.args.args);
-         this.addNewMessage(data.args.args)
+        this.addNewMessage(data.args.args);
         //this.newMessages.push(data.args.args);
       }
     });
@@ -141,8 +145,8 @@ export default defineComponent({
       }
 
       await nextTick(() => {
-      this.scrollToEnd();
-    });
+        this.scrollToEnd();
+      });
 
       this.ready = true;
       this.loading = false;
@@ -167,7 +171,7 @@ export default defineComponent({
       } else if (response.type === "answer") {
         //this.messages.push(response.args);
         this.msgDataToSend = "";
-        this.addNewMessage(response.args)
+        this.addNewMessage(response.args);
       }
     },
 
@@ -179,7 +183,6 @@ export default defineComponent({
     },
 
     onLoad(index, done) {
-
       // if (this.newMessages.length !=0)
       // {
       //   console.log("this.newMessages",this.newMessages);
@@ -188,13 +191,13 @@ export default defineComponent({
       //   done();
       // }
     },
-    async  addNewMessage(message) {
-    this.messages.push(message);
+    async addNewMessage(message) {
+      this.messages.push(message);
 
-    await nextTick(() => {
-      this.scrollToEnd();
-    });
-  },
+      await nextTick(() => {
+        this.scrollToEnd();
+      });
+    },
   },
   watch: {
     messages: {

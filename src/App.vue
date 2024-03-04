@@ -43,10 +43,12 @@ export default defineComponent({
       attachRequestId: (data, requestId) => Object.assign({id: requestId}, data),
       extractRequestId: data => data && data.id
     });
+
     // Пробуем подключиться к серверу
     try {
       await this.$q.ws.open();
     }
+
     // Если ошибка подключения, то сообщаем и прерываем дальнейшее выполнение
     catch (e) {
       console.log(e);
@@ -215,14 +217,14 @@ export default defineComponent({
     //   method: 'getList',
     // });
 
-    this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'service',
-      method: 'sort',
-      args: {
-        ids: [7, 4, 3]
-      }
-    });
+    // this.$q.ws.sendRequest({
+    //   type: 'query',
+    //   iface: 'service',
+    //   method: 'sort',
+    //   args: {
+    //     ids: [7, 4, 3]
+    //   }
+    // });
 
     // this.$q.ws.sendRequest({
     //   type: 'query',

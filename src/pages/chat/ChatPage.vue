@@ -13,25 +13,43 @@
 
       <div class="q-gutter-md q-pb-md">
         <q-card>
-          <q-card-section class="row">
-            <q-btn icon="chevron_left" dense flat to="/" />
+          <q-card-section class="row q-dialog__header">
+            <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
             <div class="text-grey">{{ User.name + " " + User.surname }}</div>
           </q-card-section>
           <q-separator />
           <q-card-section>
-            <q-infinite-scroll @load="onLoad" :offset="250">
-              <div ref="messageContainer" class="message-container">
-                <q-chat-message
-                  v-for="(message, key) in messages"
-                  :key="key"
-                  :name="message.ownerId"
-                  :text="[message.content]"
-                  :sent="
-                    message.ownerId == this.$q.appStore.user.id ? true : false
-                  "
-                />
+            <!--    <q-infinite-scroll @load="onLoad" :offset="250" reverse>
+                  <q-chat-message
+                      v-for="(message,key) in messages"
+                      :key="key"
+                      :name="message.ownerId.toString()"
+                      :text="[message.content]"
+                      :sent="
+                        message.ownerId == this.$q.appStore.user.id ? true : false
+                      "
+                    />
+            </q-infinite-scroll>-->
+
+
+
+
+              <q-scroll-area style="height: 400px; max-height: 750px;" ref="scrollAreaRef">
+              <div class="row justify-evenly q-pa-md">
+                <div style="width: 100%; max-width: 800px">
+                  <q-chat-message
+                      v-for="(message) in messages"
+                      :key="message.id"
+                      :name="message.ownerId.toString()"
+                      :text="[message.content]"
+                      :sent="
+                        message.ownerId == this.$q.appStore.user.id ? true : false
+                      "
+
+                    />
+                </div>
               </div>
-            </q-infinite-scroll>
+            </q-scroll-area>
           </q-card-section>
           <q-separator />
           <q-card-section>
@@ -55,7 +73,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref,nextTick  } from "vue";
 import { useRoute } from "vue-router";
 
 import UserClass from "src/utils/classes/User.Class";
@@ -64,6 +82,7 @@ export default defineComponent({
   name: "ChatPage",
 
   setup() {
+    const items = ref([{}, {}, {}, {}, {}, {}, {}]);
     return {
       ready: ref(true),
       loading: ref(false),
@@ -71,25 +90,25 @@ export default defineComponent({
       User: ref(null),
       messages: ref([]),
       newMessages: ref([]),
+      scrollAreaRef: ref(null),
+      position: ref(500),
+      items,
     };
   },
 
   async beforeMount() {
     await this.getData();
 
-    await this.$q.ws.onUnpackedMessage.addListener(data => {
-
-      if (data.type === 'notice' && data.args.action === "message") {
-        console.log('Новое сообщение:', data.args.args);
-        this.newMessages.push(data);
+    await this.$q.ws.onUnpackedMessage.addListener((data) => {
+      if (data.type === "notice" && data.args.action === "message") {
+        // this.messages.push(data.args.args);
+         this.addNewMessage(data.args.args)
+        //this.newMessages.push(data.args.args);
       }
     });
-
   },
 
-  async mounted(){
-
-  },
+  mounted() {},
 
   methods: {
     async getData(props) {
@@ -118,8 +137,13 @@ export default defineComponent({
         this.messages = response.args.rows.filter(
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
-
+        // this.messages.sort((a, b) => b.id - a.id);
       }
+
+      await nextTick(() => {
+      this.scrollToEnd();
+    });
+
       this.ready = true;
       this.loading = false;
     },
@@ -132,43 +156,53 @@ export default defineComponent({
         args: {
           message: {
             ownerId: this.$q.appStore.user.id,
-            content: this.msgDataToSend.toString(),
+            content: this.msgDataToSend,
             ticketId: this.$q.appStore.selectedTicket.id,
             sentDateTime: new Date(),
           },
         },
       });
       if (response.type === "error") {
-
+        console.error("error", response.args);
       } else if (response.type === "answer") {
-        this.newMessages.push(response.args)
-        console.log(response.args);
+        //this.messages.push(response.args);
         this.msgDataToSend = "";
+        this.addNewMessage(response.args)
       }
+    },
+
+    scrollToEnd() {
+      const vm = this;
+      setTimeout(function () {
+        vm.scrollAreaRef.setScrollPercentage("vertical", 1);
+      }, 100);
     },
 
     onLoad(index, done) {
 
-                // Логика загрузки новых данных и добавления в messages
-                // Например, получение новых сообщений и добавление их в messages
+      // if (this.newMessages.length !=0)
+      // {
+      //   console.log("this.newMessages",this.newMessages);
+      //   this.messages.push(this.newMessages);
+      //   this.newMessages.length = 0;
+      //   done();
+      // }
+    },
+    async  addNewMessage(message) {
+    this.messages.push(message);
 
-                //  this.messages = [...this.messages, ...this.newMessages];
-                if (this.newMessages.length  != 0) {
-                    console.log(this.newMessages);
-                //  this.messages.push(this.newMessages);
-                  this.newMessages.length = 0;
-                }
-
-                // Прокрутка контейнера сообщений вниз, если высота содержимого превышает высоту контейнера
-                done();
+    await nextTick(() => {
+      this.scrollToEnd();
+    });
+  },
+  },
+  watch: {
+    messages: {
+      handler(val, oldVal) {
+        // this.scrollToEnd();
+      },
+      deep: true,
     },
   },
 });
 </script>
-<style scoped>
-.message-container {
-    max-height: 600px; /* Замените на нужную вам высоту контейнера */
-
-    overflow-y: auto;
-}
-</style>

@@ -183,10 +183,25 @@ export default defineComponent({
       this.selectTicketID = this.$q.appStore.selectedTicket;
 
       if (this.selectTicketID == null) {
+
+        this.$q.appStore.set({numOfMsgInTicket:0})
+
         if (this.$q.appStore.service != null) {
           this.titles = this.$q.appStore.service.map((obj) => obj.title);
         }
       } else {
+
+        const response = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "message",
+        method: "getList",
+        args: {
+          limit: 0,
+            },
+          });
+
+        this.$q.appStore.set({numOfMsgInTicket:response.args.count})
+
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
             this.colorStatus = "positive";

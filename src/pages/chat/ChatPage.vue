@@ -12,45 +12,45 @@
       <h1>Чат</h1>
 
       <div class="q-gutter-md q-pb-md row justify-center">
-        <div style="max-width: 800px;" class="col-9">
-          <q-card style="min-width: 320px;">
+        <div style="max-width: 800px" class="col-9">
+          <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <!--    <q-infinite-scroll @load="onLoad" :offset="250" reverse>
-                  <q-chat-message
-                      v-for="(message,key) in messages"
-                      :key="key"
-                      :name="message.ownerId.toString()"
-                      :text="[message.content]"
-                      :sent="
-                        message.ownerId == this.$q.appStore.user.id ? true : false
-                      "
-                    />
-            </q-infinite-scroll>-->
-
               <q-scroll-area
                 style="height: 400px; max-height: 750px"
                 ref="scrollAreaRef"
               >
-                <div class="row justify-evenly q-pa-md">
-                  <div style="width: 100%; max-width: 800px">
-                    <q-chat-message
-                      v-for="message in messages"
-                      :key="message.id"
-                      :name="message.ownerId.toString()"
-                      :text="[message.content]"
-                      :sent="
-                        message.ownerId == this.$q.appStore.user.id
-                          ? true
-                          : false
-                      "
-                    />
+                <q-infinite-scroll
+                  @load="onLoad"
+                  :offset="250"
+                  reverse
+                  ref="infinitescrollAreaRef"
+                >
+                  <div class="row justify-evenly q-pa-md">
+                    <div style="width: 100%; max-width: 800px">
+                      <q-chat-message
+                        v-for="message in messages"
+                        :key="message.id"
+                        :name="
+                          message.ownerId == this.User.id
+                            ? this.User.name
+                            : 'Заменить на имя'
+                        "
+                        :text="[message.content]"
+                        :sent="message.ownerId == this.User.id ? true : false"
+                      />
+                    </div>
                   </div>
-                </div>
+                  <template v-slot:loading>
+                    <div class="row justify-center q-my-md">
+                      <q-spinner-dots color="primary" size="40px" />
+                    </div>
+                  </template>
+                </q-infinite-scroll>
               </q-scroll-area>
             </q-card-section>
             <q-separator />
@@ -86,7 +86,6 @@ export default defineComponent({
   name: "ChatPage",
 
   setup() {
-    const items = ref([{}, {}, {}, {}, {}, {}, {}]);
     return {
       ready: ref(true),
       loading: ref(false),
@@ -95,8 +94,8 @@ export default defineComponent({
       messages: ref([]),
       newMessages: ref([]),
       scrollAreaRef: ref(null),
+      infinitescrollAreaRef: ref(null),
       position: ref(500),
-      items,
     };
   },
 
@@ -119,11 +118,15 @@ export default defineComponent({
       if (this.loading) return;
       this.loading = true;
       this.User = this.$q.appStore.user;
+
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "message",
         method: "getList",
-        args: {},
+        args: {
+          limit: 10,
+          offset: this.$q.appStore.numOfMsgInTicket - 10,
+        },
       });
 
       if (response.type === "error") {
@@ -141,7 +144,6 @@ export default defineComponent({
         this.messages = response.args.rows.filter(
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
-        // this.messages.sort((a, b) => b.id - a.id);
       }
 
       await nextTick(() => {
@@ -159,7 +161,7 @@ export default defineComponent({
         method: "send",
         args: {
           message: {
-            ownerId: this.$q.appStore.user.id,
+            ownerId: this.User.id,
             content: this.msgDataToSend,
             ticketId: this.$q.appStore.selectedTicket.id,
             sentDateTime: new Date(),
@@ -182,14 +184,44 @@ export default defineComponent({
       }, 100);
     },
 
-    onLoad(index, done) {
-      // if (this.newMessages.length !=0)
-      // {
-      //   console.log("this.newMessages",this.newMessages);
-      //   this.messages.push(this.newMessages);
-      //   this.newMessages.length = 0;
-      //   done();
-      // }
+    async onLoad(index, done) {
+      await setTimeout(() => {
+        if (index > 1) {
+          const n = 10; // Ваше изначальное число, которое может быть заменено
+          const ost = this.$q.appStore.numOfMsgInTicket - n * index; // Рассчитываем динамический лимит
+          console.log("!!!", this.scrollAreaRef.getScrollPercentage());
+          let dynamicLimit = 0;
+
+          if (ost > 0) {
+            this.infinitescrollAreaRef.resume();
+            if (ost < n) {
+              dynamicLimit = this.$q.appStore.numOfMsgInTicket - n * index;
+            } else dynamicLimit = n;
+          } else {
+            this.infinitescrollAreaRef.stop();
+          }
+          const response = this.$q.ws.sendRequest({
+            type: "query",
+            iface: "message",
+            method: "getList",
+            args: {
+              limit: dynamicLimit,
+              offset: this.$q.appStore.numOfMsgInTicket - n * index,
+            },
+          });
+
+          response.then((data) => {
+            if (data.args.rows.length > 0) {
+              let tmpArr = data.args.rows.concat(this.messages);
+              this.messages = tmpArr;
+            } else done();
+          });
+
+          done();
+        } else {
+          done();
+        }
+      }, 1000);
     },
     async addNewMessage(message) {
       this.messages.push(message);

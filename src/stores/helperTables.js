@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 export const useHelperTablesStore = defineStore('helperTables', {
   state: () => ({
     roles: [],
-    rolesByID : {}
+    rolesByID : {},
+    themeTitles: [],
   }),
   getters: {},
   actions: {

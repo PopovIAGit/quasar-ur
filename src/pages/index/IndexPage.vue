@@ -128,6 +128,10 @@
     :dialog="dialogThemeAddUpdate"
     @onSave="onThemeSave"
   />
+  <dialog-theme-add-update
+    :dialog="dialogThemeAddUpdate"
+    @onSave="onThemeSave"
+  />
 </template>
 
 <script>
@@ -138,8 +142,12 @@ import { useRoute } from "vue-router";
 import UserClass from "src/utils/classes/User.Class";
 /// класс работы с темой
 import ThemeClass from "src/utils/classes/Theme.Class";
+/// класс работы с сервисом
+import ServiceClass from "src/utils/classes/Service.Class";
 /// диалоговое окно создания/изменения темы
 import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate';
+/// диалоговое окно создания/изменения сервиса
+import ServiceThemeAddUpdate from 'components/dialogs/Theme/DialogServiceAddUpdate';
 /// компонент отображения списка тема с вложенностью
 import ThemeItem from "components/ThemeItem.vue";
 
@@ -147,13 +155,16 @@ export default defineComponent({
   name: "IndexPage",
   components: {
     ThemeItem,
-    DialogThemeAddUpdate
+    DialogThemeAddUpdate,
+    ServiceThemeAddUpdate
   },
   setup() {
     const User = new UserClass();
     const Theme = new ThemeClass();
+    const Service = new ServiceClass();
 
     const dialogThemeAddUpdateDefault = Theme.dialogAddUpdateDefault;
+    const dialogServiceAddUpdateDefault = Service.dialogAddUpdateDefault;
 
     /** Columns */
     const columns = [
@@ -240,15 +251,35 @@ export default defineComponent({
       selectStatus: ref("Все"),
       optionsStatus: ["Все", "Новый", "Открыт", "Зыкрыт", "Восстановлен"],
       User,
+      Theme,
       themeList,
       topLevelThemeList,
       dialogThemeAddUpdateDefault,
       dialogThemeAddUpdate: ref({}),
+      dialogServiceAddUpdateDefault,
+      dialogServiceAddUpdate: ref({}),
     };
   },
 
   async beforeMount() {
     await this.getData();
+
+    // получили список тем
+      const resultTakeTheme=  await this.Theme.takeTheme();
+      if (!resultTakeTheme.success) {
+        if (resultTakeTheme.message) {
+          this.$q.dialogStore.set({
+            show: true,
+            title: 'Ошибка',
+            html: resultTakeTheme.message,
+            ok: {
+              color: 'red'
+            }
+          });
+        }
+        window['splash-screen'].classList.add('ready', 'error');
+        return;
+      }
   },
 
   methods: {

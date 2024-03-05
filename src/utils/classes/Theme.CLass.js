@@ -33,16 +33,16 @@ class Theme {
         min: 2,
         max: 300,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
+          return val && val.length >= 2 && val.length <= 300;
         },
       },
       groupId: {
         label: "Родительская тема",
         type: "number",
         default: undefined,
-        required: false,
+        required: true,
         rules: (val) => {
-          return (typeof val === "number" && val > 0) || val == null;
+          return (typeof val === "number" && val > 0) || val === null;
         },
       },
     };
@@ -147,6 +147,36 @@ class Theme {
             theme,
           };
         }
+      }
+    }
+  }
+
+  async takeTheme(){
+    const responseTheme = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "service",
+      method: "getGroupList",
+      args: {},
+    });
+    // Если ошибка получения getGroupList
+    if (responseTheme.type === 'error') {
+      return {
+        success: false,
+        message: '<div>Ошибка получения getGroupList</div><div class="text-red">' + (response.args.message || 'Ошибка') + '</div>'
+      }
+    }
+    // Если получен ответ от getGroupList
+    else if (responseTheme.type === 'answer') {
+      const groupList = responseTheme.args.rows;
+      const themeTitles = groupList.map(obj => obj.title);
+
+      this.$q.helperTablesStore.set({
+        themeTitles
+      });
+
+      console.log("this.$q.helperTablesStore",this.$q.helperTablesStore.themeTitles);
+      return {
+        success: true
       }
     }
   }

@@ -8,6 +8,7 @@ export const useAppStore = defineStore('app', {
     service: [],
     ticket:[],
     selectedTicket: null,
+    numOfMsgInTicket: null
   }),
   getters: {},
   actions: {

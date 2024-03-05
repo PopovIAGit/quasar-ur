@@ -94,10 +94,10 @@
 <script>
 import { defineComponent, ref } from "vue";
 
-import ThemeClass from "src/utils/classes/Theme.Class";
+import ServiceClass from "src/utils/classes/Service.Class";
 
 export default defineComponent({
-  name: "DialogThemeAddUpdate",
+  name: "DialogServiceAddUpdate",
 
   props: ["dialog"],
 
@@ -106,9 +106,9 @@ export default defineComponent({
   },
 
   setup() {
-    const Theme = new ThemeClass();
+    const Service = new ServiceClass();
     return {
-      Theme,
+      Service,
     };
   },
 
@@ -119,7 +119,7 @@ export default defineComponent({
       const tmp =
      [
       { id: null, name: 'Без родительской темы' },
-      ...this.$q.appStore.theme.map(item => ({ id: item.id, name: item.title }))
+      ...this.$q.appStore.service.map(item => ({ id: item.id, name: item.title }))
 
     ];
 
@@ -133,7 +133,7 @@ export default defineComponent({
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Theme.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
+      const result = await this.Service.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
         console.log("this.dialog.data",result);
       this.processing = false;
       this.$emit('onSave', result);

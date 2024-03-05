@@ -298,7 +298,6 @@ class User {
       iface: 'person',
       method: 'getRoleList',
     });
-    console.log("role",responseRoles);
     // Если ошибка получения списка ролей
     if (responseRoles.type === 'error') {
       return {

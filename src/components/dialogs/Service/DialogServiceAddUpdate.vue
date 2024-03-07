@@ -12,25 +12,25 @@
           <!-- Название -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Theme.fields.title.label }}
-              {{ Theme.fields.title.required ? "*" : "" }}
+              {{ Service.fields.title.label }}
+              {{ Service.fields.title.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.title"
-              :min="Theme.fields.title.min"
-              :max="Theme.fields.title.max"
-              :required="Theme.fields.title.required"
-              :rules="[(val) => Theme.fields.title.rules(val)]"
+              :min="Service.fields.title.min"
+              :max="Service.fields.title.max"
+              :required="Service.fields.title.required"
+              :rules="[(val) => Service.fields.title.rules(val)]"
             />
           </div>
           <!-- Родительская тема :options="this.$q.helperTablesStore.themeTitles" -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Theme.fields.groupId.label }}
-              {{ Theme.fields.groupId.required ? "*" : "" }}
+              {{ Service.fields.groupId.label }}
+              {{ Service.fields.groupId.required ? "*" : "" }}
             </div>
             <q-select
               outlined
@@ -55,18 +55,18 @@
           <!-- Описание -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Theme.fields.description.label }}
-              {{ Theme.fields.description.required ? "*" : "" }}
+              {{ Service.fields.description.label }}
+              {{ Service.fields.description.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.description"
-              :min="Theme.fields.description.min"
-              :max="Theme.fields.description.max"
-              :required="Theme.fields.description.required"
-              :rules="[(val) => Theme.fields.description.rules(val)]"
+              :min="Service.fields.description.min"
+              :max="Service.fields.description.max"
+              :required="Service.fields.description.required"
+              :rules="[(val) => Service.fields.description.rules(val)]"
             />
           </div>
         </q-card-section>
@@ -117,10 +117,8 @@ export default defineComponent({
     optionsWithTitles() {
 
       const tmp =
-     [
-      { id: null, name: 'Без родительской темы' },
-      ...this.$q.appStore.service.map(item => ({ id: item.id, name: item.title }))
-
+    [
+      this.$q.appStore.service.map(item => ({ id: item.id, name: item.title }))
     ];
 
      console.log(tmp);

@@ -22,6 +22,7 @@
                   no-caps
                   color="primary"
                   label="Создать услугу"
+                  @click="showDialogServiceAddUpdate"
                 />
               </div>
               <q-list>
@@ -128,9 +129,9 @@
     :dialog="dialogThemeAddUpdate"
     @onSave="onThemeSave"
   />
-  <dialog-theme-add-update
-    :dialog="dialogThemeAddUpdate"
-    @onSave="onThemeSave"
+  <dialogServiceAddUpdate
+    :dialog="dialogServiceAddUpdate"
+    @onSave="onServiceSave"
   />
 </template>
 
@@ -147,7 +148,7 @@ import ServiceClass from "src/utils/classes/Service.Class";
 /// диалоговое окно создания/изменения темы
 import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate';
 /// диалоговое окно создания/изменения сервиса
-import ServiceThemeAddUpdate from 'components/dialogs/Theme/DialogServiceAddUpdate';
+import ServiceThemeAddUpdate from 'components/dialogs/Service/DialogServiceAddUpdate';
 /// компонент отображения списка тема с вложенностью
 import ThemeItem from "components/ThemeItem.vue";
 
@@ -240,6 +241,7 @@ export default defineComponent({
 
     const themeList = null;
     const topLevelThemeList = null;
+    const serviceList = null;
 
     return {
       rows: ref([]),
@@ -252,7 +254,9 @@ export default defineComponent({
       optionsStatus: ["Все", "Новый", "Открыт", "Зыкрыт", "Восстановлен"],
       User,
       Theme,
+      Service,
       themeList,
+      serviceList,
       topLevelThemeList,
       dialogThemeAddUpdateDefault,
       dialogThemeAddUpdate: ref({}),
@@ -378,7 +382,7 @@ export default defineComponent({
         });
       } else if (responseServece.type === "answer") {
         this.$q.appStore.set({service: responseServece.args.rows});
-        this.themeList = responseServece.args.rows;
+        this.serviceList = responseServece.args.rows;
       }
 
       this.ready = true;
@@ -417,6 +421,44 @@ export default defineComponent({
           title: 'Тема создана'
         });
         this.dialogThemeAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    showDialogServiceAddUpdate () {
+
+
+      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const data = {};
+      Object.keys(this.dialogServiceAddUpdateDefault.data).forEach(key => {
+        if (!excludeFields.includes(key)){
+          data[key] = this.dialogServiceAddUpdateDefault.data[key];
+        }
+      });
+      this.dialogServiceAddUpdate = {
+        show: true,
+        method: 'add',
+        onHide: () => this.dialogServiceAddUpdate = structuredClone(this.dialogServiceAddUpdateDefault),
+        data
+      };
+      console.log(this.dialogServiceAddUpdate);
+    },
+    onServiceSave (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success && result.user) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Сервис создан'
+        });
+        this.dialogServiceAddUpdate.show = false;
         this.getData();
       }
     },

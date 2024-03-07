@@ -152,4 +152,4 @@ class Service {
   }
 }
 
-export default Tiket;
+export default Service;

@@ -37,7 +37,7 @@ class Theme {
         },
       },
       groupId: {
-        label: "Родительская тема",
+        label: "Родительская группа",
         type: "number",
         default: undefined,
         required: true,

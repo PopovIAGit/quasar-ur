@@ -5,7 +5,7 @@
       <div
         class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width" >
         <!-- для пользователей   -->
-        <div class="q-pa-sm col-lg-3 col-md-12 col-xs-12" v-if="this.$q.appStore.user.roleId < 3">
+        <div class="q-pa-sm col-lg-4 col-md-12 col-xs-12" v-if="this.$q.appStore.user.roleId < 3">
           <q-card>
             <q-card-section>
               <h4>ТЕМЫ</h4>
@@ -14,7 +14,7 @@
                   unelevated
                   no-caps
                   color="primary"
-                  label="Создать тему"
+                  label="Создать группу"
                   @click="showDialogThemeAddUpdate"
                 />
                 <q-btn
@@ -29,7 +29,7 @@
                 <q-expansion-item
                   expand-separator
                   label="Тема"
-                  caption="Выберете тему обращения"
+                  caption="Выберете сервис обращения"
                 >
                 <ThemeItem
                   v-for="child in topLevelThemeList"
@@ -44,7 +44,7 @@
           </q-card>
         </div>
         <!-- для всех-->
-        <div class="q-pa-sm col-lg-9 col-md-12 col-xs-12 col-grow">
+        <div class="q-pa-sm col-lg-8 col-md-12 col-xs-12 col-grow">
           <q-table
             v-if="ready"
             class="table--users"

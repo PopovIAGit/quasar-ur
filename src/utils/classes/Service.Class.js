@@ -37,7 +37,7 @@ class Service {
         },
       },
       groupId: {
-        label: "id группы",
+        label: "Родительская группа",
         type: "number",
         default: undefined,
         required: true,

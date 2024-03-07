@@ -4,7 +4,7 @@
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
-            <div class="q-dialog__title">Добавить тему</div>
+            <div class="q-dialog__title">Добавить группу</div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>

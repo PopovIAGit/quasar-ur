@@ -21,6 +21,7 @@
         :grid="$q.screen.lt.md"
         color="primary"
         :rows="rows"
+        @row-dblclick="handleRowDoubleClick"
         :columns="columns"
         row-key="id"
         rows-per-page-label="Количество на странице"
@@ -302,7 +303,15 @@ export default defineComponent({
         this.dialogUserAddUpdate.show = false;
         this.getData();
       }
-    }
+    },
+    handleRowDoubleClick(event, row) {
+    // Получите данные строки и выполните переход на другую страницу
+    // this.$q.appStore.set({
+    //   selectedTicket: row
+    // });
+    // this.$router.push({ path: '/tickets'});
+    console.log(row);
+  },
   }
 })
 </script>

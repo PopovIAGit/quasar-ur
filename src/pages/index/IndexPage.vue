@@ -129,8 +129,8 @@
     :dialog="dialogThemeAddUpdate"
     @onSave="onThemeSave"
   />
-  <dialogServiceAddUpdate
-    :dialog="dialogServiceAddUpdate"
+  <dialog-service-add-update
+  :dialog="dialogServiceAddUpdate"
     @onSave="onServiceSave"
   />
 </template>
@@ -151,13 +151,15 @@ import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate'
 import ServiceThemeAddUpdate from 'components/dialogs/Service/DialogServiceAddUpdate';
 /// компонент отображения списка тема с вложенностью
 import ThemeItem from "components/ThemeItem.vue";
+import DialogServiceAddUpdate from "src/components/dialogs/Service/DialogServiceAddUpdate.vue";
 
 export default defineComponent({
   name: "IndexPage",
   components: {
     ThemeItem,
     DialogThemeAddUpdate,
-    ServiceThemeAddUpdate
+    ServiceThemeAddUpdate,
+    DialogServiceAddUpdate
   },
   setup() {
     const User = new UserClass();
@@ -425,8 +427,6 @@ export default defineComponent({
       }
     },
     showDialogServiceAddUpdate () {
-
-
       const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
       const data = {};
       Object.keys(this.dialogServiceAddUpdateDefault.data).forEach(key => {
@@ -440,7 +440,6 @@ export default defineComponent({
         onHide: () => this.dialogServiceAddUpdate = structuredClone(this.dialogServiceAddUpdateDefault),
         data
       };
-      console.log(this.dialogServiceAddUpdate);
     },
     onServiceSave (result) {
       if (!result.success) {

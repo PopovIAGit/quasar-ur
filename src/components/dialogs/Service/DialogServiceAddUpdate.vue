@@ -37,7 +37,7 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.groupId"
-              :options= "optionsWithTitles"
+              :options= "this.$q.appStore.theme.map(item => ({ id: item.id, name: item.title }))"
               option-label="name"
               option-value="id"
               map-options

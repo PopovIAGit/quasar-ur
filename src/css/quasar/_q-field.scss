@@ -6,10 +6,18 @@
         &:before, &:hover:before { border-color:#D1D5DB; }
         &:after { border-width:1px !important; }
       }
+      &__native { line-height:initial; }
     }
   }
   &__marginal { height:initial; min-height:42px; font-size:21px; }
   &--auto-height {
     .q-field__control, .q-field__native { min-height:42px; }
   }
+  &--dense {
+    .q-field {
+      &__control, &__marginal { height:initial; min-height:34px; }
+      &__control { padding:0 12px; }
+    }
+  }
+  &__marginal > * + * { margin-left:7px; }
 }

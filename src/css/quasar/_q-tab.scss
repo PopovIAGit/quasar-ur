@@ -1,4 +1,6 @@
 
 .q-tab {
   &--inactive { color:$dark; }
+  .q-focus-helper { display:none !important; }
+  &:hover { color:$primary !important; }
 }

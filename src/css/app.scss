@@ -6,6 +6,7 @@
 @import "base";
 
 // quasar components
+@import "quasar/q-badge";
 @import "quasar/q-breadcrumbs";
 @import "quasar/q-btn";
 @import "quasar/q-card";
@@ -23,6 +24,7 @@
 @import "quasar/q-toolbar";
 
 // app components
+@import "components/header";
 @import "components/drawer-left";
 @import "components/login-window";
 @import "components/tables";

@@ -18,17 +18,16 @@
       <q-table
         v-if="ready"
         class="table--users"
-        :grid="$q.screen.lt.md"
         color="primary"
         :rows="rows"
-        @row-dblclick="handleRowDoubleClick"
+@row-dblclick="handleRowDoubleClick"
         :columns="columns"
         row-key="id"
         rows-per-page-label="Количество на странице"
         :rows-per-page-options="[5]"
         binary-state-sort
         v-model:pagination="pagination"
-        @request="getData"
+        @request="getTableData"
         :loading="loading"
       >
         <template v-slot:top="props">
@@ -39,7 +38,7 @@
                 no-caps
                 class="text-primary"
                 align="left"
-                @update:model-value="value => this.getData()"
+                @update:model-value="() => this.getTableData(null, {page: 1})"
               >
                 <q-tab name="clients" label="Клиенты" :ripple="false"/>
                 <q-tab name="operators" label="Операторы" :ripple="false"/>
@@ -47,7 +46,30 @@
               </q-tabs>
             </div>
             <div class="table-top__assets">
-              <div class="left"/>
+              <div class="left">
+                <div class="search q-mr-lg">
+                  <q-input
+                    outlined
+                    dense
+                    bg-color="white"
+                    hide-bottom-space
+                    v-model="search"
+                    autocomplete="off"
+                  >
+                    <template v-slot:append>
+                      <q-icon v-if="search !== ''" name="close" @click="searchUser({reset: true})" class="cursor-pointer" />
+                      <q-icon name="search" @click="searchUser" class="cursor-pointer"/>
+                    </template>
+                  </q-input>
+                </div>
+                <div>
+                  <q-checkbox
+                    v-model="showDeleted"
+                    label="Показать удаленных"
+                    @update:model-value="() => this.getTableData(null, {page: 1, isDeleted: true})"
+                  />
+                </div>
+              </div>
               <div class="right">
                 <q-btn
                   unelevated dense
@@ -65,16 +87,21 @@
         <template v-slot:bottom="props">
           <div class="table-bottom">
             <div class="table-bottom__show">
-              <span>Показано:</span> <strong>1-5</strong> <span>из</span> <strong>9</strong>
+              <span>Показано: </span>
+              <strong>{{ ((pagination.page - 1) * pagination.rowsPerPage) + 1 }} - {{ ((pagination.page - 1) * pagination.rowsPerPage) + pagination.rowsPerPage }}</strong>
+              <span> из </span>
+              <strong>{{ pagination.rowsNumber }}</strong>
             </div>
             <div class="table-bottom__pagination">
               <q-pagination
+                v-if="pagesNumber > 1"
                 v-model="pagination.page"
                 color="primary"
                 :max="pagesNumber"
                 :max-pages="6"
                 direction-links
                 :ripple="false"
+                @update:model-value="() => getTableData()"
               />
             </div>
           </div>
@@ -89,7 +116,25 @@
         </template>
         <template v-slot:body-cell="props">
           <q-td :props="props" :data-field="props.col.name">
-            {{ props.value }}
+            <template v-if="props.col.name === 'active'">
+              <q-badge
+                :outline="!props.value"
+                rounded
+                :color="props.value ? 'positive' : 'grey-6'"
+                :label="props.value ? 'Активный' : 'Не активный'"
+              />
+            </template>
+            <template v-else-if="props.col.name === 'isDeleted'">
+              <q-badge
+                v-if="props.value"
+                rounded
+                color="negative"
+                label="Удалён"
+              />
+            </template>
+            <template v-else>
+              {{ props.value }}
+            </template>
           </q-td>
         </template>
       </q-table>
@@ -129,7 +174,7 @@ export default defineComponent({
     const columns = [
       { name:'id', label:'ID', field:'id', align:'left', sortable:true },
       {
-        name:'fio',
+        name:'surname',
         label:'Ф.И.О.',
         field: row => ((row.surname ? row.surname : '') + (row.name ? ' ' + row.name : '') + (row.patronymic ? ' ' + row.patronymic : '')).trim(),
         align:'left',
@@ -137,6 +182,8 @@ export default defineComponent({
       },
       { name:'phone', label:'Телефон', field: row => '+7' + row.phone, align:'left', sortable:true },
       { name:'email', label:'Email', field:'email', align:'left', sortable:true },
+      { name:'active', label:'Статус', field:'active', align:'right', sortable:true },
+      { name:'isDeleted', label:'Удалён', field:'isDeleted', align:'right', sortable:true }
     ];
 
     /** Page query */
@@ -148,16 +195,45 @@ export default defineComponent({
       descending: query.descending ? query.descending === 'true' : true,
       rowsNumber: 0
     };
+    let filter = ref({});
+    let tab = ref('clients');
+    if (query.filter) {
+      try {
+        filter = JSON.parse(query.filter);
+      }
+      catch (e) {}
+    }
+    if (filter.roleId) {
+      switch (filter.roleId) {
+        case 4:
+          tab = 'clients'
+          break;
+        case 3:
+          tab = 'operators'
+          break;
+        case 2:
+          tab = 'administrators'
+          break;
+        default:
+          tab = 'clients';
+          break;
+      }
+    }
+    let showDeleted = ref(!!filter.isDeleted);
+    const search = ref(query.search || '');
 
     return {
       // table
-      tab: ref('clients'),
+      tab,
       rows: ref([]),
       columns,
       pagination: ref(pagination),
       pagesNumber: ref(0),
       ready: ref(true),
       loading: ref(false),
+      search,
+      filter,
+      showDeleted,
 
       // user
       User,
@@ -167,23 +243,36 @@ export default defineComponent({
   },
 
   async beforeMount () {
-    await this.getData();
+    await this.getTableData();
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (to.fullPath === '/users') {
+      this.tab = 'clients';
+      this.pagination.page = 1;
+      this.pagination.sortBy = 'id';
+      this.pagination.descending = true;
+      this.search = '';
+      next();
+      setTimeout(() => {
+        this.getTableData();
+      }, 100);
+    }
+    else {
+      next();
+    }
   },
 
   methods: {
-    async getData (props) {
+    async getTableData (props, params) {
       if (this.loading) return;
-      this.loading = true;
+      this.loading = true
       let { page, rowsPerPage, sortBy, descending } = props ? props.pagination : this.pagination;
-      this.$router.replace({
-        query: {
-          rowsPerPage,
-          page,
-          sortBy,
-          descending
-        }
-      });
-      let roleId = undefined;
+      if (params && params.page) {
+        page = params.page;
+      }
+      // Дефолтная вкладка - клиенты
+      let roleId = 4;
       switch (this.tab) {
         case 'clients':
           roleId = 4;
@@ -196,6 +285,23 @@ export default defineComponent({
           break;
         default: break;
       }
+      let where = {
+        roleId,
+        isDeleted: this.showDeleted
+      };
+      if (params && params.where) {
+        where = params.where;
+      }
+      this.$router.replace({
+        query: {
+          rowsPerPage,
+          page,
+          sortBy,
+          descending,
+          filter: JSON.stringify(where),
+          search: this.$route.query.search,
+        }
+      });
       const response = await this.$q.ws.sendRequest({
         type: 'query',
         iface: 'person',
@@ -206,12 +312,8 @@ export default defineComponent({
           order: [
             [sortBy, descending ? 'DESC' : 'ASC']
           ],
-          where: {
-            roleId
-          },
-          // roleId
-          // limit: rowsPerPage,
-          // offset: 0
+          where,
+          search: this.$route.query.search
         }
       });
       // Если ошибка получения списка пользователей
@@ -301,17 +403,60 @@ export default defineComponent({
           title: 'Пользователь создан'
         });
         this.dialogUserAddUpdate.show = false;
-        this.getData();
+        // Переключаем вкладку на нужную роль
+        switch (result.user.roleId) {
+          case 4:
+            this.tab = 'clients'
+            break;
+          case 3:
+            this.tab = 'operators'
+            break;
+          case 2:
+            this.tab = 'administrators'
+            break;
+          default: break;
+        }
+        const where = {
+          roleId: result.user.roleId,
+          id: result.user.id
+        }
+        this.getTableData(null, {page: 1, where});
       }
     },
-    handleRowDoubleClick(event, row) {
-    // Получите данные строки и выполните переход на другую страницу
-    // this.$q.appStore.set({
-    //   selectedTicket: row
-    // });
-    // this.$router.push({ path: '/tickets'});
-    console.log(row);
-  },
+
+    searchUser (params) {
+      // Если сброс поиска или он пустой
+      if ((params && params.reset) || this.search === '') {
+        this.search = '';
+        if (this.$route.query.search) {
+          const query = structuredClone(this.$route.query);
+          delete query.search;
+          this.$router.push({
+            path: this.$route.path,
+            query: {
+              ...query
+            }
+          });
+          setTimeout(() => {
+            this.getTableData();
+          }, 100);
+        }
+        return;
+      }
+      // Если некорректное количество символов
+      if (this.search.length < 3) return;
+      // Если всё ок
+      this.$router.push({
+        path: this.$route.path,
+        query: {
+          ...this.$route.query,
+          search: this.search
+        },
+      });
+      setTimeout(() => {
+        this.getTableData();
+      }, 100);
+    }
   }
 })
 </script>

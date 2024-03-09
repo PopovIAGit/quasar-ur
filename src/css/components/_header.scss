@@ -1,0 +1,10 @@
+
+.q-header {
+  .q-toolbar {
+    &__title { display:flex; align-items:center;
+      a { display:inline-flex; align-items:center; text-decoration:none; color:$dark; font-weight:700;
+        svg { margin-right:8px; }
+      }
+    }
+  }
+}

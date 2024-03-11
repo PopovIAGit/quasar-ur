@@ -157,6 +157,7 @@
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
+          <q-btn unelevated color="negative" no-caps label="Удалить" @click="onRemove" v-if="dialog.method === 'update'"/>
           <q-btn class="q-btn--outline-muted" outline no-caps label="Отмена" v-close-popup/>
           <q-btn unelevated color="primary" no-caps type="submit" label="Сохранить"/>
         </q-card-section>
@@ -178,7 +179,8 @@ export default defineComponent({
   ],
 
   emits: {
-    onSave: null
+    onSave: null,
+    onRemove: null
   },
 
   setup () {
@@ -217,6 +219,14 @@ export default defineComponent({
       const result = await this.User.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
       this.processing = false;
       this.$emit('onSave', result);
+    },
+    async onRemove () {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.User.remove(this.dialog.data.id);
+      console.log(result);
+      this.processing = false;
+      this.$emit('onRemove', result);
     }
   }
 })

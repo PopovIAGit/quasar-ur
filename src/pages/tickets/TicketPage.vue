@@ -110,14 +110,22 @@
                     заглушка
                   </div>
                 </div>
-                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12">
+                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12 row  justify-evenly ">
                   <q-btn
                     unelevated
                     no-caps
                     color="primary"
                     label="открыть чат"
-                    style="width: 100%"
+                    style="width: 40%"
                     to="/chat"
+                  />
+                  <q-btn
+                    unelevated
+                    no-caps
+                    color="primary"
+                    label="изменить"
+                    style="width: 40%"
+                   ы
                   />
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -141,6 +149,8 @@
       </div>
     </div>
   </q-page>
+
+
 </template>
 
 <script>
@@ -160,10 +170,10 @@ export default defineComponent({
       titles: ref([]),
       options: [
         "file1.doc",
-        "file1.doc",
-        "file1.doc",
-        "file1.doc",
-        "file1.doc",
+        "file2.doc",
+        "file3.doc",
+        "file4.doc",
+        "file5.doc",
       ],
       selectTicketID: ref(null),
       colorStatus: ref("positive"),

@@ -20,7 +20,7 @@
         class="table--users"
         color="primary"
         :rows="rows"
-@row-dblclick="handleRowDoubleClick"
+        @row-dblclick="handleRowDoubleClick"
         :columns="columns"
         row-key="id"
         rows-per-page-label="Количество на странице"
@@ -116,12 +116,12 @@
         </template>
         <template v-slot:body-cell="props">
           <q-td :props="props" :data-field="props.col.name">
-            <template v-if="props.col.name === 'active'">
+            <template v-if="props.col.name === 'online'">
               <q-badge
                 :outline="!props.value"
                 rounded
-                :color="props.value ? 'positive' : 'grey-6'"
-                :label="props.value ? 'Активный' : 'Не активный'"
+                :color="props.value === true ? 'positive' : 'grey-6'"
+                :label="props.value === true ? 'В сети' : 'Не в сети'"
               />
             </template>
             <template v-else-if="props.col.name === 'isDeleted'">
@@ -145,6 +145,7 @@
   <dialog-user-add-update
     :dialog="dialogUserAddUpdate"
     @onSave="onUserSave"
+    @onRemove = "onUserRemove"
   />
 
 </template>
@@ -182,7 +183,7 @@ export default defineComponent({
       },
       { name:'phone', label:'Телефон', field: row => '+7' + row.phone, align:'left', sortable:true },
       { name:'email', label:'Email', field:'email', align:'left', sortable:true },
-      { name:'active', label:'Статус', field:'active', align:'right', sortable:true },
+      { name:'online', label:'Статус', field:'online', align:'right', sortable:true },
       { name:'isDeleted', label:'Удалён', field:'isDeleted', align:'right', sortable:true }
     ];
 
@@ -316,6 +317,7 @@ export default defineComponent({
           search: this.$route.query.search
         }
       });
+      console.log(response);
       // Если ошибка получения списка пользователей
       if (response.type === 'error') {
         this.$q.dialogStore.set({
@@ -423,6 +425,27 @@ export default defineComponent({
         this.getTableData(null, {page: 1, where});
       }
     },
+    onUserRemove (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Пользователь удален'
+        });
+        this.dialogUserAddUpdate.show = false;
+        // Переключаем вкладку на нужную роль
+        this.getTableData();
+      }
+    },
 
     searchUser (params) {
       // Если сброс поиска или он пустой
@@ -456,7 +479,19 @@ export default defineComponent({
       setTimeout(() => {
         this.getTableData();
       }, 100);
-    }
+    },
+
+    handleRowDoubleClick(event, row) {
+    // Получите данные строки и выполните переход на другую страницу
+    console.log(event, row);
+    this.dialogUserAddUpdate = {
+        show: true,
+        method: 'update',
+        onHide: () => this.dialogUserAddUpdate = structuredClone(this.dialogUserAddUpdateDefault),
+        dataWas: structuredClone(row),
+        data: structuredClone(row)
+      }
+  },
   }
 })
 </script>

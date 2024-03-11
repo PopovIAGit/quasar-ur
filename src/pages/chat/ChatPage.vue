@@ -103,6 +103,9 @@ export default defineComponent({
     await this.getData();
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
+
+      console.log(data);
+
       if (data.type === "notice" && data.args.action === "message") {
         // this.messages.push(data.args.args);
         this.addNewMessage(data.args.args);

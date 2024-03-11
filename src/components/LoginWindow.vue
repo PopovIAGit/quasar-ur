@@ -50,11 +50,63 @@
       </div>
       <q-btn unelevated no-caps color="primary" class="full-width" type="submit" label="Войти"/>
     </q-form>
+
+    <div class="q-gutter-md q-pb-md row justify-center">
+        <div style="max-width: 800px" class="col-9">
+          <q-card style="min-width: 320px">
+            <q-card-section class="row q-dialog__header">
+              <div class="text-grey">Свободный чат - пишите кто хочет</div>
+            <!--    <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
+           <div class="text-grey">{{ User.name + " " + User.surname }}</div>-->
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <q-scroll-area
+                style="height: 400px; max-height: 750px"
+                ref="scrollAreaRef"
+              >
+                  <div class="row justify-evenly q-pa-md">
+                    <div style="width: 100%; max-width: 800px">
+                      <q-chat-message
+                        v-for="(message, key) in messages"
+                        :key="key"
+                        :name="this.freeUserId "
+                        :text="[message.content]"
+                        :sent="message.ownerId == this.freeUserId ? true : false"
+                      />
+                    </div>
+                  </div>
+                  <template v-slot:loading>
+                    <div class="row justify-center q-my-md">
+                      <q-spinner-dots color="primary" size="40px" />
+                    </div>
+                  </template>
+              </q-scroll-area>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <q-input
+                outlined
+                dense
+                autogrow
+                bg-color="grey-3"
+                v-model="msgDataToSend"
+                label="Напишите сообщение"
+                @keyup.enter="sendMsg"
+              >
+                <template v-slot:after>
+                  <q-btn round dense flat icon="send" @click="sendMsg" />
+                </template>
+              </q-input>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, nextTick } from 'vue'
 
 import UserClass from 'src/utils/classes/User.Class'
 
@@ -63,6 +115,8 @@ export default defineComponent({
 
   setup () {
     const User = new UserClass();
+
+    const freeUserId = Math.floor(Math.random() * 10000) + 100;
     return {
       User,
       // Form fields
@@ -70,8 +124,26 @@ export default defineComponent({
       password: ref('super'),
       remember: ref(false),
       // Show password
-      showPassword: ref(false)
+      showPassword: ref(false),
+      msgDataToSend: ref(""),
+      freeUserId,
+      messages: ref([]),
+      scrollAreaRef: ref(null),
     }
+  },
+  async beforeMount() {
+
+    await this.$q.ws.onUnpackedMessage.addListener((data) => {
+
+
+
+      if (data.type === "notice" && data.args.action === "freechatMessage") {
+        // this.messages.push(data.args.args);
+        this.addNewMessage(data.args.args.message);
+
+        //this.newMessages.push(data.args.args);
+      }
+    });
   },
 
   methods: {
@@ -102,8 +174,42 @@ export default defineComponent({
           }
         }
       }
-      console.log(result);
-    }
+    },
+    async sendMsg() {
+      const response = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "freechat",
+        method: "send",
+        args: {
+          message: {
+            ownerId: this.freeUserId,
+            content: this.msgDataToSend,
+            sentDateTime: new Date(),
+          },
+        },
+      });
+      if (response.type === "error") {
+        console.error("error", response.args);
+      } else if (response.type === "answer") {
+        this.addNewMessage( {
+            ownerId: this.freeUserId,
+            content: this.msgDataToSend,
+            sentDateTime: new Date(),
+          });
+        this.msgDataToSend = "";
+
+      }
+    },
+    async addNewMessage(message) {
+      this.messages.push(message);
+      console.log("take msg", this.messages);
+    },
+    scrollToEnd() {
+      const vm = this;
+      setTimeout(function () {
+        vm.scrollAreaRef.setScrollPercentage("vertical", 1);
+      }, 100);
+    },
   }
 
 })

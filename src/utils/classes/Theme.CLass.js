@@ -180,6 +180,41 @@ class Theme {
       }
     }
   }
+  async remove (groupId){
+    const response = await this.$q.ws.sendRequest({
+      type: 'query',
+      iface: 'service',
+      method: 'removeGroup',
+      args: {
+        group: {
+          id: groupId
+        }
+      }
+    });
+
+        // Если ошибка удаления
+        if (response.type === 'error') {
+          return {
+            success: false,
+            message: response.args.message || 'Ошибка'
+          }
+        }
+        // Если получен ответ от login
+        else if (response.type === 'answer') {
+          // Если в ответе по каким-то причинам нет данных пользователя
+          if (!response.args || !response.args.id || !response.args.token) {
+            return {
+              success: false
+            }
+          }
+          // Если всё ОК
+          else {
+            return {
+              success: true,
+            }
+          }
+        }
+  }
 }
 
 export default Theme;

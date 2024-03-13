@@ -15,16 +15,19 @@
           :min="User.fields.phone.min"
           :max="User.fields.phone.max"
           required
-          :rules="[ val => User.fields.phone.rules(val) ]"
+          :rules="[(val) => User.fields.phone.rules(val)]"
         >
           <template v-slot:prepend>
-            <q-icon name="phone"/>
+            <q-icon name="phone" />
           </template>
         </q-input>
       </div>
       <!-- Пароль -->
       <div class="q-mb-md">
-        <div class="label">{{ User.fields.password.label }} {{ User.fields.password.required ? '*': '' }}</div>
+        <div class="label">
+          {{ User.fields.password.label }}
+          {{ User.fields.password.required ? "*" : "" }}
+        </div>
         <q-input
           outlined
           bg-color="white"
@@ -34,94 +37,105 @@
           :min="User.fields.password.min"
           :max="User.fields.password.max"
           :required="User.fields.password.required"
-          :rules="[ val => User.fields.password.rules(val) ]"
+          :rules="[(val) => User.fields.password.rules(val)]"
         >
           <template v-slot:prepend>
-            <q-icon name="lock"/>
+            <q-icon name="lock" />
           </template>
           <template v-slot:append>
-            <q-icon :name="showPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="showPassword = !showPassword"/>
+            <q-icon
+              :name="showPassword ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="showPassword = !showPassword"
+            />
           </template>
         </q-input>
       </div>
       <div class="q-mb-lg row justify-between items-center">
-        <q-checkbox v-model="remember" label="Запомнить"/>
+        <q-checkbox v-model="remember" label="Запомнить" />
         <span class="text-primary cursor-pointer">Забыли пароль?</span>
       </div>
-      <q-btn unelevated no-caps color="primary" class="full-width" type="submit" label="Войти"/>
+      <q-btn
+        unelevated
+        no-caps
+        color="primary"
+        class="full-width"
+        type="submit"
+        label="Войти"
+      />
     </q-form>
 
     <div class="q-gutter-md q-pb-md row justify-center">
-        <div style="max-width: 800px" class="col-9">
-          <q-card style="min-width: 320px">
-            <q-card-section class="row q-dialog__header">
-              <div class="text-grey">Свободный чат - пишите кто хочет</div>
+      <div style="max-width: 800px" class="col-9">
+        <q-card style="min-width: 320px">
+          <q-card-section class="row q-dialog__header">
+            <div class="text-grey">Свободный чат - пишите кто хочет</div>
             <!--    <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
            <div class="text-grey">{{ User.name + " " + User.surname }}</div>-->
-            </q-card-section>
-            <q-separator />
-            <q-card-section>
-              <q-scroll-area
-                style="height: 400px; max-height: 750px"
-                ref="scrollAreaRef"
-              >
-                  <div class="row justify-evenly q-pa-md">
-                    <div style="width: 100%; max-width: 800px">
-                      <q-chat-message
-                        v-for="(message, key) in messages"
-                        :key="key"
-                        :name="this.freeUserId "
-                        :text="[message.content]"
-                        :sent="message.ownerId == this.freeUserId ? true : false"
-                      />
-                    </div>
-                  </div>
-                  <template v-slot:loading>
-                    <div class="row justify-center q-my-md">
-                      <q-spinner-dots color="primary" size="40px" />
-                    </div>
-                  </template>
-              </q-scroll-area>
-            </q-card-section>
-            <q-separator />
-            <q-card-section>
-              <q-input
-                outlined
-                dense
-                autogrow
-                bg-color="grey-3"
-                v-model="msgDataToSend"
-                label="Напишите сообщение"
-                @keyup.enter="sendMsg"
-              >
-                <template v-slot:after>
-                  <q-btn round dense flat icon="send" @click="sendMsg" />
-                </template>
-              </q-input>
-            </q-card-section>
-          </q-card>
-        </div>
+          </q-card-section>
+          <q-separator />
+          <q-card-section>
+            <q-scroll-area
+              style="height: 400px; max-height: 750px"
+              ref="scrollAreaRef"
+            >
+              <div class="row justify-evenly q-pa-md">
+                <div style="width: 100%; max-width: 800px">
+                  <q-chat-message
+                    v-for="(message, key) in messages"
+                    :key="key"
+                    :name="this.freeUserId"
+                    :text="[message.content]"
+                    :sent="message.ownerId == this.freeUserId ? true : false"
+                  />
+                </div>
+              </div>
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="40px" />
+                </div>
+              </template>
+            </q-scroll-area>
+          </q-card-section>
+          <q-separator />
+          <q-card-section>
+            <q-input
+              outlined
+              dense
+              autogrow
+              bg-color="grey-3"
+              v-model="msgDataToSend"
+              label="Напишите сообщение"
+              @keyup.enter="sendMsg"
+            >
+              <template v-slot:after>
+                <q-btn round dense flat icon="send" @click="sendMsg" />
+              </template>
+            </q-input>
+          </q-card-section>
+        </q-card>
       </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, nextTick } from 'vue'
+import { defineComponent, ref, nextTick } from "vue";
 
-import UserClass from 'src/utils/classes/User.Class'
+import UserClass from "src/utils/classes/User.Class";
 
 export default defineComponent({
-  name: 'LoginWindow',
+  name: "LoginWindow",
 
-  setup () {
+  setup() {
     const User = new UserClass();
 
     const freeUserId = Math.floor(Math.random() * 10000) + 100;
     return {
       User,
       // Form fields
-      phone: ref('0000000000'),
-      password: ref('super'),
+      phone: ref("0000000000"),
+      password: ref("super"),
       remember: ref(false),
       // Show password
       showPassword: ref(false),
@@ -129,14 +143,10 @@ export default defineComponent({
       freeUserId,
       messages: ref([]),
       scrollAreaRef: ref(null),
-    }
+    };
   },
   async beforeMount() {
-
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
-
-
-
       if (data.type === "notice" && data.args.action === "freechatMessage") {
         // this.messages.push(data.args.args);
         this.addNewMessage(data.args.args.message);
@@ -147,14 +157,13 @@ export default defineComponent({
   },
 
   methods: {
-    async onSubmit () {
+    async onSubmit() {
       const result = await this.User.login({
         phone: this.phone,
-        password: this.password
+        password: this.password,
       });
       // Если ошибка логина TODO
       if (!result.success) {
-
       }
       // Если успешный логин
       else if (result.success) {
@@ -165,11 +174,11 @@ export default defineComponent({
           if (resultAuthAfter.message) {
             this.$q.dialogStore.set({
               show: true,
-              title: 'Ошибка',
+              title: "Ошибка",
               html: resultAuthAfter.message,
               ok: {
-                color: 'red'
-              }
+                color: "red",
+              },
             });
           }
         }
@@ -191,13 +200,12 @@ export default defineComponent({
       if (response.type === "error") {
         console.error("error", response.args);
       } else if (response.type === "answer") {
-        this.addNewMessage( {
-            ownerId: this.freeUserId,
-            content: this.msgDataToSend,
-            sentDateTime: new Date(),
-          });
+        this.addNewMessage({
+          ownerId: this.freeUserId,
+          content: this.msgDataToSend,
+          sentDateTime: new Date(),
+        });
         this.msgDataToSend = "";
-
       }
     },
     async addNewMessage(message) {
@@ -210,7 +218,6 @@ export default defineComponent({
         vm.scrollAreaRef.setScrollPercentage("vertical", 1);
       }, 100);
     },
-  }
-
-})
+  },
+});
 </script>

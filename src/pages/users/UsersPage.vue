@@ -361,7 +361,7 @@ export default defineComponent({
     },
 
     showDialogUserAddUpdate () {
-      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const excludeFields = ['id', 'token', 'online', 'active'];
       const data = {};
       Object.keys(this.dialogUserAddUpdateDefault.data).forEach(key => {
         if (!excludeFields.includes(key)){

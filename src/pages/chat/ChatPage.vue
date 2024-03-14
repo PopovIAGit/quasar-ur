@@ -82,9 +82,9 @@
                 style="height: 600px; max-height: 750px"
                 ref="scrollTicketsRef"
               >
-                <div v-for="n in 100" :key="n" class="q-py-xs">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                <div v-for="ticket in ticketsList" :key="ticket.id" class="q-py-xs">
+                  <p>ID: {{ ticket.id }}</p>
+                  <p>Title: {{ ticket.title }}</p>
                 </div>
               </q-scroll-area>
             </q-card-section>
@@ -141,6 +141,8 @@ export default defineComponent({
       this.loading = true;
       this.User = this.$q.appStore.user;
       this.ticketsList = this.$q.appStore.ticket;
+
+      console.log(this.ticketsList);
 
       const response = await this.$q.ws.sendRequest({
         type: "query",

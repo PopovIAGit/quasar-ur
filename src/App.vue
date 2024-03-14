@@ -291,6 +291,7 @@ export default defineComponent({
     //     }
     //   }
     // });
+
   },
 
   methods: {
@@ -303,6 +304,7 @@ export default defineComponent({
           message: {
             ownerId: 1,
             content: 'Текст сообщения',
+            ticketId: 17,
             sentDateTime : new Date(),
           }
         }

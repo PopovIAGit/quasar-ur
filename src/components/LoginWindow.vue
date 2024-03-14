@@ -79,22 +79,26 @@
               style="height: 400px; max-height: 750px"
               ref="scrollAreaRef"
             >
-              <div class="row justify-evenly q-pa-md">
-                <div style="width: 100%; max-width: 800px">
-                  <q-chat-message
-                    v-for="(message, key) in messages"
-                    :key="key"
-                    :name="this.freeUserId"
-                    :text="[message.content]"
-                    :sent="message.ownerId == this.freeUserId ? true : false"
-                  />
+                <div class="row justify-evenly q-pa-md">
+                  <div style="width: 100%; max-width: 800px">
+                    <q-chat-message
+                      v-for="(message, key) in messages"
+                      :key="key"
+                      :name="
+                          message.ownerId == this.freeUserId
+                            ? this.freeUserId
+                            : 'Заменить на имя'
+                        "
+                      :text="[message.content]"
+                      :sent="message.ownerId == this.freeUserId ? true : false"
+                    />
+                  </div>
                 </div>
-              </div>
-              <template v-slot:loading>
-                <div class="row justify-center q-my-md">
-                  <q-spinner-dots color="primary" size="40px" />
-                </div>
-              </template>
+                <template v-slot:loading>
+                  <div class="row justify-center q-my-md">
+                    <q-spinner-dots color="primary" size="40px" />
+                  </div>
+                </template>
             </q-scroll-area>
           </q-card-section>
           <q-separator />
@@ -102,11 +106,11 @@
             <q-input
               outlined
               dense
-              autogrow
               bg-color="grey-3"
               v-model="msgDataToSend"
               label="Напишите сообщение"
               @keyup.enter="sendMsg"
+              :rules="[val => val.trim().length !== 0 && !val.includes('\\n')]"
             >
               <template v-slot:after>
                 <q-btn round dense flat icon="send" @click="sendMsg" />
@@ -146,6 +150,10 @@ export default defineComponent({
     };
   },
   async beforeMount() {
+    window.addEventListener("beforeunload", () => {
+      /// TODO: тут нужно удалять фричат
+    });
+
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "freechatMessage") {
         // this.messages.push(data.args.args);
@@ -197,6 +205,7 @@ export default defineComponent({
           },
         },
       });
+      console.log("msg", response);
       if (response.type === "error") {
         console.error("error", response.args);
       } else if (response.type === "answer") {
@@ -207,16 +216,38 @@ export default defineComponent({
         });
         this.msgDataToSend = "";
       }
+
+      await nextTick(() => {
+        this.scrollToEnd();
+      });
     },
     async addNewMessage(message) {
       this.messages.push(message);
       console.log("take msg", this.messages);
+
+      await nextTick(() => {
+        this.scrollToEnd();
+      });
     },
+
     scrollToEnd() {
       const vm = this;
+      console.log("scrollToEnd", vm.scrollAreaRef.getScrollPosition());
+
+
       setTimeout(function () {
         vm.scrollAreaRef.setScrollPercentage("vertical", 1);
       }, 100);
+    },
+    async onLoad(index, done) {
+      setTimeout(() => {
+        if (index > 1) {
+
+          done();
+        } else {
+          done();
+        }
+      }, 1000);
     },
   },
 });

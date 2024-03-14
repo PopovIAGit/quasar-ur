@@ -1,0 +1,22 @@
+{
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Quasar App: chrome",
+        "url": "https://localhost:3031",
+        // To properly reflect changes after HMR with Vite
+        "enableContentValidation": false,
+        "webRoot": "${workspaceFolder}/src",
+        // No need to configure sourcemap explicitly for vite.
+        "sourceMapPathOverrides": {
+          "webpack://${workspaceFolderBasename}/./src/*": "${webRoot}/*"
+      },
+      "sourceMaps": true,
+      }
+    ]
+}

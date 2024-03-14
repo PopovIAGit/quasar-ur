@@ -12,11 +12,12 @@
       <h1>Чат</h1>
 
       <div class="q-gutter-md q-pb-md row justify-center">
-        <div style="max-width: 800px" class="col-9">
+        <div style="max-width: 800px" class="col-8">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
+              <div class="text-grey">{{ $q.appStore.selectedTicket.id }}</div>
             </q-card-section>
             <q-separator />
             <q-card-section>
@@ -71,6 +72,24 @@
             </q-card-section>
           </q-card>
         </div>
+        <div style="max-width: 350px" class="col-3">
+          <q-card style="min-width: 320px">
+            <q-card-section class="row q-dialog__header">
+              <div class="text-grey">Список тикетов</div>
+            </q-card-section>
+            <q-card-section class="row q-dialog__header">
+              <q-scroll-area
+                style="height: 600px; max-height: 750px"
+                ref="scrollTicketsRef"
+              >
+                <div v-for="n in 100" :key="n" class="q-py-xs">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </div>
+              </q-scroll-area>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
     </div>
   </q-page>
@@ -96,6 +115,7 @@ export default defineComponent({
       scrollAreaRef: ref(null),
       infinitescrollAreaRef: ref(null),
       position: ref(500),
+      ticketsList: ref([]),
     };
   },
 
@@ -103,7 +123,6 @@ export default defineComponent({
     await this.getData();
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
-
       console.log(data);
 
       if (data.type === "notice" && data.args.action === "message") {
@@ -121,6 +140,7 @@ export default defineComponent({
       if (this.loading) return;
       this.loading = true;
       this.User = this.$q.appStore.user;
+      this.ticketsList = this.$q.appStore.ticket;
 
       const response = await this.$q.ws.sendRequest({
         type: "query",
@@ -141,9 +161,7 @@ export default defineComponent({
             color: "red",
           },
         });
-      }
-      // Если получен список пользователей
-      else if (response.type === "answer") {
+      } else if (response.type === "answer") {
         this.messages = response.args.rows.filter(
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
@@ -192,7 +210,6 @@ export default defineComponent({
         if (index > 1) {
           const n = 10; // Ваше изначальное число, которое может быть заменено
           const ost = this.$q.appStore.numOfMsgInTicket - n * index; // Рассчитываем динамический лимит
-          console.log("!!!", this.scrollAreaRef.getScrollPercentage());
           let dynamicLimit = 0;
 
           if (ost > 0) {

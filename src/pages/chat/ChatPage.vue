@@ -12,7 +12,7 @@
       <h1>Чат</h1>
 
       <div class="q-gutter-md q-pb-md row justify-center">
-        <div style="max-width: 800px" class="col-8">
+        <div style="max-width: 800px" class="col-lg-8 col-md-8 col-xs-12">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
@@ -72,7 +72,7 @@
             </q-card-section>
           </q-card>
         </div>
-        <div style="max-width: 350px" class="col-3">
+        <div style="max-width: 350px" class="col-lg-3 col-md-3 col-xs-12">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <div class="text-grey">Список тикетов</div>

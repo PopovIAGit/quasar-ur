@@ -135,6 +135,7 @@ export default defineComponent({
     const User = new UserClass();
 
     const freeUserId = Math.floor(Math.random() * 10000) + 100;
+
     return {
       User,
       // Form fields
@@ -149,16 +150,25 @@ export default defineComponent({
       scrollAreaRef: ref(null),
     };
   },
+
   async beforeMount() {
+    //this.$q.appStore.msgFromFreeChat.push({id: this.freeUserId, msg:[]}) ;
+    this.$q.appStore.addRoom(this.freeUserId);
+
+
     window.addEventListener("beforeunload", () => {
       /// TODO: тут нужно удалять фричат
+      this.$q.appStore.delitRoom(this.freeUserId);
+
     });
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "freechatMessage") {
         // this.messages.push(data.args.args);
         this.addNewMessage(data.args.args.message);
-
+        const lastElement  = data.args.args.message;
+      // this.$q.appStore.addMsgToRoom(lastElement.ownerId, data.args.args.message);
+        console.log("сообщения фри чата", lastElement);
         //this.newMessages.push(data.args.args);
       }
     });
@@ -175,6 +185,7 @@ export default defineComponent({
       }
       // Если успешный логин
       else if (result.success) {
+        this.$q.appStore.delitRoom(this.freeUserId);
         // Выполняем подготовительные действия, доступные только после успешной авторизации
         const resultAuthAfter = await this.User.authAfter();
         // Если ошибка
@@ -201,11 +212,11 @@ export default defineComponent({
           message: {
             ownerId: this.freeUserId,
             content: this.msgDataToSend,
+            roomId: this.freeUserId,
             sentDateTime: new Date(),
           },
         },
       });
-      console.log("msg", response);
       if (response.type === "error") {
         console.error("error", response.args);
       } else if (response.type === "answer") {
@@ -223,8 +234,7 @@ export default defineComponent({
     },
     async addNewMessage(message) {
       this.messages.push(message);
-      console.log("take msg", this.messages);
-
+      this.$q.appStore.addMsgToRoom(this.freeUserId, message);
       await nextTick(() => {
         this.scrollToEnd();
       });
@@ -232,9 +242,6 @@ export default defineComponent({
 
     scrollToEnd() {
       const vm = this;
-      console.log("scrollToEnd", vm.scrollAreaRef.getScrollPosition());
-
-
       setTimeout(function () {
         vm.scrollAreaRef.setScrollPercentage("vertical", 1);
       }, 100);

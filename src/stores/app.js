@@ -9,7 +9,11 @@ export const useAppStore = defineStore('app', {
     servicesList: [],
     ticketsList:[],
     selectedTicket: null,
-    numOfMsgInTicket: null
+    numOfMsgInTicket: null,
+    msgFromFreeChat: [{
+      id: null,
+      msg:[]
+    }]
   }),
   getters: {},
   actions: {
@@ -18,5 +22,28 @@ export const useAppStore = defineStore('app', {
         this[key] = value;
       });
     },
+    addRoom(idToAdd){
+      this.msgFromFreeChat.push({id: idToAdd, msg:[]});
+      console.log("add",this.msgFromFreeChat);
+    },
+    delitRoom(idToDel) {
+      const indexToDelete = this.msgFromFreeChat.findIndex(item => item.id === idToDel);
+      if (indexToDelete !== -1) {
+        this.msgFromFreeChat.splice(indexToDelete, 1);
+
+      } else {
+        console.log("Element with id", idToDel, "not found.");
+      }
+    },
+    addMsgToRoom(idToAdd, msg){
+      let indexToChange = this.msgFromFreeChat.findIndex(item => item.id === idToAdd);
+      if (indexToChange === -1) {
+        this.msgFromFreeChat.push({ id: idToAdd, msg: [msg] });
+
+      } else {
+        this.msgFromFreeChat[indexToChange].msg.push(msg);
+
+      }
+    }
   },
 });

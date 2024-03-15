@@ -12,38 +12,24 @@
       <h1>Чат</h1>
 
       <div class="q-gutter-md q-pb-md row justify-center">
-     <!--   <div style="max-width: 800px" class="col-lg-8 col-md-8 col-xs-12">
+        <div style="max-width: 800px" class="col-lg-8 col-md-8 col-xs-12">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
-              <div class="text-grey">{{ $q.appStore.selectedTicket.id }}</div>
+              <div class="text-grey">Выбранный тикет: {{ $q.appStore.selectedTicket.id }}</div>
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <q-scroll-area
-                style="height: 400px; max-height: 750px"
-                ref="scrollAreaRef"
-              >
-                <q-infinite-scroll
-                  @load="onLoad"
-                  :offset="250"
-                  reverse
-                  ref="infinitescrollAreaRef"
-                >
+              <q-scroll-area style="height: 400px; max-height: 750px" ref="scrollAreaRef">
+                <q-infinite-scroll @load="onLoad" :offset="250" reverse ref="infinitescrollAreaRef">
                   <div class="row justify-evenly q-pa-md">
                     <div style="width: 100%; max-width: 800px">
-                      <q-chat-message
-                        v-for="message in messages"
-                        :key="message.id"
-                        :name="
+                      <q-chat-message v-for="message in messages" :key="message.id" :name="
                           message.ownerId == this.User.id
                             ? this.User.name
                             : 'Заменить на имя'
-                        "
-                        :text="[message.content]"
-                        :sent="message.ownerId == this.User.id ? true : false"
-                      />
+                        " :text="[message.content]" :sent="message.ownerId == this.User.id ? true : false" />
                     </div>
                   </div>
                   <template v-slot:loading>
@@ -56,46 +42,62 @@
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <q-input
-                outlined
-                dense
-                autogrow
-                bg-color="grey-3"
-                v-model="msgDataToSend"
-                label="Напишите сообщение"
-                @keyup.enter="sendMsg"
-              >
+              <q-input outlined dense autogrow bg-color="grey-3" v-model="msgDataToSend" label="Напишите сообщение"
+                @keyup.enter="sendMsg">
                 <template v-slot:after>
                   <q-btn round dense flat icon="send" @click="sendMsg" />
                 </template>
               </q-input>
             </q-card-section>
           </q-card>
-        </div> -->
+        </div>
         <div style="max-width: 350px" class="col-lg-3 col-md-3 col-xs-12">
           <q-card style="min-width: 320px">
-            <q-card-section class="row q-dialog__header">
-              <div class="text-grey">Список тикетов</div>
-            </q-card-section>
-            <q-separator />
-            <q-card-section class="row q-dialog__header">
-              <q-scroll-area
-                style="height: 600px; max-height: 750px"
-                ref="scrollTicketsRef"
-              >
-                <q-list>
-                  <q-item v-for="ticket in this.ticketList" :key="ticket.id">
-                    <q-item-section>
-                      <q-item-label>{{ ticket }}</q-item-label>
-                      <q-item-label caption>{{
-                        ticket.description
-                      }}</q-item-label>
-                      <!-- Здесь вы можете добавить вывод других полей вашего объекта -->
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-scroll-area>
-            </q-card-section>
+
+            <q-tabs v-model="tab" no-caps>
+              <q-tab name="tickets" icon="list_alt" label="Тикеты">
+                <q-badge color="primary" text-color="white" floating>{{ ticketsList.length }}</q-badge>
+              </q-tab>
+              <q-tab name="chats" icon="question_answer" label="Free Chat">
+                <q-badge color="primary" text-color="white" floating>10+</q-badge>
+              </q-tab>
+            </q-tabs>
+            <q-tab-panels v-model="tab" animated>
+              <q-tab-panel name="tickets">
+                <q-card-section>
+                  <q-scroll-area style="height: 350px; max-width: 300px">
+                    <q-list
+                      separator
+                      v-for="ticket in ticketsList"
+                      :key="ticket.id"
+                      class="q-py-xs"
+                    >
+                      <q-item
+                        clickable
+                        :active="this.$q.appStore.selectedTicket.id == ticket.id"
+                        v-ripple
+                        active-class="my-menu-link"
+                        @click="clickTicket(ticket)"
+                      >
+                        <q-item-section >
+                          <q-item-label> {{ ticket.title }}</q-item-label>
+                          <q-item-label caption> ID:{{ ticket.id }}</q-item-label>
+                          <q-item-label caption> ownerID:{{ ticket.ownerId }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-separator />
+                    </q-list>
+                  </q-scroll-area>
+                </q-card-section>
+              </q-tab-panel>
+              <q-tab-panel name="chats">
+                <q-card-section>
+                  <q-scroll-area style="height: 350px; max-width: 300px">
+                  </q-scroll-area>
+                </q-card-section>
+              </q-tab-panel>
+            </q-tab-panels>
+
           </q-card>
         </div>
       </div>
@@ -124,6 +126,7 @@ export default defineComponent({
       infinitescrollAreaRef: ref(null),
       position: ref(500),
       ticketsList: ref([]),
+      tab: ref("tickets"),
     };
   },
 
@@ -131,8 +134,6 @@ export default defineComponent({
     await this.getData();
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
-      console.log(data);
-
       if (data.type === "notice" && data.args.action === "message") {
         // this.messages.push(data.args.args);
         this.addNewMessage(data.args.args);
@@ -144,13 +145,18 @@ export default defineComponent({
   mounted() {},
 
   methods: {
+    async clickTicket(data) {
+      this.$q.appStore.set({
+        selectedTicket: data,
+      });
+      await this.getData();
+    },
+
     async getData(props) {
       if (this.loading) return;
       this.loading = true;
       this.User = this.$q.appStore.user;
-      this.ticketList = this.$q.appStore.ticketList;
-
-      console.log("ticketsList",this.ticketsList);
+      this.ticketsList = this.$q.appStore.ticketsList;
 
       const response = await this.$q.ws.sendRequest({
         type: "query",
@@ -271,3 +277,8 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="sass">
+.my-menu-link
+  color: white
+  background: $accent
+</style>

@@ -124,8 +124,9 @@
                   <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
                     Статус
                   </div>
-                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
-                    {{ textStatus }}
+                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md" >
+
+                     <q-badge align="middle" :class = " colorStatus"> {{ textStatus }}</q-badge>
                   </div>
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -136,7 +137,7 @@
                     заглушка
                   </div>
                 </div>
-                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12 row  justify-evenly ">
+                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12 row  justify-evenly  ">
                   <q-btn
                     unelevated
                     no-caps
@@ -146,6 +147,7 @@
                     to="/chat"
                   />
                   <q-btn
+                    v-if ="this.$q.appStore.user.roleId <=2"
                     unelevated
                     no-caps
                     color="primary"
@@ -203,7 +205,7 @@ export default defineComponent({
         "file5.doc",
       ],
       selectTicketID: ref(null),
-      colorStatus: ref("positive"),
+      colorStatus: ref('bg-positive'),
       textStatus: ref("Новый"),
       ticketTitle: ref(''),
       ticketDiscription: ref(""),
@@ -225,7 +227,6 @@ export default defineComponent({
         if (this.$q.appStore.usersList != null) {
 
           this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
-          console.log(this.usersForOwner);
         }
 
 
@@ -242,24 +243,24 @@ export default defineComponent({
           limit: 0,
             },
           });
-
+          console.log(response.args.count);
         this.$q.appStore.set({numOfMsgInTicket:response.args.count})
 
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
-            this.colorStatus = "positive";
+            this.colorStatus = "bg-positive";
             this.textStatus = "Новый";
             break;
           case 2:
-            this.colorStatus = "negative";
+            this.colorStatus = "bg-positive";
             this.textStatus = "Открыт";
             break;
           case 3:
-            this.colorStatus = "negative";
+            this.colorStatus = "bg-negative";
             this.textStatus = "Закры";
             break;
           case 4:
-            this.colorStatus = "warning";
+            this.colorStatus = "bg-warning";
             this.textStatus = "Восстановлен";
 
             break;
@@ -273,9 +274,6 @@ export default defineComponent({
    async createTicket() {
         const foundItem = this.$q.appStore.servicesList.find(item => item.title === this.model);
         const foundId = foundItem ? foundItem.id : null;
-
-        console.log(this.modelusersForOwner);
-
         const response = await this.$q.ws.sendRequest({
         type: 'query',
         iface: 'ticket',

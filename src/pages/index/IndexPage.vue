@@ -309,7 +309,6 @@ export default defineComponent({
         method: "getList",
         args: {
          // id: this.$q.appStore.user.roleId,
-          id: 18,
           limit: rowsPerPage,
           offset: (page - 1) * rowsPerPage,
           order: [[sortBy, descending ? "DESC" : "ASC"]],
@@ -332,7 +331,7 @@ export default defineComponent({
       }
       // Если получен список тикетов
       else if (response.type === "answer") {
-        this.$q.appStore.set({ticketList: response.args.rows});
+        this.$q.appStore.set({ticketsList: response.args.rows});
         let answer = [];
         if ( this.$q.appStore.user.roleId <= 2) {
            answer = response.args.rows;

@@ -308,7 +308,8 @@ export default defineComponent({
         iface: "ticket",
         method: "getList",
         args: {
-          id: this.$q.appStore.user.roleId,
+         // id: this.$q.appStore.user.roleId,
+          id: 18,
           limit: rowsPerPage,
           offset: (page - 1) * rowsPerPage,
           order: [[sortBy, descending ? "DESC" : "ASC"]],
@@ -317,7 +318,7 @@ export default defineComponent({
           // offset: 0
         },
       });
-      console.log(response);
+
       // Если ошибка получения списка тикетов
       if (response.type === "error") {
         this.$q.dialogStore.set({
@@ -331,16 +332,38 @@ export default defineComponent({
       }
       // Если получен список тикетов
       else if (response.type === "answer") {
-        this.$q.appStore.set({ticket: response.args.rows});
-        this.rows = response.args.rows;
+        this.$q.appStore.set({ticketList: response.args.rows});
+        let answer = [];
+        if ( this.$q.appStore.user.roleId <= 2) {
+           answer = response.args.rows;
+        }
+        else if ( this.$q.appStore.user.roleId === 3) {
+          //TODO заполнять для операторов.
+          answer = response.args.rows; // заглушка
+        }
+        else if (this.$q.appStore.user.roleId === 4) {
+           answer = response.args.rows.filter((row) => row.ownerId === this.$q.appStore.user.id);
+        }
+
+        console.log("answer", answer);
+        this.rows = answer;
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
-        this.pagination.rowsNumber = response.args.count;
+        this.pagination.rowsNumber = answer.length;
         this.pagination.sortBy = sortBy;
         this.pagination.descending = descending;
         this.pagesNumber = Math.ceil(
-          response.args.count / this.pagination.rowsPerPage
+          answer.length / this.pagination.rowsPerPage
         );
+        // this.rows = response.args.rows;
+        // this.pagination.page = page;
+        // this.pagination.rowsPerPage = rowsPerPage;
+        // this.pagination.rowsNumber = response.args.count;
+        // this.pagination.sortBy = sortBy;
+        // this.pagination.descending = descending;
+        // this.pagesNumber = Math.ceil(
+        //   response.args.count / this.pagination.rowsPerPage
+        // );
       }
 
       const responseTheme = await this.$q.ws.sendRequest({
@@ -360,7 +383,7 @@ export default defineComponent({
           },
         });
       } else if (responseTheme.type === "answer") {
-        this.$q.appStore.set({theme: responseTheme.args.rows});
+        this.$q.appStore.set({groupsList: responseTheme.args.rows});
         this.themeList = responseTheme.args.rows;
         this.topLevelThemeList = responseTheme.args.rows.filter(
           (row) => row.parentId === null
@@ -383,7 +406,7 @@ export default defineComponent({
           },
         });
       } else if (responseServece.type === "answer") {
-        this.$q.appStore.set({service: responseServece.args.rows});
+        this.$q.appStore.set({servicesList: responseServece.args.rows});
         this.serviceList = responseServece.args.rows;
       }
 
@@ -470,7 +493,6 @@ export default defineComponent({
   },
   createTicket() {
     // Получите данные строки и выполните переход на другую страницу
-    console.log("createTicket");
     this.$q.appStore.set({
       selectedTicket: null
     });

@@ -4,9 +4,10 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     ready: false,
     user: null,
-    theme: [],
-    service: [],
-    ticket:[],
+    usersList: [],
+    groupsList: [],
+    servicesList: [],
+    ticketsList:[],
     selectedTicket: null,
     numOfMsgInTicket: null
   }),

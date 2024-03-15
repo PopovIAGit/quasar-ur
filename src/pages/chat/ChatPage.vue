@@ -12,7 +12,7 @@
       <h1>Чат</h1>
 
       <div class="q-gutter-md q-pb-md row justify-center">
-        <div style="max-width: 800px" class="col-lg-8 col-md-8 col-xs-12">
+     <!--   <div style="max-width: 800px" class="col-lg-8 col-md-8 col-xs-12">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
@@ -71,21 +71,29 @@
               </q-input>
             </q-card-section>
           </q-card>
-        </div>
+        </div> -->
         <div style="max-width: 350px" class="col-lg-3 col-md-3 col-xs-12">
           <q-card style="min-width: 320px">
             <q-card-section class="row q-dialog__header">
               <div class="text-grey">Список тикетов</div>
             </q-card-section>
+            <q-separator />
             <q-card-section class="row q-dialog__header">
               <q-scroll-area
                 style="height: 600px; max-height: 750px"
                 ref="scrollTicketsRef"
               >
-                <div v-for="ticket in ticketsList" :key="ticket.id" class="q-py-xs">
-                  <p>ID: {{ ticket.id }}</p>
-                  <p>Title: {{ ticket.title }}</p>
-                </div>
+                <q-list>
+                  <q-item v-for="ticket in this.ticketList" :key="ticket.id">
+                    <q-item-section>
+                      <q-item-label>{{ ticket }}</q-item-label>
+                      <q-item-label caption>{{
+                        ticket.description
+                      }}</q-item-label>
+                      <!-- Здесь вы можете добавить вывод других полей вашего объекта -->
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-scroll-area>
             </q-card-section>
           </q-card>
@@ -140,9 +148,9 @@ export default defineComponent({
       if (this.loading) return;
       this.loading = true;
       this.User = this.$q.appStore.user;
-      this.ticketsList = this.$q.appStore.ticket;
+      this.ticketList = this.$q.appStore.ticketList;
 
-      console.log(this.ticketsList);
+      console.log("ticketsList",this.ticketsList);
 
       const response = await this.$q.ws.sendRequest({
         type: "query",

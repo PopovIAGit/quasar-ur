@@ -29,7 +29,33 @@
                 map-options
                 emit-value
                 label="Выберете тему обращения"
-                :rules="[(val) => Theme.fields.roleId.rules(val)]"
+                :rules="[(val) => val != null]"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-italic text-grey">
+                      No options slot
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </div>
+            <div class="q-pb-md">
+              <div class="q-dialog__title">Назначенный пользователь</div>
+            </div>
+            <div class="q-gutter-md q-pb-md">
+              <q-select
+                outlined
+                bg-color="white"
+                hide-bottom-space
+                v-model="modelusersForOwner"
+                :options="usersForOwner"
+                option-label="name"
+                option-value="id"
+                map-options
+                emit-value
+                label="Выберете пользователя"
+                :rules="[(val) => val != null]"
               >
                 <template v-slot:no-option>
                   <q-item>
@@ -125,7 +151,6 @@
                     color="primary"
                     label="изменить"
                     style="width: 40%"
-                   ы
                   />
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -168,6 +193,8 @@ export default defineComponent({
       ready: ref(true),
       loading: ref(false),
       titles: ref([]),
+      modelusersForOwner: ref(null),
+      usersForOwner: ref([]),
       options: [
         "file1.doc",
         "file2.doc",
@@ -195,9 +222,15 @@ export default defineComponent({
       if (this.selectTicketID == null) {
 
         this.$q.appStore.set({numOfMsgInTicket:0})
+        if (this.$q.appStore.usersList != null) {
 
-        if (this.$q.appStore.service != null) {
-          this.titles = this.$q.appStore.service.map((obj) => obj.title);
+          this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
+          console.log(this.usersForOwner);
+        }
+
+
+        if (this.$q.appStore.servicesList != null) {
+          this.titles = this.$q.appStore.servicesList.map((obj) => obj.title);
         }
       } else {
 
@@ -238,8 +271,10 @@ export default defineComponent({
       return item ? item.id : null;
     },
    async createTicket() {
-       const foundItem = this.$q.appStore.service.find(item => item.title === this.model);
+        const foundItem = this.$q.appStore.servicesList.find(item => item.title === this.model);
         const foundId = foundItem ? foundItem.id : null;
+
+        console.log(this.modelusersForOwner);
 
         const response = await this.$q.ws.sendRequest({
         type: 'query',
@@ -248,7 +283,7 @@ export default defineComponent({
         args: {
           ticket: {
             serviceId: foundId,
-            ownerId: this.$q.appStore.user.id,
+            ownerId: this.modelusersForOwner,
             title: this.ticketTitle,
             description: this.ticketDiscription,
             startDateTime : new Date(),
@@ -256,7 +291,7 @@ export default defineComponent({
         }
       });
 
-        console.log(response);
+
       if (response.type === "error") {
         this.$q.dialogStore.set({
           show: true,

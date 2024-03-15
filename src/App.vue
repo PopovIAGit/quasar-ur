@@ -88,6 +88,91 @@ export default defineComponent({
         window['splash-screen'].classList.add('ready', 'error');
         return;
       }
+      /** Получаем все списки данных для работы **/
+      const response = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "ticket",
+        method: "getList",
+        args: {
+        },
+      });
+      // Если ошибка получения списка тикетов
+      if (response.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка тикетов",
+          ok: {
+            color: "red",
+          },
+        });
+      }
+      // Если получен список тикетов
+      else if (response.type === "answer") {
+        this.$q.appStore.set({ticketsList: response.args.rows});
+      }
+
+      const responseTheme = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "service",
+        method: "getGroupList",
+        args: {},
+      });
+
+      if (responseTheme.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка груп",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTheme.type === "answer") {
+        this.$q.appStore.set({groupsList: responseTheme.args.rows});
+      }
+
+      const responseServece = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "service",
+        method: "getList",
+        args: {},
+      });
+      if (responseServece.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка сервисов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseServece.type === "answer") {
+        this.$q.appStore.set({servicesList: responseServece.args.rows});
+      }
+
+      const responseUser = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'person',
+        method: 'getList',
+        args: {
+        }
+      });
+      // Если ошибка получения списка пользователей
+      if (responseUser.type === 'error') {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: 'Ошибка получения списка пользователей',
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      // Если получен список пользователей
+      else if (responseUser.type === 'answer') {
+        this.$q.appStore.set({usersList: responseUser.args.rows});
+      }
     }
 
     this.$q.appStore.set({

@@ -317,7 +317,7 @@ export default defineComponent({
           search: this.$route.query.search
         }
       });
-      console.log(response);
+
       // Если ошибка получения списка пользователей
       if (response.type === 'error') {
         this.$q.dialogStore.set({

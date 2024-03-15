@@ -197,7 +197,7 @@
             </q-select>
           </div>
           <!-- Удален -->
-          <div class="q-mb-md" v-if="dialog.dataWas.isDeleted === true">
+          <div class="q-mb-md" v-if="dialog.dataWas && dialog.dataWas.isDeleted === true">
             <div class="label">
               {{ User.fields.isDeleted.label }}
               {{ User.fields.isDeleted.required ? "*" : "" }}

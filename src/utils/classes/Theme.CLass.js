@@ -173,8 +173,6 @@ class Theme {
       this.$q.helperTablesStore.set({
         themeTitles
       });
-
-      console.log("this.$q.helperTablesStore",this.$q.helperTablesStore.themeTitles);
       return {
         success: true
       }

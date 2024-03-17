@@ -175,6 +175,21 @@ export default defineComponent({
       }
     }
 
+
+    await this.$q.ws.onUnpackedMessage.addListener((data) => {
+      if (data.type === "notice" && data.args.action === "freechatMessage") {
+
+        if (data.args.args.message.content === "!msg to destroy room!"){
+          this.$q.appStore.delitRoom(data.args.args.message.ownerId);
+        }else {
+          this.$q.appStore.addMsgToRoom(data.args.args.message.ownerId, data.args.args.message.roomId, data.args.args.message.content);
+        }
+
+
+      }
+    });
+
+
     this.$q.appStore.set({
       ready: true
     });

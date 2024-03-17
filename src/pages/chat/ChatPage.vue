@@ -17,19 +17,52 @@
             <q-card-section class="row q-dialog__header">
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
-              <div class="text-grey">Выбранный тикет: {{ $q.appStore.selectedTicket.id }}</div>
+              <div class="text-grey">
+                Выбранный тикет: {{ $q.appStore.selectedTicket.id }}
+              </div>
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <q-scroll-area style="height: 400px; max-height: 750px" ref="scrollAreaRef">
-                <q-infinite-scroll @load="onLoad" :offset="250" reverse ref="infinitescrollAreaRef">
+              <q-scroll-area
+                style="height: 400px; max-height: 750px"
+                ref="scrollAreaRef"
+              >
+                <q-infinite-scroll
+                  @load="onLoad"
+                  :offset="250"
+                  reverse
+                  ref="infinitescrollAreaRef"
+                >
                   <div class="row justify-evenly q-pa-md">
                     <div style="width: 100%; max-width: 800px">
-                      <q-chat-message v-for="message in messages" :key="message.id" :name="
+                     <div v-if="this.tab == 'tickets'">
+                      <q-chat-message
+                        v-for="message in messages"
+                        :key="message.id"
+                        :name="
                           message.ownerId == this.User.id
                             ? this.User.name
                             : 'Заменить на имя'
-                        " :text="[message.content]" :sent="message.ownerId == this.User.id ? true : false" />
+                        "
+                        :text="[message.content]"
+                        :sent="message.ownerId == this.User.id ? true : false"
+                      />
+                    </div>
+                    <div v-if="this.tab == 'freechat'">
+                      <q-chat-message
+                        v-for="(message, key) in messages"
+                        :key="key"
+                        :name="
+                          message.id == this.User.id
+                            ? this.User.name
+                            : message.id
+                        "
+                        :text="[message.content]"
+                        :sent="message.id == this.User.id ? true : false"
+                      />
+                    </div>
+
+
                     </div>
                   </div>
                   <template v-slot:loading>
@@ -42,8 +75,15 @@
             </q-card-section>
             <q-separator />
             <q-card-section>
-              <q-input outlined dense autogrow bg-color="grey-3" v-model="msgDataToSend" label="Напишите сообщение"
-                @keyup.enter="sendMsg">
+              <q-input
+                outlined
+                dense
+                autogrow
+                bg-color="grey-3"
+                v-model="msgDataToSend"
+                label="Напишите сообщение"
+                @keyup.enter="sendMsg"
+              >
                 <template v-slot:after>
                   <q-btn round dense flat icon="send" @click="sendMsg" />
                 </template>
@@ -53,13 +93,16 @@
         </div>
         <div style="max-width: 350px" class="col-lg-3 col-md-3 col-xs-12">
           <q-card style="min-width: 320px">
-
             <q-tabs v-model="tab" no-caps>
               <q-tab name="tickets" icon="list_alt" label="Тикеты">
-                <q-badge color="primary" text-color="white" floating>{{ ticketsList.length }}</q-badge>
+                <q-badge color="primary" text-color="white" floating>{{
+                  ticketsList.length
+                }}</q-badge>
               </q-tab>
               <q-tab name="chats" icon="question_answer" label="Free Chat">
-                <q-badge color="primary" text-color="white" floating>10+</q-badge>
+                <q-badge color="primary" text-color="white" floating>{{
+                  this.$q.appStore.msgFromFreeChat.length
+                }}</q-badge>
               </q-tab>
             </q-tabs>
             <q-tab-panels v-model="tab" animated>
@@ -74,15 +117,21 @@
                     >
                       <q-item
                         clickable
-                        :active="this.$q.appStore.selectedTicket.id == ticket.id"
+                        :active="
+                          this.$q.appStore.selectedTicket.id == ticket.id
+                        "
                         v-ripple
                         active-class="my-menu-link"
                         @click="clickTicket(ticket)"
                       >
-                        <q-item-section >
+                        <q-item-section>
                           <q-item-label> {{ ticket.title }}</q-item-label>
-                          <q-item-label caption> ID:{{ ticket.id }}</q-item-label>
-                          <q-item-label caption> ownerID:{{ ticket.ownerId }}</q-item-label>
+                          <q-item-label caption>
+                            ID:{{ ticket.id }}</q-item-label
+                          >
+                          <q-item-label caption>
+                            ownerID:{{ ticket.ownerId }}</q-item-label
+                          >
                         </q-item-section>
                       </q-item>
                       <q-separator />
@@ -93,11 +142,38 @@
               <q-tab-panel name="chats">
                 <q-card-section>
                   <q-scroll-area style="height: 350px; max-width: 300px">
+                    <q-list
+                      separator
+                      v-for="chat in this.$q.appStore.msgFromFreeChat"
+                      :key="chat.roomId"
+                      class="q-py-xs"
+                    >
+                      <q-item
+                        clickable
+                        :active="
+                          chat.roomId == this.selectRoomId
+                        "
+                        v-ripple
+                        active-class="my-menu-link"
+                        @click="clickFreeChat(chat)"
+                      >
+                        <q-item-section>
+                          <q-item-label caption> ID:{{ chat.id }}</q-item-label>
+                          <q-item-label caption>
+                            roomId:{{ chat.roomId }}</q-item-label
+                          >
+                        </q-item-section>
+                      </q-item>
+                      <q-separator />
+                    </q-list>
+                  </q-scroll-area>
+                </q-card-section>
+                <q-card-section>
+                  <q-scroll-area style="height: 350px; max-width: 300px">
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
             </q-tab-panels>
-
           </q-card>
         </div>
       </div>
@@ -127,6 +203,7 @@ export default defineComponent({
       position: ref(500),
       ticketsList: ref([]),
       tab: ref("tickets"),
+      selectRoomId: ref(null),
     };
   },
 
@@ -152,11 +229,19 @@ export default defineComponent({
       await this.getData();
     },
 
+    async clickFreeChat(data) {
+
+      this.messages = data;
+      this.selectRoomId = data.roomId;
+      console.log(this.messages, this.selectRoomId);
+    },
+
     async getData(props) {
       if (this.loading) return;
       this.loading = true;
       this.User = this.$q.appStore.user;
       this.ticketsList = this.$q.appStore.ticketsList;
+
 
       const response = await this.$q.ws.sendRequest({
         type: "query",
@@ -192,25 +277,48 @@ export default defineComponent({
     },
 
     async sendMsg() {
-      const response = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "message",
-        method: "send",
-        args: {
-          message: {
-            ownerId: this.User.id,
-            content: this.msgDataToSend,
-            ticketId: this.$q.appStore.selectedTicket.id,
-            sentDateTime: new Date(),
+      if (this.tab === "tickets") {
+        const response = await this.$q.ws.sendRequest({
+          type: "query",
+          iface: "message",
+          method: "send",
+          args: {
+            message: {
+              ownerId: this.User.id,
+              content: this.msgDataToSend,
+              ticketId: this.$q.appStore.selectedTicket.id,
+              sentDateTime: new Date(),
+            },
           },
-        },
-      });
-      if (response.type === "error") {
-        console.error("error", response.args);
-      } else if (response.type === "answer") {
-        //this.messages.push(response.args);
-        this.msgDataToSend = "";
-        this.addNewMessage(response.args);
+        });
+        if (response.type === "error") {
+          console.error("error", response.args);
+        } else if (response.type === "answer") {
+          //this.messages.push(response.args);
+          this.msgDataToSend = "";
+          this.addNewMessage(response.args);
+        }
+      } else if (this.tab === "freechat") {
+        const response = await this.$q.ws.sendRequest({
+          type: "query",
+          iface: "freechat",
+          method: "send",
+          args: {
+            message: {
+              ownerId: this.User.id,
+              content: this.msgDataToSend,
+              roomId: this.selectRoomId,
+              sentDateTime: new Date(),
+            },
+          },
+        });
+        if (response.type === "error") {
+          console.error("error", response.args);
+        } else if (response.type === "answer") {
+          //this.messages.push(response.args);
+          this.msgDataToSend = "";
+          this.addNewMessage(response.args);
+        }
       }
     },
 
@@ -222,7 +330,8 @@ export default defineComponent({
     },
 
     async onLoad(index, done) {
-      await setTimeout(() => {
+      if (this.tab === "tickets") {
+        await setTimeout(() => {
         if (index > 1) {
           const n = 10; // Ваше изначальное число, которое может быть заменено
           const ost = this.$q.appStore.numOfMsgInTicket - n * index; // Рассчитываем динамический лимит
@@ -258,6 +367,11 @@ export default defineComponent({
           done();
         }
       }, 1000);
+      }
+      else if (this.tab === "freechat") {
+        done();
+      }
+
     },
     async addNewMessage(message) {
       this.messages.push(message);
@@ -265,14 +379,6 @@ export default defineComponent({
       await nextTick(() => {
         this.scrollToEnd();
       });
-    },
-  },
-  watch: {
-    messages: {
-      handler(val, oldVal) {
-        // this.scrollToEnd();
-      },
-      deep: true,
     },
   },
 });

@@ -12,7 +12,8 @@ export const useAppStore = defineStore('app', {
     numOfMsgInTicket: null,
     msgFromFreeChat: [{
       id: null,
-      msg:[]
+      roomId:null,
+      content:[]
     }]
   }),
   getters: {},
@@ -21,10 +22,6 @@ export const useAppStore = defineStore('app', {
       Object.entries(data).forEach(([key, value]) => {
         this[key] = value;
       });
-    },
-    addRoom(idToAdd){
-      this.msgFromFreeChat.push({id: idToAdd, msg:[]});
-      console.log("add",this.msgFromFreeChat);
     },
     delitRoom(idToDel) {
       const indexToDelete = this.msgFromFreeChat.findIndex(item => item.id === idToDel);
@@ -35,13 +32,14 @@ export const useAppStore = defineStore('app', {
         console.log("Element with id", idToDel, "not found.");
       }
     },
-    addMsgToRoom(idToAdd, msg){
-      let indexToChange = this.msgFromFreeChat.findIndex(item => item.id === idToAdd);
+    addMsgToRoom(idToAdd,roomIdToAdd, contentToAdd){
+      let indexToChange = this.msgFromFreeChat.findIndex(item => item.roomId === roomIdToAdd);
       if (indexToChange === -1) {
-        this.msgFromFreeChat.push({ id: idToAdd, msg: [msg] });
-
+        this.msgFromFreeChat.push({ id: idToAdd, roomId: roomIdToAdd,  content: [contentToAdd] });
       } else {
-        this.msgFromFreeChat[indexToChange].msg.push(msg);
+        this.msgFromFreeChat[indexToChange].id = idToAdd;
+        this.msgFromFreeChat[indexToChange].roomId = roomIdToAdd;
+        this.msgFromFreeChat[indexToChange].content.push(contentToAdd);
 
       }
     }

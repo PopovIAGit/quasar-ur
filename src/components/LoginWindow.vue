@@ -134,7 +134,7 @@ export default defineComponent({
   setup() {
     const User = new UserClass();
 
-    const freeUserId = Math.floor(Math.random() * 10000) + 100;
+    const freeUserId = (Math.floor(Math.random() * 10000) + 100).toString();
 
     return {
       User,
@@ -152,24 +152,33 @@ export default defineComponent({
   },
 
   async beforeMount() {
-    //this.$q.appStore.msgFromFreeChat.push({id: this.freeUserId, msg:[]}) ;
-    this.$q.appStore.addRoom(this.freeUserId);
-
-
     window.addEventListener("beforeunload", () => {
       /// TODO: тут нужно удалять фричат
+      const response = this.$q.ws.sendRequest({
+        type: "query",
+        iface: "freechat",
+        method: "send",
+        args: {
+          message: {
+            ownerId: this.freeUserId,
+            content: "!msg to destroy room!",
+            roomId: this.freeUserId,
+            sentDateTime: new Date(),
+          },
+        },
+      });
+
+      if (response.type === "error") {
+        console.error("error", response.args);
+      }
       this.$q.appStore.delitRoom(this.freeUserId);
+
 
     });
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "freechatMessage") {
-        // this.messages.push(data.args.args);
         this.addNewMessage(data.args.args.message);
-        const lastElement  = data.args.args.message;
-      // this.$q.appStore.addMsgToRoom(lastElement.ownerId, data.args.args.message);
-        console.log("сообщения фри чата", lastElement);
-        //this.newMessages.push(data.args.args);
       }
     });
   },
@@ -222,6 +231,7 @@ export default defineComponent({
       } else if (response.type === "answer") {
         this.addNewMessage({
           ownerId: this.freeUserId,
+          roomId: this.freeUserId,
           content: this.msgDataToSend,
           sentDateTime: new Date(),
         });
@@ -232,9 +242,10 @@ export default defineComponent({
         this.scrollToEnd();
       });
     },
+    ///
     async addNewMessage(message) {
       this.messages.push(message);
-      this.$q.appStore.addMsgToRoom(this.freeUserId, message);
+      this.$q.appStore.addMsgToRoom(message.ownerId, message.roomId, message.content);
       await nextTick(() => {
         this.scrollToEnd();
       });

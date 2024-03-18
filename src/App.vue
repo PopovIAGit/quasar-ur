@@ -8,6 +8,7 @@ import { defineComponent } from 'vue'
 import { useAppStore } from 'stores/app'
 import { useHelperTablesStore } from 'stores/helperTables'
 import { useDialogStore } from 'stores/dialog'
+import {useFreeChatStore} from 'stores/freeChat'
 import WebSocketAsPromised from 'websocket-as-promised'
 
 import DialogComponent from 'components/dialogs/DialogComponent'
@@ -34,7 +35,11 @@ export default defineComponent({
     this.$q.appStore = useAppStore();
     this.$q.helperTablesStore = useHelperTablesStore();
     this.$q.dialogStore = useDialogStore();
+    this.$q.freeChat = useFreeChatStore();
 
+
+    this.$q.freeChat.delitRoom(null);
+    console.log(this.$q.appStore.msgFromFreeChat);
     /** WS */
     const wssServer = 'wss://sinthy.fvds.ru:3031';
     this.$q.ws = new WebSocketAsPromised(wssServer, {
@@ -180,9 +185,9 @@ export default defineComponent({
       if (data.type === "notice" && data.args.action === "freechatMessage") {
 
         if (data.args.args.message.content === "!msg to destroy room!"){
-          this.$q.appStore.delitRoom(data.args.args.message.ownerId);
+          this.$q.freeChat.delitRoom(data.args.args.message.ownerId);
         }else {
-          this.$q.appStore.addMsgToRoom(data.args.args.message.ownerId, data.args.args.message.roomId, data.args.args.message.content);
+          this.$q.freeChat.addMsgToRoom(data.args.args.message.ownerId, data.args.args.message.roomId, data.args.args.message.content);
         }
 
 

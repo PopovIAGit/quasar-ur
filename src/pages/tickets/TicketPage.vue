@@ -229,7 +229,6 @@ export default defineComponent({
           this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
         }
 
-
         if (this.$q.appStore.servicesList != null) {
           this.titles = this.$q.appStore.servicesList.map((obj) => obj.title);
         }
@@ -240,11 +239,12 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
-          limit: 0,
+
             },
           });
-          console.log(response.args.count);
-        this.$q.appStore.set({numOfMsgInTicket:response.args.count})
+          const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === this.selectTicketID.id);
+          this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
+          console.log(elementsWithTicketId);
 
         switch (this.selectTicketID.ticketStatusId) {
           case 1:

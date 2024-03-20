@@ -12,6 +12,7 @@
           :theme="child"
           :themeList="themeList"
           :key="child.id"
+          @dblclick="themeClick"
         />
       </template>
     </q-expansion-item>
@@ -24,6 +25,9 @@
           </q-item-label>
           <q-item-label caption lines="1">
             {{ theme.description }}
+          </q-item-label>
+          <q-item-label caption lines="1">
+            {{ theme.id }}
           </q-item-label>
         </q-item-section>
       </q-item>
@@ -54,6 +58,9 @@ export default {
       );
     },
 
+    themeClick(){
+    console.log("themeClick", this.child);
+  }
   },
 };
 </script>

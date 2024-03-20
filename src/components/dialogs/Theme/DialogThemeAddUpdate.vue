@@ -119,7 +119,7 @@ export default defineComponent({
       const tmp =
      [
       { id: null, name: 'Без родительской темы' },
-      ...this.$q.appStore.theme.map(item => ({ id: item.id, name: item.title }))
+      ...this.$q.appStore.groupsList.map(item => ({ id: item.id, name: item.title }))
 
     ];
 

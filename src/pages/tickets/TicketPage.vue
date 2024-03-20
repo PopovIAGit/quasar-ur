@@ -23,7 +23,7 @@
                 bg-color="white"
                 hide-bottom-space
                 v-model="model"
-                :options="titles"
+                :options="servicesTitles"
                 option-label="name"
                 option-value="id"
                 map-options
@@ -153,6 +153,7 @@
                     color="primary"
                     label="изменить"
                     style="width: 40%"
+                    @click="showDialogTicketAddUpdate"
                   />
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -177,24 +178,33 @@
     </div>
   </q-page>
 
+  <dialog-ticket-add-update
+  :dialog="dialogTicketAddUpdate"
+    @onSave="onTicketSave"
+    @onRemove="onTicketRemove"
+  />
 
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
-
-import UserClass from "src/utils/classes/User.Class";
+import DialogTicketAddUpdate from 'components/dialogs/Ticket/DialogTicketAddUpdate';
+import TicketClass from "src/utils/classes/Tiket.Class";
 
 export default defineComponent({
   name: "TicketPage",
-
+  components: {
+    DialogTicketAddUpdate,
+  },
   setup() {
+    const Ticket = new TicketClass();
+    const dialogTicketAddUpdateDefault = Ticket.dialogAddUpdateDefault;
     return {
       model: ref(null),
       ready: ref(true),
       loading: ref(false),
-      titles: ref([]),
+      servicesTitles: ref([]),
       modelusersForOwner: ref(null),
       usersForOwner: ref([]),
       options: [
@@ -209,6 +219,8 @@ export default defineComponent({
       textStatus: ref("Новый"),
       ticketTitle: ref(''),
       ticketDiscription: ref(""),
+      dialogTicketAddUpdate: ref({}),
+      dialogTicketAddUpdateDefault,
     };
   },
   async beforeMount() {
@@ -230,7 +242,7 @@ export default defineComponent({
         }
 
         if (this.$q.appStore.servicesList != null) {
-          this.titles = this.$q.appStore.servicesList.map((obj) => obj.title);
+          this.servicesTitles = this.$q.appStore.servicesList.map((obj) => obj.title);
         }
       } else {
 
@@ -244,7 +256,6 @@ export default defineComponent({
           });
           const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === this.selectTicketID.id);
           this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
-          console.log(elementsWithTicketId);
 
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
@@ -266,6 +277,7 @@ export default defineComponent({
             break;
         }
       }
+      this.loading = false;
     },
     getIdFromTitle(title) {
       const item = data.find((obj) => obj.title === title);
@@ -303,6 +315,66 @@ export default defineComponent({
       // Если тикет успешно создан
       else if (response.type === "answer") {
         this.$router.push({ path: '/'});
+      }
+    },
+    showDialogTicketAddUpdate () {
+      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const data = {};
+      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach(key => {
+        if (!excludeFields.includes(key)){
+          data[key] = this.dialogTicketAddUpdateDefault.data[key];
+        }
+      });
+
+
+      this.dialogTicketAddUpdate = {
+        show: true,
+        method: 'update',
+        onHide: () => this.dialogTicketAddUpdate = structuredClone(this.dialogTicketAddUpdateDefault),
+        dataWas:structuredClone(this.selectTicketID),
+        data:structuredClone(this.selectTicketID)
+      }
+    },
+    onTicketSave (result) {
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success && result.ticket) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тикет создан'
+        });
+        this.$q.appStore.set({selectedTicket: result.ticket} );
+        this.dialogTicketAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onTicketRemove (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тикет удален'
+        });
+        this.dialogTicketAddUpdate.show = false;
+        this.$router.push('/')
       }
     },
 

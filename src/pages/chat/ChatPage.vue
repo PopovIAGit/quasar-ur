@@ -18,7 +18,7 @@
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
               <div class="text-grey">
-                Выбранный тикет: {{ this.$q.appStore.selectedTicket !== null ? this.$q.appStore.selectedTicket.id : "новое_значение" }}
+                Выбранный тикет: {{ this.$q.appStore.selectedTicket !== null ? this.$q.appStore.selectedTicket.id : "тикет не выбран" }}
               </div>
             </q-card-section>
             <q-separator />
@@ -166,10 +166,6 @@
                     </q-list>
                   </q-scroll-area>
                 </q-card-section>
-                <q-card-section>
-                  <q-scroll-area style="height: 350px; max-width: 300px">
-                  </q-scroll-area>
-                </q-card-section>
               </q-tab-panel>
             </q-tab-panels>
           </q-card>
@@ -198,7 +194,6 @@ export default defineComponent({
     const selectRoomId = ref(null);
 
     localStore.$subscribe((mutation, state) => {
-      console.log("mutation", mutation);
       if (mutation.events.newValue.roomId === selectRoomId || mutation.events.newValue.ownerId === selectRoomId) {
           this.scrollToEnd();
       }
@@ -224,6 +219,7 @@ export default defineComponent({
   },
 
   async beforeMount() {
+
     await this.getData();
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
@@ -251,7 +247,6 @@ export default defineComponent({
           });
           const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === data.id);
           this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
-          console.log("elementsWithTicketId",elementsWithTicketId);
 
 
       await this.getData();
@@ -272,15 +267,14 @@ export default defineComponent({
       }
       this.loading = true;
 
-
-
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "message",
         method: "getList",
         args: {
-          limit: this.$q.appStore.numOfMsgInTicket >= 10 ? 10 : this.$q.appStore.numOfMsgInTicket,
-          offset: this.$q.appStore.numOfMsgInTicket - 10 > 0 ? this.$q.appStore.numOfMsgInTicket - 10 : 0,
+
+          // limit: this.$q.appStore.numOfMsgInTicket >= 10 ? 10 : 0,
+          // offset: this.$q.appStore.numOfMsgInTicket - 10 > 0 ? this.$q.appStore.numOfMsgInTicket - 10 : 0,
         },
       });
 
@@ -373,7 +367,7 @@ export default defineComponent({
         }
         setTimeout(() => {
           if (index > 1) {
-            const n = 1; // Ваше изначальное число, которое может быть заменено
+            const n = 10; // Ваше изначальное число, которое может быть заменено
             const ost = this.$q.appStore.numOfMsgInTicket - n * index; // Рассчитываем динамический лимит
             let dynamicLimit = 0;
 
@@ -385,16 +379,17 @@ export default defineComponent({
             } else {
               this.infinitescrollAreaRef.stop();
             }
+            let tmpOffset = this.$q.appStore.numOfMsgInTicket - n * index;
+            tmpOffset = tmpOffset>0?tmpOffset:0
             const response = this.$q.ws.sendRequest({
               type: "query",
               iface: "message",
               method: "getList",
               args: {
                 limit: dynamicLimit,
-                offset: this.$q.appStore.numOfMsgInTicket - n * index,
+                offset: tmpOffset ,
               },
             });
-              console.log("then",response);
             response.then((data) => {
               if (data.args.rows.length > 0) {
                 let tmpArr = data.args.rows.concat(this.messages);

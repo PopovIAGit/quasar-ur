@@ -321,6 +321,7 @@ class User {
       roles.forEach(item => {
         rolesByID[item.id] = item;
       });
+
       this.$q.helperTablesStore.set({
         roles,
         rolesByID

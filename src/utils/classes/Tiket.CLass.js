@@ -65,23 +65,24 @@ class Tiket {
       ticketStatusId: {
         label: "Статус тикета",
         type: "number",
-        default: undefined,
+        default: 1,
         index: true,
         rules: (val) => {
           return val !== null && typeof val === "number";
         },
       },
-      ownerID: {
-        label: "ID создателя",
+      ownerId: {
+        label: "Владелец",
         type: "number",
         default: undefined,
         index: true,
+        required: true,
         rules: (val) => {
           return val !== null && typeof val === "number";
         },
       },
-      serviceID: {
-        label: "ID услуги",
+      serviceId: {
+        label: "Услуга",
         type: "number",
         default: undefined,
         index: true,
@@ -127,7 +128,7 @@ class Tiket {
         iface: 'ticket',
         method: 'add',
         args: {
-          service: {
+          ticket: {
             ..._data
           }
         }
@@ -167,10 +168,10 @@ class Tiket {
       else {
         const response = await this.$q.ws.sendRequest({
           type: 'query',
-          iface: 'service',
+          iface: 'ticket',
           method: 'update',
           args: {
-            service: {
+            ticket: {
               id: data.id,
               ..._data
             }

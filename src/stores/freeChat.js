@@ -29,7 +29,7 @@ export const useFreeChatStore = defineStore("freeChat", {
       if (indexToDelete !== -1) {
         this.msgFromFreeChat.splice(indexToDelete, 1);
       } else {
-        console.log("Element with id", idToDel, "not found.");
+        console.log("Element with id", roomToDel, "not found.");
       }
     },
     addMsgToRoom(idToAdd, roomIdToAdd, contentToAdd) {

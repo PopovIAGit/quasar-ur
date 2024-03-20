@@ -37,7 +37,7 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.groupId"
-              :options= "this.$q.appStore.theme.map(item => ({ id: item.id, name: item.title }))"
+              :options= "this.$q.appStore.groupsList.map(item => ({ id: item.id, name: item.title }))"
               option-label="name"
               option-value="id"
               map-options
@@ -118,7 +118,7 @@ export default defineComponent({
 
       const tmp =
     [
-      this.$q.appStore.service.map(item => ({ id: item.id, name: item.title }))
+      this.$q.appStore.servicesList.map(item => ({ id: item.id, name: item.title }))
     ];
 
      console.log(tmp);

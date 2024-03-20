@@ -496,7 +496,7 @@ export default defineComponent({
       selectedTicket: null
     });
     this.$router.push({ path: '/tickets'});
-  }
+  },
   },
 });
 </script>

@@ -39,7 +39,6 @@ export default defineComponent({
 
 
     this.$q.freeChat.delitRoom(null);
-    console.log(this.$q.appStore.msgFromFreeChat);
     /** WS */
     const wssServer = 'wss://sinthy.fvds.ru:3031';
     this.$q.ws = new WebSocketAsPromised(wssServer, {

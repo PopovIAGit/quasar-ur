@@ -42,7 +42,7 @@
                         :name="
                           message.ownerId == this.User.id
                             ? this.User.name
-                            : 'Заменить на имя'
+                            : this.$q.appStore.usersList.find(obj=> obj.id == message.ownerId).name
                         "
                         :stamp = message.ticketId
                         :text="[message.content]"
@@ -98,7 +98,7 @@
                   ticketsList.length
                 }}</q-badge>
               </q-tab>
-              <q-tab name="freechat" icon="question_answer" label="Free Chat">
+              <q-tab name="freechat" icon="question_answer" label="Free Chat" v-if="this.$q.appStore.user.roleId < 4">
                 <q-badge color="primary" text-color="white" floating>{{
                   this.msgFromFreeChat.length
                 }}</q-badge>
@@ -261,7 +261,17 @@ export default defineComponent({
     async getData(props) {
       if (this.loading) return;
       this.User = this.$q.appStore.user;
-      this.ticketsList = this.$q.appStore.ticketsList;
+      if ( this.$q.appStore.user.roleId <= 2) {
+        this.ticketsList = this.$q.appStore.ticketsList;
+        }
+        else if ( this.$q.appStore.user.roleId === 3) {
+          //TODO заполнять для операторов.
+          this.ticketsList = this.$q.appStore.ticketsList;
+        }
+        else if (this.$q.appStore.user.roleId === 4) {
+           this.ticketsList = this.$q.appStore.ticketsList.filter((row) => row.ownerId === this.$q.appStore.user.id);
+        }
+
       if (this.$q.appStore.selectedTicket === null) {
         return;
       }

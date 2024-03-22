@@ -240,9 +240,34 @@ export default defineComponent({
       this.processing = false;
       this.$emit('onRemove', result);
     },
-    getUsersForOwner(){
-      if (this.$q.appStore.usersList != null) {
-        this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
+    async getUsersForOwner(){
+      // if (this.$q.appStore.usersList != null) {
+      //   this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
+      // }
+
+      const response = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'person',
+        method: 'getList',
+        args: {
+          where:{roleId: 4, isDeleted: false}
+        }
+      });
+      // Если ошибка получения списка пользователей
+      if (response.type === 'error') {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: 'Ошибка получения списка пользователей',
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      // Если получен список пользователей
+      else if (response.type === 'answer') {
+
+        this.usersForOwner = response.args.rows;
       }
     },
     getServiseTitles() {

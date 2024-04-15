@@ -18,7 +18,12 @@
               <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
               <div class="text-grey">{{ User.name + " " + User.surname }}</div>
               <div class="text-grey">
-                Выбранный тикет: {{ this.$q.appStore.selectedTicket !== null ? this.$q.appStore.selectedTicket.id : "тикет не выбран" }}
+                Выбранный тикет:
+                {{
+                  this.$q.appStore.selectedTicket !== null
+                    ? this.$q.appStore.selectedTicket.id
+                    : "тикет не выбран"
+                }}
               </div>
             </q-card-section>
             <q-separator />
@@ -35,33 +40,52 @@
                 >
                   <div class="row justify-evenly q-pa-md">
                     <div style="width: 100%; max-width: 800px">
-                     <div v-if="this.tab == 'tickets'">
-                      <q-chat-message
-                        v-for="message in messages"
-                        :key="message.id"
-                        :name="
-                          message.ownerId == this.User.id
-                            ? this.User.name
-                            : this.$q.appStore.usersList.find(obj=> obj.id == message.ownerId).name
-                        "
-                        :stamp = message.ticketId
-                        :text="[message.content]"
-                        :sent="message.ownerId == this.User.id ? true : false"
-                      />
-                    </div>
-                    <div v-if="this.tab == 'freechat'">
-                      <q-chat-message
-                        v-for="(freeMessage, id) in freeMessages"
-                        :key="id"
-                        :name="
-                          freeMessage.ownerId == this.User.name
-                            ? this.User.name
-                            : freeMessage.ownerId
-                        "
-                        :text="[freeMessage.content]"
-                        :sent="freeMessage.ownerId == this.User.name ? true : false"
-                      />
-                    </div>
+                      <div v-if="this.tab == 'tickets'">
+                        <q-chat-message
+                          v-for="message in messages"
+                          :key="message.id"
+                          :name="
+                            message.ownerId == this.User.id
+                              ? this.User.name
+                              : this.$q.appStore.usersList.find(
+                                  (obj) => obj.id == message.ownerId
+                                ).name
+                          "
+                          :stamp="message.ticketId"
+                          :text="[message.content]"
+                          :sent="message.ownerId == this.User.id ? true : false"
+                        />
+                      </div>
+                      <div v-if="this.tab == 'freechat'">
+                        <q-chat-message
+                          v-for="(freeMessage, id) in freeMessages"
+                          :key="id"
+                          :name="
+                            freeMessage.ownerId == this.User.name
+                              ? this.User.name
+                              : freeMessage.ownerId
+                          "
+                          :text="[freeMessage.content]"
+                          :sent="
+                            freeMessage.ownerId == this.User.name ? true : false
+                          "
+                        />
+                      </div>
+                      <div v-if="this.tab == 'freechatAll'">
+                        <q-chat-message
+                          v-for="(freeMessage, id) in freeMessages"
+                          :key="id"
+                          :name="
+                            freeMessage.ownerId == this.User.name
+                              ? this.User.name
+                              : freeMessage.ownerId
+                          "
+                          :text="[freeMessage.content]"
+                          :sent="
+                            freeMessage.ownerId == this.User.name ? true : false
+                          "
+                        />
+                      </div>
                     </div>
                   </div>
                   <template v-slot:loading>
@@ -98,7 +122,22 @@
                   ticketsList.length
                 }}</q-badge>
               </q-tab>
-              <q-tab name="freechat" icon="question_answer" label="Free Chat" v-if="this.$q.appStore.user.roleId < 4">
+              <q-tab
+                name="freechat"
+                icon="question_answer"
+                label="Free Chat"
+                v-if="this.$q.appStore.user.roleId < 4"
+              >
+                <q-badge color="primary" text-color="white" floating>{{
+                  this.msgFromFreeChat.length
+                }}</q-badge>
+              </q-tab>
+              <q-tab
+                name="freechatAll"
+                icon="question_answer"
+                label="Free Chat History"
+                v-if="this.$q.appStore.user.roleId < 3"
+              >
                 <q-badge color="primary" text-color="white" floating>{{
                   this.msgFromFreeChat.length
                 }}</q-badge>
@@ -117,7 +156,9 @@
                       <q-item
                         clickable
                         :active="
-                        this.$q.appStore.selectedTicket !== null ? this.$q.appStore.selectedTicket.id == ticket.id : false
+                          this.$q.appStore.selectedTicket !== null
+                            ? this.$q.appStore.selectedTicket.id == ticket.id
+                            : false
                         "
                         v-ripple
                         active-class="my-menu-link"
@@ -149,9 +190,34 @@
                     >
                       <q-item
                         clickable
-                        :active="
-                          room.roomId == this.selectRoomId
-                        "
+                        :active="room.roomId == this.selectRoomId"
+                        v-ripple
+                        active-class="my-menu-link"
+                        @click="clickFreeChat(room)"
+                      >
+                        <q-item-section>
+                          <q-item-label caption>
+                            roomId:{{ room.roomId }}</q-item-label
+                          >
+                        </q-item-section>
+                      </q-item>
+                      <q-separator />
+                    </q-list>
+                  </q-scroll-area>
+                </q-card-section>
+              </q-tab-panel>
+              <q-tab-panel name="freechatAll">
+                <q-card-section>
+                  <q-scroll-area style="height: 350px; max-width: 300px">
+                    <q-list
+                      separator
+                      v-for="room in this.msgFromFreeChat"
+                      :key="room.roomId"
+                      class="q-py-xs"
+                    >
+                      <q-item
+                        clickable
+                        :active="room.roomId == this.selectRoomId"
                         v-ripple
                         active-class="my-menu-link"
                         @click="clickFreeChat(room)"
@@ -181,23 +247,25 @@ import { useRoute } from "vue-router";
 
 import UserClass from "src/utils/classes/User.Class";
 import { storeToRefs } from "pinia";
-import {useFreeChatStore} from 'stores/freeChat'
+import { useFreeChatStore } from "stores/freeChat";
 
 export default defineComponent({
   name: "ChatPage",
 
   setup() {
-
     //
     const localStore = useFreeChatStore();
     const { msgFromFreeChat } = storeToRefs(localStore);
     const selectRoomId = ref(null);
 
     localStore.$subscribe((mutation, state) => {
-      if (mutation.events.newValue.roomId === selectRoomId || mutation.events.newValue.ownerId === selectRoomId) {
-          this.scrollToEnd();
+      if (
+        mutation.events.newValue.roomId === selectRoomId ||
+        mutation.events.newValue.ownerId === selectRoomId
+      ) {
+        this.scrollToEnd();
       }
-    })
+    });
 
     return {
       ready: ref(true),
@@ -215,11 +283,11 @@ export default defineComponent({
       selectRoomId,
       msgFromFreeChat,
       localStore,
+      freeMessagesAll: ref([]),
     };
   },
 
   async beforeMount() {
-
     await this.getData();
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
@@ -241,13 +309,12 @@ export default defineComponent({
         type: "query",
         iface: "message",
         method: "getList",
-        args: {
-
-            },
-          });
-          const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === data.id);
-          this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
-
+        args: {},
+      });
+      const elementsWithTicketId = response.args.rows.filter(
+        (element) => element.ticketId === data.id
+      );
+      this.$q.appStore.set({ numOfMsgInTicket: elementsWithTicketId.length });
 
       await this.getData();
     },
@@ -261,16 +328,16 @@ export default defineComponent({
     async getData(props) {
       if (this.loading) return;
       this.User = this.$q.appStore.user;
-      if ( this.$q.appStore.user.roleId <= 2) {
+      if (this.$q.appStore.user.roleId <= 2) {
         this.ticketsList = this.$q.appStore.ticketsList;
-        }
-        else if ( this.$q.appStore.user.roleId === 3) {
-          //TODO заполнять для операторов.
-          this.ticketsList = this.$q.appStore.ticketsList;
-        }
-        else if (this.$q.appStore.user.roleId === 4) {
-           this.ticketsList = this.$q.appStore.ticketsList.filter((row) => row.ownerId === this.$q.appStore.user.id);
-        }
+      } else if (this.$q.appStore.user.roleId === 3) {
+        //TODO заполнять для операторов.
+        this.ticketsList = this.$q.appStore.ticketsList;
+      } else if (this.$q.appStore.user.roleId === 4) {
+        this.ticketsList = this.$q.appStore.ticketsList.filter(
+          (row) => row.ownerId === this.$q.appStore.user.id
+        );
+      }
 
       if (this.$q.appStore.selectedTicket === null) {
         return;
@@ -282,7 +349,6 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
-
           // limit: this.$q.appStore.numOfMsgInTicket >= 10 ? 10 : 0,
           // offset: this.$q.appStore.numOfMsgInTicket - 10 > 0 ? this.$q.appStore.numOfMsgInTicket - 10 : 0,
         },
@@ -302,6 +368,28 @@ export default defineComponent({
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
       }
+
+      const responseFreeChat = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "freechat",
+        method: "getList",
+        args: {
+        },
+      })
+
+      if (responseFreeChat.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка cообщений",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseFreeChat.type === "answer") {
+        this.freeMessagesAll = responseFreeChat.args.rows;
+      }
+      console.log("this.freeMessagesAll", responseFreeChat);
 
       await nextTick(() => {
         this.scrollToEnd();
@@ -335,7 +423,6 @@ export default defineComponent({
           this.addNewMessage(response.args);
         }
       } else if (this.tab === "freechat") {
-
         const response = await this.$q.ws.sendRequest({
           type: "query",
           iface: "freechat",
@@ -353,12 +440,12 @@ export default defineComponent({
           console.error("error", response.args);
         } else if (response.type === "answer") {
           this.addNewFreeMessage({
-              ownerId: this.$q.appStore.user.name,
-              roomId: this.selectRoomId,
-              content: this.msgDataToSend,
-              sentDateTime: new Date(),
-        });
-        this.msgDataToSend = "";
+            ownerId: this.$q.appStore.user.name,
+            roomId: this.selectRoomId,
+            content: this.msgDataToSend,
+            sentDateTime: new Date(),
+          });
+          this.msgDataToSend = "";
         }
       }
     },
@@ -390,14 +477,14 @@ export default defineComponent({
               this.infinitescrollAreaRef.stop();
             }
             let tmpOffset = this.$q.appStore.numOfMsgInTicket - n * index;
-            tmpOffset = tmpOffset>0?tmpOffset:0
+            tmpOffset = tmpOffset > 0 ? tmpOffset : 0;
             const response = this.$q.ws.sendRequest({
               type: "query",
               iface: "message",
               method: "getList",
               args: {
                 limit: dynamicLimit,
-                offset: tmpOffset ,
+                offset: tmpOffset,
               },
             });
             response.then((data) => {
@@ -412,11 +499,9 @@ export default defineComponent({
             done();
           }
         }, 1000);
-      }
-      else if (this.tab === "freechat") {
+      } else if (this.tab === "freechat") {
         done();
       }
-
     },
     async addNewMessage(message) {
       this.messages.push(message);
@@ -424,7 +509,6 @@ export default defineComponent({
       await nextTick(() => {
         this.scrollToEnd();
       });
-
     },
     async addNewFreeMessage(message) {
       this.freeMessages.push(message);
@@ -434,7 +518,6 @@ export default defineComponent({
       });
     },
   },
-
 });
 </script>
 <style lang="sass">

@@ -56,42 +56,6 @@
                   >
                 </template>
               </q-tree>
-              <!-- <q-list>
-                <q-expansion-item
-                  expand-separator
-                  label="Тема"
-                  caption="Выберете сервис обращения"
-                >
-                  <template v-slot:default>
-                    <q-list>
-                      <q-item
-                        v-for="child in themeList.filter(
-                          (item) => item.parentId === null
-                        )"
-                        :key="child.id"
-                      >
-                        <q-item-section>
-                          <q-item-label>
-                            {{ child.title }}
-                          </q-item-label>
-                          <q-item-label caption lines="1">
-                            {{ child.description }}
-                          </q-item-label>
-                          <q-item-label caption lines="1">
-                            {{ child.id }}
-                          </q-item-label>
-                        </q-item-section>
-                      </q-item>
-                    </q-list>
-                  </template>
-                  <!-- <ThemeItem
-                  v-for="child in topLevelThemeList"
-                  :theme="child"
-                  :themeList="themeList"
-                  :key="child.id"
-                />
-                </q-expansion-item>
-              </q-list> -->
             </q-card-section>
           </q-card>
         </div>
@@ -435,6 +399,7 @@ export default defineComponent({
       } else if (responseTheme.type === "answer") {
         this.$q.appStore.set({ groupsList: responseTheme.args.rows });
         this.themeList = responseTheme.args.rows;
+        console.log("themeList", this.themeList);
         this.themeList.forEach((item) => {
           item.lazy = true;
           item.selectable = true;

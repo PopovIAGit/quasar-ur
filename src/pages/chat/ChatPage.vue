@@ -61,9 +61,11 @@
                           v-for="(freeMessage, id) in freeMessages"
                           :key="id"
                           :name="
-                            freeMessage.ownerId == this.User.name
+                            message.ownerId == this.User.id
                               ? this.User.name
-                              : freeMessage.ownerId
+                              : this.$q.appStore.usersList.find(
+                                  (obj) => obj.id == message.ownerId
+                                ).name
                           "
                           :text="[freeMessage.content]"
                           :sent="
@@ -73,19 +75,22 @@
                       </div>
                       <div v-if="this.tab == 'freechatAll'">
                         <q-chat-message
-                          v-for="(freeMessage, id) in freeMessages"
+                          v-for="(freeMessageAll, id) in freeMessagesAll"
                           :key="id"
                           :name="
-                            freeMessage.ownerId == this.User.name
-                              ? this.User.name
-                              : freeMessage.ownerId
+                            (user = this.$q.appStore.usersList.find(
+                              (obj) => obj.id == freeMessageAll.ownerId
+                            ))
+                              ? user.name
+                              : freeMessageAll.ownerId
                           "
-                          :text="[freeMessage.content]"
+                          :text="[freeMessageAll.message]"
                           :sent="
-                            freeMessage.ownerId == this.User.name ? true : false
+                            freeMessageAll.ownerId == this.User.id ? true : false
                           "
                         />
                       </div>
+
                     </div>
                   </div>
                   <template v-slot:loading>
@@ -135,12 +140,9 @@
               <q-tab
                 name="freechatAll"
                 icon="question_answer"
-                label="Free Chat History"
+                label="Free History"
                 v-if="this.$q.appStore.user.roleId < 3"
               >
-                <q-badge color="primary" text-color="white" floating>{{
-                  this.msgFromFreeChat.length
-                }}</q-badge>
               </q-tab>
             </q-tabs>
             <q-tab-panels v-model="tab" animated>
@@ -179,7 +181,7 @@
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
-              <q-tab-panel name="freechat">
+              <q-tab-panel name="freechat" v-if="this.$q.appStore.user.roleId < 3">
                 <q-card-section>
                   <q-scroll-area style="height: 350px; max-width: 300px">
                     <q-list
@@ -208,8 +210,8 @@
               </q-tab-panel>
               <q-tab-panel name="freechatAll">
                 <q-card-section>
-                  <q-scroll-area style="height: 350px; max-width: 300px">
-                    <q-list
+                   <q-scroll-area style="height: 350px; max-width: 300px">
+                  <!--  <q-list
                       separator
                       v-for="room in this.msgFromFreeChat"
                       :key="room.roomId"
@@ -229,7 +231,7 @@
                         </q-item-section>
                       </q-item>
                       <q-separator />
-                    </q-list>
+                    </q-list>-->
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
@@ -387,9 +389,8 @@ export default defineComponent({
           },
         });
       } else if (responseFreeChat.type === "answer") {
-        this.freeMessagesAll = responseFreeChat.args.rows;
+        this.freeMessagesAll = responseFreeChat.args.rows.filter(row => row.message !== "!msg to destroy room!");
       }
-      console.log("this.freeMessagesAll", responseFreeChat);
 
       await nextTick(() => {
         this.scrollToEnd();

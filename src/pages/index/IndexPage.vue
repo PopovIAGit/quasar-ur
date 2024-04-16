@@ -45,11 +45,9 @@
                 </template>
 
                 <template v-slot:default-body="prop">
-                  <div v-if="prop.node.id">
-                   id : {{ prop.node.id }}
-                  </div>
+                  <div v-if="prop.node.id">id : {{ prop.node.id }}</div>
                   <div v-if="prop.node.description">
-                   Описание: {{ prop.node.description}}
+                    Описание: {{ prop.node.description }}
                   </div>
                   <span v-else class="text-weight-light text-black"
                     >Нет описания</span
@@ -259,7 +257,6 @@ export default defineComponent({
       rowsNumber: 0,
     };
 
-
     return {
       rows: ref([]),
       columns,
@@ -359,7 +356,6 @@ export default defineComponent({
           );
         }
 
-
         this.rows = answer;
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -399,7 +395,6 @@ export default defineComponent({
       } else if (responseTheme.type === "answer") {
         this.$q.appStore.set({ groupsList: responseTheme.args.rows });
         this.themeList = responseTheme.args.rows;
-        console.log("themeList", this.themeList);
         this.themeList.forEach((item) => {
           item.lazy = true;
           item.selectable = true;
@@ -408,7 +403,6 @@ export default defineComponent({
         // this.topLevelThemeList = responseTheme.args.rows.filter(
         //   (row) => row.parentId === null
         // );
-
       }
 
       const responseServece = await this.$q.ws.sendRequest({
@@ -532,9 +526,12 @@ export default defineComponent({
       this.$router.push({ path: "/tickets" });
     },
     onLazyLoad({ node, key, done, fail }) {
-      const foundItems = this.themeList.filter((item) => item.parentId === key);
-      // const foundService = this.serviceList.filter((item) => item.groupId === key);
-      // const result = [...foundItems, ...foundService];
+      // const foundItems = this.themeList.filter((item) => item.parentId === key);
+
+      const foundItems = this.themeList.map((item) => item.services.filter((item) => item.groupId === key));
+
+      // foundItems.filter((item) => item.groupId === key);
+      console.log("foundItems", foundItems);
       done(foundItems);
     },
     handleDoubleClick(item) {

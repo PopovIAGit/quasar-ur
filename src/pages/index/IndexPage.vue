@@ -528,7 +528,9 @@ export default defineComponent({
     onLazyLoad({ node, key, done, fail }) {
       // const foundItems = this.themeList.filter((item) => item.parentId === key);
 
-      const foundItems = this.themeList.map((item) => item.services.filter((item) => item.groupId === key));
+      //const foundItems = this.themeList.map((item) => item.services.filter((item) => item.groupId === key));
+
+      const foundItems = node.services;
 
       // foundItems.filter((item) => item.groupId === key);
       console.log("foundItems", foundItems);

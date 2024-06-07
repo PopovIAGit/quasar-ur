@@ -443,30 +443,28 @@ export default defineComponent({
     // });
 
 
-    /** Получаем все списки файлов **/
-    const responseFileList = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "file",
-        method: "getList",
-        args: {
-        },
-      });
-      console.log("responseFile", responseFileList);
+    // /** Получаем все списки файлов **/
+    // const responseFileList = await this.$q.ws.sendRequest({
+    //     type: "query",
+    //     iface: "file",
+    //     method: "getList",
+    //     args: {
+    //     },
+    //   });
+    //   console.log("responseFileList", responseFileList);
 
 
     const responseFile = await this.$q.ws.sendRequest({
         type: "query",
         iface: "file",
         method: "get",
-        id: 1,
         args:{
           file:{
-            id:21,
+            id:21
           }
         }
       });
       console.log("responseFile", responseFile);
-
 
   },
 

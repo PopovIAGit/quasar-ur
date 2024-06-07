@@ -351,6 +351,7 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
+              where: {id: this.User.id},
           // limit: this.$q.appStore.numOfMsgInTicket >= 10 ? 10 : 0,
           // offset: this.$q.appStore.numOfMsgInTicket - 10 > 0 ? this.$q.appStore.numOfMsgInTicket - 10 : 0,
         },
@@ -484,7 +485,7 @@ export default defineComponent({
               iface: "message",
               method: "getList",
               args: {
-                limit: dynamicLimit,
+                limit:  dynamicLimit,
                 offset: tmpOffset,
               },
             });

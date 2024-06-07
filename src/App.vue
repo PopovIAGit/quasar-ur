@@ -177,8 +177,57 @@ export default defineComponent({
       else if (responseUser.type === 'answer') {
         this.$q.appStore.set({usersList: responseUser.args.rows});
       }
-    }
 
+
+      // const response1 = await this.$q.ws.sendRequest({
+      //   type: 'query',
+      //   iface: 'person',
+      //   method: 'getList',
+      //   args: {
+      //     where: {id:1}
+      //   }
+      // });
+      // console.log("11111",response1);
+      // // Если ошибка получения списка пользователей
+      // if (response1.type === 'error') {
+      //   this.$q.dialogStore.set({
+      //     show: true,
+      //     title: 'Ошибка',
+      //     text: 'Ошибка получения списка пользователей',
+      //     ok: {
+      //       color: 'red'
+      //     }
+      //   });
+      // }
+      // // Если получен список пользователей
+      // else if (response1.type === 'answer') {
+      //   console.log("123123",response1.args.rows);
+      // }
+
+            const response1 = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'ticket',
+        method: 'getList',
+        args: {
+          where: {ownerId:1}
+        }
+      });
+      // Если ошибка получения списка пользователей
+      if (response1.type === 'error') {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: 'Ошибка !',
+          ok: {
+            color: 'red'
+          }
+
+        });
+      }
+      // Если получен список пользователей
+      else if (response1.type === 'answer') {
+      }
+    }
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "freechatMessage") {
@@ -188,11 +237,8 @@ export default defineComponent({
         }else {
           this.$q.freeChat.addMsgToRoom(data.args.args.message.ownerId, data.args.args.message.roomId, data.args.args.message.content);
         }
-
-
       }
     });
-
 
     this.$q.appStore.set({
       ready: true
@@ -395,6 +441,32 @@ export default defineComponent({
     //     }
     //   }
     // });
+
+
+    /** Получаем все списки файлов **/
+    const responseFileList = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "getList",
+        args: {
+        },
+      });
+      console.log("responseFile", responseFileList);
+
+
+    const responseFile = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "get",
+        id: 1,
+        args:{
+          file:{
+            id:21,
+          }
+        }
+      });
+      console.log("responseFile", responseFile);
+
 
   },
 

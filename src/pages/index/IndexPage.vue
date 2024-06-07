@@ -31,7 +31,8 @@
               </div>
               <q-tree
                 :nodes="themeList.filter((item) => item.parentId === null)"
-                node-key="id"
+                node-key="title"
+                no-transition
                 @lazy-load="onLazyLoad"
                 ref="tree"
                 accordion="true"
@@ -525,21 +526,29 @@ export default defineComponent({
       });
       this.$router.push({ path: "/tickets" });
     },
-    onLazyLoad({ node, key, done, fail }) {
-      // const foundItems = this.themeList.filter((item) => item.parentId === key);
+    onLazyLoad({ node: parent, key, done }) {
+      console.log("1", parent,"2",  key);
+      let children = this.themeList.filter(item => item.parentId === parent.id)
+        .concat(parent.services || []);
 
-      //const foundItems = this.themeList.map((item) => item.services.filter((item) => item.groupId === key));
+        children.forEach((item) => {
+          item.lazy = true;
+          item.selectable = true;
+          if (item.groupId) {
+            item.expandable = false;
+          }
+        });
 
-      const foundItems = node.services;
-
-      // foundItems.filter((item) => item.groupId === key);
-      console.log("foundItems", foundItems);
-      done(foundItems);
+        console.log("onLazyLoad", children);
+      done(children);
     },
+
     handleDoubleClick(item) {
       const row = this.themeList.find(
         (key) => key.title === item.target.innerText
       );
+
+      console.log(row);
       this.dialogThemeAddUpdate = {
         show: true,
         method: "update",

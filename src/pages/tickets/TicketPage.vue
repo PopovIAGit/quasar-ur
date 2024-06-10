@@ -157,16 +157,30 @@
                   />
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
-                  <div class="q-dialog__title">Файлы</div>
+                  <div class="q-dialog__title">
+                    <div class="row justify-between ">
+                      <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">Файлы</div>
+                      <q-file  class="col-lg-2 col-md-2 col-xs-12"
+                      v-model="newFile"  no-caps icon="attach_file"
+                      @click="uploadTicketFile"
+                    >
+                      <template v-slot:append>
+                        <q-icon name="attach_file" />
+                      </template>
+                  </q-file>
+                  </div>
+
+                    </div>
                   <q-list separator>
                     <q-item
-                      v-for="(option, index) in options"
+                      v-for="(option, index) in ticketFileList"
                       :key="index"
                       class="q-my-sm"
                       clickable
                       v-ripple
+                       @click="downloadTicketSelectedFile(option)"
                     >
-                      <q-item-section>{{ option }}</q-item-section>
+                      <q-item-section>{{ option.fileName }}</q-item-section>
                     </q-item>
                   </q-list>
                 </div>
@@ -207,13 +221,7 @@ export default defineComponent({
       servicesTitles: ref([]),
       modelusersForOwner: ref(null),
       usersForOwner: ref([]),
-      options: [
-        "file1.doc",
-        "file2.doc",
-        "file3.doc",
-        "file4.doc",
-        "file5.doc",
-      ],
+      ticketFileList:  ref([]),
       selectTicketID: ref(null),
       colorStatus: ref('bg-positive'),
       textStatus: ref("Новый"),
@@ -221,14 +229,23 @@ export default defineComponent({
       ticketDiscription: ref(""),
       dialogTicketAddUpdate: ref({}),
       dialogTicketAddUpdateDefault,
+      newFile: ref(null)
     };
   },
   async beforeMount() {
     await this.getData();
+    if (this.selectTicketID != null) {
+      await this.getTicketFileList();
+    }
   },
+
+  // async beforeUnmount(){
+  //   this.ticketFileList = null;
+  // },
   methods: {
     async getData(props) {
       if (this.loading) return;
+
       this.loading = true;
 
       this.selectTicketID = this.$q.appStore.selectedTicket;
@@ -378,6 +395,39 @@ export default defineComponent({
       }
     },
 
+    async getTicketFileList(){
+        /** Получаем все списки файлов **/
+    const responseFileList = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "getList",
+        args: {
+        },
+      });
+      console.log("responseFileList", responseFileList);
+
+      this.ticketFileList = responseFileList.args.rows.filter(
+    (file) => file.ticketId === this.selectTicketID.id );
+    },
+
+    async downloadTicketSelectedFile(file) {
+      const responseFile = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "get",
+        args:{
+          file:{
+            id:file.id
+          }
+        }
+      });
+      console.log("responseFile", responseFile.args.data);
+    },
+    async uploadTicketFile(){
+      const file = this.$refs.fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+    },
   },
 });
 </script>

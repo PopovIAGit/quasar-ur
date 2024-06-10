@@ -453,18 +453,17 @@ export default defineComponent({
     //   });
     //   console.log("responseFileList", responseFileList);
 
-
-    const responseFile = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "file",
-        method: "get",
-        args:{
-          file:{
-            id:21
-          }
-        }
-      });
-      console.log("responseFile", responseFile);
+    // const responseFile = await this.$q.ws.sendRequest({
+    //     type: "query",
+    //     iface: "file",
+    //     method: "get",
+    //     args:{
+    //       file:{
+    //         id:21
+    //       }
+    //     }
+    //   });
+    //   console.log("responseFile", responseFile);
 
   },
 

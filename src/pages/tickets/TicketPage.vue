@@ -126,7 +126,7 @@
                   </div>
                   <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md" >
 
-                     <q-badge align="middle" :class = " colorStatus"> {{ textStatus }}</q-badge>
+                     <q-badge align="middle" :class = "colorStatus"> {{ textStatus }}</q-badge>
                   </div>
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -205,6 +205,7 @@ import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
 import DialogTicketAddUpdate from 'components/dialogs/Ticket/DialogTicketAddUpdate';
 import TicketClass from "src/utils/classes/Tiket.Class";
+import Buffer from "vue-buffer";
 
 export default defineComponent({
   name: "TicketPage",
@@ -410,19 +411,50 @@ export default defineComponent({
     (file) => file.ticketId === this.selectTicketID.id );
     },
 
+    // async downloadTicketSelectedFile(file) {
+    //   const responseFile = await this.$q.ws.sendRequest({
+    //     type: "query",
+    //     iface: "file",
+    //     method: "get",
+    //     args:{
+    //       file:{
+    //         id:file.id
+    //       }
+    //     }
+    //   });
+    //   console.log("responseFile", responseFile);
+    // },
     async downloadTicketSelectedFile(file) {
+    try {
       const responseFile = await this.$q.ws.sendRequest({
         type: "query",
         iface: "file",
         method: "get",
-        args:{
-          file:{
-            id:file.id
+        args: {
+          file: {
+            id: file.id
           }
         }
       });
-      console.log("responseFile", responseFile.args.data);
-    },
+      if (responseFile.type == "answer") {
+        const fileData = responseFile.args;
+        const buf =  Buffer.from(fileData.data.data);
+        // const data1 = JSON.parse(buf);
+        console.log("buf",buf);
+        const blob = new Blob([buf], { type: fileData.type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileData.fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+      } else {
+        console.error("Failed to download file:", responseFile);
+      }
+    } catch (error) {
+      console.error("Error occurred while downloading file:", error);
+    }
+},
     async uploadTicketFile(){
       const file = this.$refs.fileInput.files[0];
       const formData = new FormData();

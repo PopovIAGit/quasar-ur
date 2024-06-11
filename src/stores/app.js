@@ -11,9 +11,12 @@ export const useAppStore = defineStore('app', {
     selectedTicket: null,
     numOfMsgInTicket: null,
     msgFromFreeChat: [{
-      id: null,
+id: null,
       roomId:null,
-      content:[]
+      msg:[{
+        id: null,
+        content: null
+      }]
     }]
   }),
   getters: {},

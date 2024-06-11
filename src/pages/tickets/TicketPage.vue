@@ -158,16 +158,12 @@
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
                   <div class="q-dialog__title">
-                    <div class="row justify-between ">
-                      <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">Файлы</div>
-                      <q-file  class="col-lg-2 col-md-2 col-xs-12"
-                      v-model="newFile"  no-caps icon="attach_file"
-                      @click="uploadTicketFile"
-                    >
-                      <template v-slot:append>
-                        <q-icon name="attach_file" />
-                      </template>
-                  </q-file>
+                    <div class="row ">
+                      <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
+                        Файлы
+                      </div>
+
+                      <q-btn class="q-p-md" @click="uploadTicketFile" icon="attach_file"  round  flat />
                   </div>
 
                     </div>
@@ -456,9 +452,26 @@ export default defineComponent({
     }
 },
     async uploadTicketFile(){
-      const file = this.$refs.fileInput.files[0];
-      const formData = new FormData();
-      formData.append("file", file);
+      var input = document.createElement('input');
+        input.type = 'file';
+
+        input.onchange = e => {
+
+          // getting a hold of the file reference
+          var file = e.target.files[0];
+
+          // setting up the reader
+          var reader = new FileReader();
+          reader.readAsText(file,'UTF-8');
+
+          // here we tell the reader what to do when it's done reading...
+          reader.onload = readerEvent => {
+              var content = readerEvent.target.result; // this is the content!
+              console.log( content );
+          }
+}
+
+input.click();
     },
   },
 });

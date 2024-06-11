@@ -3,9 +3,13 @@
     <div class="container">
       <h1>Главная</h1>
       <div
-        class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width" >
+        class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width"
+      >
         <!-- для пользователей   -->
-        <div class="q-pa-sm col-lg-4 col-md-12 col-xs-12" v-if="this.$q.appStore.user.roleId < 3">
+        <div
+          class="q-pa-sm col-lg-4 col-md-12 col-xs-12"
+          v-if="this.$q.appStore.user.roleId < 3"
+        >
           <q-card>
             <q-card-section>
               <h4>ТЕМЫ</h4>
@@ -25,21 +29,32 @@
                   @click="showDialogServiceAddUpdate"
                 />
               </div>
-              <q-list>
-                <q-expansion-item
-                  expand-separator
-                  label="Тема"
-                  caption="Выберете сервис обращения"
-                >
-                <ThemeItem
-                  v-for="child in topLevelThemeList"
-                  :theme="child"
-                  :themeList="themeList"
-                  :key="child.id"
-                />
-              </q-expansion-item>
+              <q-tree
+                :nodes="themeList.filter((item) => item.parentId === null)"
+                node-key="title"
+                no-transition
+                @lazy-load="onLazyLoad"
+                ref="tree"
+                accordion="true"
+              >
+                <template v-slot:default-header="prop">
+                  <div class="row items-center">
+                    <div class="text-weight-bold" @dblclick="handleDoubleClick">
+                      {{ prop.node.title }}
+                    </div>
+                  </div>
+                </template>
 
-              </q-list>
+                <template v-slot:default-body="prop">
+                  <div v-if="prop.node.id">id : {{ prop.node.id }}</div>
+                  <div v-if="prop.node.description">
+                    Описание: {{ prop.node.description }}
+                  </div>
+                  <span v-else class="text-weight-light text-black"
+                    >Нет описания</span
+                  >
+                </template>
+              </q-tree>
             </q-card-section>
           </q-card>
         </div>
@@ -59,7 +74,6 @@
             binary-state-sort
             v-model:pagination="pagination"
             @request="getData"
-
             :loading="loading"
           >
             <template v-slot:top="props">
@@ -70,7 +84,10 @@
                     <h4>ТИКЕТЫ</h4>
                   </div>
                   <div class="right col-auto">
-                    <div class="q-pb-md q-pr-md" v-if="this.$q.appStore.user.roleId < 3">
+                    <div
+                      class="q-pb-md q-pr-md"
+                      v-if="this.$q.appStore.user.roleId < 3"
+                    >
                       <q-btn
                         unelevated
                         no-caps
@@ -79,7 +96,7 @@
                         @click="createTicket"
                       ></q-btn>
                     </div>
-                    <div class=" q-pb-md">
+                    <div class="q-pb-md">
                       <q-select
                         outlined
                         bg-color="white"
@@ -130,7 +147,7 @@
     @onSave="onThemeSave"
   />
   <dialog-service-add-update
-  :dialog="dialogServiceAddUpdate"
+    :dialog="dialogServiceAddUpdate"
     @onSave="onServiceSave"
   />
 </template>
@@ -146,9 +163,9 @@ import ThemeClass from "src/utils/classes/Theme.Class";
 /// класс работы с сервисом
 import ServiceClass from "src/utils/classes/Service.Class";
 /// диалоговое окно создания/изменения темы
-import DialogThemeAddUpdate from 'components/dialogs/Theme/DialogThemeAddUpdate';
+import DialogThemeAddUpdate from "components/dialogs/Theme/DialogThemeAddUpdate";
 /// диалоговое окно создания/изменения сервиса
-import ServiceThemeAddUpdate from 'components/dialogs/Service/DialogServiceAddUpdate';
+import ServiceThemeAddUpdate from "components/dialogs/Service/DialogServiceAddUpdate";
 /// компонент отображения списка тема с вложенностью
 import ThemeItem from "components/ThemeItem.vue";
 import DialogServiceAddUpdate from "src/components/dialogs/Service/DialogServiceAddUpdate.vue";
@@ -159,7 +176,7 @@ export default defineComponent({
     ThemeItem,
     DialogThemeAddUpdate,
     ServiceThemeAddUpdate,
-    DialogServiceAddUpdate
+    DialogServiceAddUpdate,
   },
   setup() {
     const User = new UserClass();
@@ -179,12 +196,12 @@ export default defineComponent({
         align: "left",
         sortable: true,
         format: (val) => {
-            const date = new Date(val);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
-          },
+          const date = new Date(val);
+          const day = date.getDate().toString().padStart(2, "0");
+          const month = (date.getMonth() + 1).toString().padStart(2, "0");
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
+        },
       },
       {
         name: "title",
@@ -206,28 +223,28 @@ export default defineComponent({
         field: "ticketStatusId",
         align: "left",
         sortable: true,
-        format: (val)=> {
+        format: (val) => {
           let status = "";
           switch (val) {
-              case 1:
-                  status = "новый";
-                  break;
-              case 2:
-                  status = "открыт";
-                  break;
-              case 3:
-                  status = "закрыт";
-                  break;
-              case 4:
-                  status = "восстановлен";
-                  break;
-              default:
-                  status = "неизвестный статус";
-                  break;
+            case 1:
+              status = "новый";
+              break;
+            case 2:
+              status = "открыт";
+              break;
+            case 3:
+              status = "закрыт";
+              break;
+            case 4:
+              status = "восстановлен";
+              break;
+            default:
+              status = "неизвестный статус";
+              break;
           }
 
           return status;
-        }
+        },
       },
     ];
 
@@ -241,10 +258,6 @@ export default defineComponent({
       rowsNumber: 0,
     };
 
-    const themeList = null;
-    const topLevelThemeList = null;
-    const serviceList = null;
-
     return {
       rows: ref([]),
       columns,
@@ -257,13 +270,13 @@ export default defineComponent({
       User,
       Theme,
       Service,
-      themeList,
-      serviceList,
-      topLevelThemeList,
+      themeList: ref([]),
+      serviceList: ref([]),
       dialogThemeAddUpdateDefault,
       dialogThemeAddUpdate: ref({}),
       dialogServiceAddUpdateDefault,
       dialogServiceAddUpdate: ref({}),
+      selected: ref(null),
     };
   },
 
@@ -271,21 +284,21 @@ export default defineComponent({
     await this.getData();
 
     // получили список тем
-      const resultTakeTheme=  await this.Theme.takeTheme();
-      if (!resultTakeTheme.success) {
-        if (resultTakeTheme.message) {
-          this.$q.dialogStore.set({
-            show: true,
-            title: 'Ошибка',
-            html: resultTakeTheme.message,
-            ok: {
-              color: 'red'
-            }
-          });
-        }
-        window['splash-screen'].classList.add('ready', 'error');
-        return;
+    const resultTakeTheme = await this.Theme.takeTheme();
+    if (!resultTakeTheme.success) {
+      if (resultTakeTheme.message) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          html: resultTakeTheme.message,
+          ok: {
+            color: "red",
+          },
+        });
       }
+      window["splash-screen"].classList.add("ready", "error");
+      return;
+    }
   },
 
   methods: {
@@ -308,7 +321,7 @@ export default defineComponent({
         iface: "ticket",
         method: "getList",
         args: {
-         // id: this.$q.appStore.user.roleId,
+          // id: this.$q.appStore.user.roleId,
           limit: rowsPerPage,
           offset: (page - 1) * rowsPerPage,
           order: [[sortBy, descending ? "DESC" : "ASC"]],
@@ -331,20 +344,19 @@ export default defineComponent({
       }
       // Если получен список тикетов
       else if (response.type === "answer") {
-        this.$q.appStore.set({ticketsList: response.args.rows});
+        this.$q.appStore.set({ ticketsList: response.args.rows });
         let answer = [];
-        if ( this.$q.appStore.user.roleId <= 2) {
-           answer = response.args.rows;
-        }
-        else if ( this.$q.appStore.user.roleId === 3) {
+        if (this.$q.appStore.user.roleId <= 2) {
+          answer = response.args.rows;
+        } else if (this.$q.appStore.user.roleId === 3) {
           //TODO заполнять для операторов.
           answer = response.args.rows; // заглушка
-        }
-        else if (this.$q.appStore.user.roleId === 4) {
-           answer = response.args.rows.filter((row) => row.ownerId === this.$q.appStore.user.id);
+        } else if (this.$q.appStore.user.roleId === 4) {
+          answer = response.args.rows.filter(
+            (row) => row.ownerId === this.$q.appStore.user.id
+          );
         }
 
-        console.log("answer", answer);
         this.rows = answer;
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -382,11 +394,16 @@ export default defineComponent({
           },
         });
       } else if (responseTheme.type === "answer") {
-        this.$q.appStore.set({groupsList: responseTheme.args.rows});
+        this.$q.appStore.set({ groupsList: responseTheme.args.rows });
         this.themeList = responseTheme.args.rows;
-        this.topLevelThemeList = responseTheme.args.rows.filter(
-          (row) => row.parentId === null
-        );
+        this.themeList.forEach((item) => {
+          item.lazy = true;
+          item.selectable = true;
+        });
+
+        // this.topLevelThemeList = responseTheme.args.rows.filter(
+        //   (row) => row.parentId === null
+        // );
       }
 
       const responseServece = await this.$q.ws.sendRequest({
@@ -405,7 +422,7 @@ export default defineComponent({
           },
         });
       } else if (responseServece.type === "answer") {
-        this.$q.appStore.set({servicesList: responseServece.args.rows});
+        this.$q.appStore.set({ servicesList: responseServece.args.rows });
         this.serviceList = responseServece.args.rows;
       }
 
@@ -413,90 +430,136 @@ export default defineComponent({
       this.loading = false;
     },
 
-    showDialogThemeAddUpdate () {
-      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+    showDialogThemeAddUpdate() {
+      const excludeFields = [
+        "id",
+        "token",
+        "isDeleted",
+        "online",
+        "active",
+        "lazy",
+        "selectable",
+      ];
       const data = {};
-      Object.keys(this.dialogThemeAddUpdateDefault.data).forEach(key => {
-        if (!excludeFields.includes(key)){
+      Object.keys(this.dialogThemeAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
           data[key] = this.dialogThemeAddUpdateDefault.data[key];
         }
       });
       this.dialogThemeAddUpdate = {
         show: true,
-        method: 'add',
-        onHide: () => this.dialogThemeAddUpdate = structuredClone(this.dialogThemeAddUpdateDefault),
-        data
-      }
+        method: "add",
+        onHide: () =>
+          (this.dialogThemeAddUpdate = structuredClone(
+            this.dialogThemeAddUpdateDefault
+          )),
+        data,
+      };
     },
-    onThemeSave (result) {
+    onThemeSave(result) {
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Ошибка',
+          title: "Ошибка",
           text: result.message,
           ok: {
-            color: 'red'
-          }
+            color: "red",
+          },
         });
-      }
-      else if (result.success && result.user) {
+      } else if (result.success && result.theme) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Тема создана'
+          title: "Тема создана",
         });
         this.dialogThemeAddUpdate.show = false;
         this.getData();
       }
     },
-    showDialogServiceAddUpdate () {
-      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+    showDialogServiceAddUpdate() {
+      const excludeFields = ["id", "token", "isDeleted", "online", "active"];
       const data = {};
-      Object.keys(this.dialogServiceAddUpdateDefault.data).forEach(key => {
-        if (!excludeFields.includes(key)){
+      Object.keys(this.dialogServiceAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
           data[key] = this.dialogServiceAddUpdateDefault.data[key];
         }
       });
       this.dialogServiceAddUpdate = {
         show: true,
-        method: 'add',
-        onHide: () => this.dialogServiceAddUpdate = structuredClone(this.dialogServiceAddUpdateDefault),
-        data
+        method: "add",
+        onHide: () =>
+          (this.dialogServiceAddUpdate = structuredClone(
+            this.dialogServiceAddUpdateDefault
+          )),
+        data,
       };
     },
-    onServiceSave (result) {
+    onServiceSave(result) {
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Ошибка',
+          title: "Ошибка",
           text: result.message,
           ok: {
-            color: 'red'
-          }
+            color: "red",
+          },
         });
-      }
-      else if (result.success && result.user) {
+      } else if (result.success && result.service) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Сервис создан'
+          title: "Сервис создан",
         });
         this.dialogServiceAddUpdate.show = false;
         this.getData();
       }
     },
     handleRowDoubleClick(event, row) {
-    // Получите данные строки и выполните переход на другую страницу
-    this.$q.appStore.set({
-      selectedTicket: row
-    });
-    this.$router.push({ path: '/tickets'});
-  },
-  createTicket() {
-    // Получите данные строки и выполните переход на другую страницу
-    this.$q.appStore.set({
-      selectedTicket: null
-    });
-    this.$router.push({ path: '/tickets'});
-  }
+      // Получите данные строки и выполните переход на другую страницу
+      this.$q.appStore.set({
+        selectedTicket: row,
+      });
+      this.$router.push({ path: "/tickets" });
+    },
+    createTicket() {
+      // Получите данные строки и выполните переход на другую страницу
+      this.$q.appStore.set({
+        selectedTicket: null,
+      });
+      this.$router.push({ path: "/tickets" });
+    },
+    onLazyLoad({ node: parent, key, done }) {
+      console.log("1", parent,"2",  key);
+      let children = this.themeList.filter(item => item.parentId === parent.id)
+        .concat(parent.services || []);
+
+        children.forEach((item) => {
+          item.lazy = true;
+          item.selectable = true;
+          if (item.groupId) {
+            item.expandable = false;
+          }
+        });
+
+        console.log("onLazyLoad", children);
+      done(children);
+    },
+
+    handleDoubleClick(item) {
+      const row = this.themeList.find(
+        (key) => key.title === item.target.innerText
+      );
+
+      console.log(row);
+      this.dialogThemeAddUpdate = {
+        show: true,
+        method: "update",
+        onHide: () =>
+          (this.dialogThemeAddUpdate = structuredClone(
+            this.dialogThemeAddUpdateDefault
+          )),
+        dataWas: structuredClone(row),
+        data: structuredClone(row),
+      };
+    },
   },
 });
 </script>

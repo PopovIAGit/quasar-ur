@@ -483,7 +483,6 @@ export default defineComponent({
 
     handleRowDoubleClick(event, row) {
     // Получите данные строки и выполните переход на другую страницу
-    console.log(event, row);
     this.dialogUserAddUpdate = {
         show: true,
         method: 'update',

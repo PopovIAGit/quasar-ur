@@ -87,7 +87,7 @@
                       :name="
                           message.ownerId == this.freeUserId
                             ? this.freeUserId
-                            : 'Заменить на имя'
+                            : message.ownerId
                         "
                       :text="[message.content]"
                       :sent="message.ownerId == this.freeUserId ? true : false"
@@ -135,7 +135,7 @@ export default defineComponent({
     const User = new UserClass();
 
     const freeUserId = (Math.floor(Math.random() * 10000) + 100).toString();
-
+    const roomId = freeUserId;
     return {
       User,
       // Form fields
@@ -146,12 +146,15 @@ export default defineComponent({
       showPassword: ref(false),
       msgDataToSend: ref(""),
       freeUserId,
+      roomId,
       messages: ref([]),
       scrollAreaRef: ref(null),
     };
   },
 
   async beforeMount() {
+
+
     window.addEventListener("beforeunload", () => {
       /// TODO: тут нужно удалять фричат
       const response = this.$q.ws.sendRequest({
@@ -162,7 +165,7 @@ export default defineComponent({
           message: {
             ownerId: this.freeUserId,
             content: "!msg to destroy room!",
-            roomId: this.freeUserId,
+            roomId: this.roomId,
             sentDateTime: new Date(),
           },
         },
@@ -171,14 +174,15 @@ export default defineComponent({
       if (response.type === "error") {
         console.error("error", response.args);
       }
-      this.$q.appStore.delitRoom(this.freeUserId);
-
-
+      this.$q.freeChat.delitRoom(this.freeUserId);
     });
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "freechatMessage") {
-        this.addNewMessage(data.args.args.message);
+        if (data.args.args.message.roomId == this.roomId) {
+          this.addNewMessage(data.args.args.message);
+        }
+
       }
     });
   },
@@ -194,7 +198,7 @@ export default defineComponent({
       }
       // Если успешный логин
       else if (result.success) {
-        this.$q.appStore.delitRoom(this.freeUserId);
+        this.$q.freeChat.delitRoom(this.freeUserId);
         // Выполняем подготовительные действия, доступные только после успешной авторизации
         const resultAuthAfter = await this.User.authAfter();
         // Если ошибка
@@ -220,8 +224,8 @@ export default defineComponent({
         args: {
           message: {
             ownerId: this.freeUserId,
+            roomId: this.roomId,
             content: this.msgDataToSend,
-            roomId: this.freeUserId,
             sentDateTime: new Date(),
           },
         },
@@ -231,13 +235,12 @@ export default defineComponent({
       } else if (response.type === "answer") {
         this.addNewMessage({
           ownerId: this.freeUserId,
-          roomId: this.freeUserId,
+          roomId: this.roomId,
           content: this.msgDataToSend,
           sentDateTime: new Date(),
         });
         this.msgDataToSend = "";
       }
-
       await nextTick(() => {
         this.scrollToEnd();
       });
@@ -245,7 +248,8 @@ export default defineComponent({
     ///
     async addNewMessage(message) {
       this.messages.push(message);
-      this.$q.appStore.addMsgToRoom(message.ownerId, message.roomId, message.content);
+      console.log("addNewMessage", message);
+      this.$q.freeChat.addMsgToRoom(message.ownerId, message.roomId, message.content);
       await nextTick(() => {
         this.scrollToEnd();
       });

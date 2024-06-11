@@ -36,7 +36,7 @@ class Theme {
           return val && val.length >= 2 && val.length <= 300;
         },
       },
-      groupId: {
+      parentId: {
         label: "Родительская группа",
         type: "number",
         default: undefined,

@@ -23,7 +23,7 @@
                 bg-color="white"
                 hide-bottom-space
                 v-model="model"
-                :options="titles"
+                :options="servicesTitles"
                 option-label="name"
                 option-value="id"
                 map-options
@@ -126,7 +126,7 @@
                   </div>
                   <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md" >
 
-                     <q-badge align="middle" :class = " colorStatus"> {{ textStatus }}</q-badge>
+                     <q-badge align="middle" :class = "colorStatus"> {{ textStatus }}</q-badge>
                   </div>
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -153,19 +153,30 @@
                     color="primary"
                     label="изменить"
                     style="width: 40%"
+                    @click="showDialogTicketAddUpdate"
                   />
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
-                  <div class="q-dialog__title">Файлы</div>
+                  <div class="q-dialog__title">
+                    <div class="row ">
+                      <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
+                        Файлы
+                      </div>
+
+                      <q-btn class="q-p-md" @click="uploadTicketFile" icon="attach_file"  round  flat />
+                  </div>
+
+                    </div>
                   <q-list separator>
                     <q-item
-                      v-for="(option, index) in options"
+                      v-for="(option, index) in ticketFileList"
                       :key="index"
                       class="q-my-sm"
                       clickable
                       v-ripple
+                       @click="downloadTicketSelectedFile(option)"
                     >
-                      <q-item-section>{{ option }}</q-item-section>
+                      <q-item-section>{{ option.fileName }}</q-item-section>
                     </q-item>
                   </q-list>
                 </div>
@@ -177,46 +188,61 @@
     </div>
   </q-page>
 
+  <dialog-ticket-add-update
+  :dialog="dialogTicketAddUpdate"
+    @onSave="onTicketSave"
+    @onRemove="onTicketRemove"
+  />
 
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
-
-import UserClass from "src/utils/classes/User.Class";
+import DialogTicketAddUpdate from 'components/dialogs/Ticket/DialogTicketAddUpdate';
+import TicketClass from "src/utils/classes/Tiket.Class";
+import Buffer from "vue-buffer";
 
 export default defineComponent({
   name: "TicketPage",
-
+  components: {
+    DialogTicketAddUpdate,
+  },
   setup() {
+    const Ticket = new TicketClass();
+    const dialogTicketAddUpdateDefault = Ticket.dialogAddUpdateDefault;
     return {
       model: ref(null),
       ready: ref(true),
       loading: ref(false),
-      titles: ref([]),
+      servicesTitles: ref([]),
       modelusersForOwner: ref(null),
       usersForOwner: ref([]),
-      options: [
-        "file1.doc",
-        "file2.doc",
-        "file3.doc",
-        "file4.doc",
-        "file5.doc",
-      ],
+      ticketFileList:  ref([]),
       selectTicketID: ref(null),
       colorStatus: ref('bg-positive'),
       textStatus: ref("Новый"),
       ticketTitle: ref(''),
       ticketDiscription: ref(""),
+      dialogTicketAddUpdate: ref({}),
+      dialogTicketAddUpdateDefault,
+      newFile: ref(null)
     };
   },
   async beforeMount() {
     await this.getData();
+    if (this.selectTicketID != null) {
+      await this.getTicketFileList();
+    }
   },
+
+  // async beforeUnmount(){
+  //   this.ticketFileList = null;
+  // },
   methods: {
     async getData(props) {
       if (this.loading) return;
+
       this.loading = true;
 
       this.selectTicketID = this.$q.appStore.selectedTicket;
@@ -229,9 +255,8 @@ export default defineComponent({
           this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
         }
 
-
         if (this.$q.appStore.servicesList != null) {
-          this.titles = this.$q.appStore.servicesList.map((obj) => obj.title);
+          this.servicesTitles = this.$q.appStore.servicesList.map((obj) => obj.title);
         }
       } else {
 
@@ -240,11 +265,11 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
-          limit: 0,
+
             },
           });
-          console.log(response.args.count);
-        this.$q.appStore.set({numOfMsgInTicket:response.args.count})
+          const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === this.selectTicketID.id);
+          this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
 
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
@@ -266,6 +291,7 @@ export default defineComponent({
             break;
         }
       }
+      this.loading = false;
     },
     getIdFromTitle(title) {
       const item = data.find((obj) => obj.title === title);
@@ -305,7 +331,148 @@ export default defineComponent({
         this.$router.push({ path: '/'});
       }
     },
+    showDialogTicketAddUpdate () {
+      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+      const data = {};
+      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach(key => {
+        if (!excludeFields.includes(key)){
+          data[key] = this.dialogTicketAddUpdateDefault.data[key];
+        }
+      });
 
+
+      this.dialogTicketAddUpdate = {
+        show: true,
+        method: 'update',
+        onHide: () => this.dialogTicketAddUpdate = structuredClone(this.dialogTicketAddUpdateDefault),
+        dataWas:structuredClone(this.selectTicketID),
+        data:structuredClone(this.selectTicketID)
+      }
+    },
+    onTicketSave (result) {
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success && result.ticket) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тикет создан'
+        });
+        this.$q.appStore.set({selectedTicket: result.ticket} );
+        this.dialogTicketAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onTicketRemove (result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Ошибка',
+          text: result.message,
+          ok: {
+            color: 'red'
+          }
+        });
+      }
+      else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: 'Тикет удален'
+        });
+        this.dialogTicketAddUpdate.show = false;
+        this.$router.push('/')
+      }
+    },
+
+    async getTicketFileList(){
+        /** Получаем все списки файлов **/
+    const responseFileList = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "getList",
+        args: {
+        },
+      });
+      console.log("responseFileList", responseFileList);
+
+      this.ticketFileList = responseFileList.args.rows.filter(
+    (file) => file.ticketId === this.selectTicketID.id );
+    },
+
+    // async downloadTicketSelectedFile(file) {
+    //   const responseFile = await this.$q.ws.sendRequest({
+    //     type: "query",
+    //     iface: "file",
+    //     method: "get",
+    //     args:{
+    //       file:{
+    //         id:file.id
+    //       }
+    //     }
+    //   });
+    //   console.log("responseFile", responseFile);
+    // },
+    async downloadTicketSelectedFile(file) {
+    try {
+      const responseFile = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "get",
+        args: {
+          file: {
+            id: file.id
+          }
+        }
+      });
+      if (responseFile.type == "answer") {
+        const fileData = responseFile.args;
+        const buf =  Buffer.from(fileData.data.data);
+        // const data1 = JSON.parse(buf);
+        console.log("buf",buf);
+        const blob = new Blob([buf], { type: fileData.type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileData.fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+      } else {
+        console.error("Failed to download file:", responseFile);
+      }
+    } catch (error) {
+      console.error("Error occurred while downloading file:", error);
+    }
+},
+    async uploadTicketFile(){
+      var input = document.createElement('input');
+        input.type = 'file';
+
+        input.onchange = e => {
+
+          // getting a hold of the file reference
+          var file = e.target.files[0];
+
+          // setting up the reader
+          var reader = new FileReader();
+          reader.readAsText(file,'UTF-8');
+
+          // here we tell the reader what to do when it's done reading...
+          reader.onload = readerEvent => {
+              var content = readerEvent.target.result; // this is the content!
+              console.log( content );
+          }
+}
+
+input.click();
+    },
   },
 });
 </script>

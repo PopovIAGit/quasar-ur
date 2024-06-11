@@ -29,14 +29,14 @@
           <!-- Родительская тема :options="this.$q.helperTablesStore.themeTitles" -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Theme.fields.groupId.label }}
-              {{ Theme.fields.groupId.required ? "*" : "" }}
+              {{ Theme.fields.parentId.label }}
+              {{ Theme.fields.parentId.required ? "*" : "" }}
             </div>
             <q-select
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.groupId"
+              v-model="dialog.data.parentId"
               :options= "optionsWithTitles"
               option-label="name"
               option-value="id"
@@ -119,7 +119,7 @@ export default defineComponent({
       const tmp =
      [
       { id: null, name: 'Без родительской темы' },
-      ...this.$q.appStore.theme.map(item => ({ id: item.id, name: item.title }))
+      ...this.$q.appStore.groupsList.map(item => ({ id: item.id, name: item.title }))
 
     ];
 

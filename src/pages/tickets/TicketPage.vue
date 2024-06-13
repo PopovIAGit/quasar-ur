@@ -142,7 +142,7 @@
                     unelevated
                     no-caps
                     color="primary"
-                    label="открыть чат"
+                    label="ОТКРЫТЬ ЧАТ"
                     style="width: 40%"
                     to="/chat"
                   />
@@ -151,7 +151,7 @@
                     unelevated
                     no-caps
                     color="primary"
-                    label="изменить"
+                    label="ИЗМЕНИТЬ"
                     style="width: 40%"
                     @click="showDialogTicketAddUpdate"
                   />

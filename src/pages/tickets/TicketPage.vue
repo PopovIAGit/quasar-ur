@@ -159,7 +159,7 @@
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
                   <div class="q-dialog__title">
                     <div class="row ">
-                      <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
+                      <div class="col-lg-10 col-md-9 col-xs-9  q-dialog__title">
                         Файлы
                       </div>
 
@@ -167,7 +167,8 @@
                   </div>
 
                     </div>
-                  <q-list separator>
+                    <q-scroll-area style="height: 350px">
+                      <q-list separator>
                     <q-item
                       v-for="(option, index) in ticketFileList"
                       :key="index"
@@ -179,6 +180,8 @@
                       <q-item-section>{{ option.fileName }}</q-item-section>
                     </q-item>
                   </q-list>
+                    </q-scroll-area>
+
                 </div>
               </div>
             </div>
@@ -407,19 +410,6 @@ export default defineComponent({
     (file) => file.ticketId === this.selectTicketID.id );
     },
 
-    // async downloadTicketSelectedFile(file) {
-    //   const responseFile = await this.$q.ws.sendRequest({
-    //     type: "query",
-    //     iface: "file",
-    //     method: "get",
-    //     args:{
-    //       file:{
-    //         id:file.id
-    //       }
-    //     }
-    //   });
-    //   console.log("responseFile", responseFile);
-    // },
     async downloadTicketSelectedFile(file) {
     try {
       const responseFile = await this.$q.ws.sendRequest({
@@ -451,28 +441,51 @@ export default defineComponent({
       console.error("Error occurred while downloading file:", error);
     }
 },
-    async uploadTicketFile(){
+    async uploadTicketFile() {
       var input = document.createElement('input');
-        input.type = 'file';
+      input.type = 'file';
+      let buf = null;
+      let filename = null;
 
-        input.onchange = e => {
+      input.onchange = e => {
+        // getting a hold of the file reference
+        let file = e.target.files[0];
+        let preparedFile = null;
+        // setting up the reader
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(file);
 
-          // getting a hold of the file reference
-          var file = e.target.files[0];
-
-          // setting up the reader
-          var reader = new FileReader();
-          reader.readAsText(file,'UTF-8');
-
-          // here we tell the reader what to do when it's done reading...
-          reader.onload = readerEvent => {
-              var content = readerEvent.target.result; // this is the content!
-              console.log( content );
-          }
-}
-
-input.click();
+        // here we tell the reader what to do when it's done reading...
+        reader.onload = readerEvent => {
+          let arrBuf = readerEvent.target.result; // this is the content as ArrayBuffer
+          // Convert ArrayBuffer to Buffer
+           buf = Buffer.from(arrBuf);
+           filename = file.name;
+          this.sendFileToServer(buf, filename);
+        }
+      }
+      input.click();
     },
+    async sendFileToServer(buf, filename) {
+      // Send the prepared file to the server
+      console.log("готовимся к отправке", buf);
+      let rand
+      const responseUploadFile =  await this.$q.ws.sendRequest({
+            type: "query",
+            iface: "file",
+            method: "add",
+            args: {
+              file: {
+                ownerId: this.$q.appStore.user.id,
+                ticketId: this.selectTicketID.id,
+                fileName: filename,
+                data: buf
+              }
+            }
+      });
+      console.log("responseUploadFile", responseUploadFile);
+      this.getTicketFileList();
+    }
   },
 });
 </script>

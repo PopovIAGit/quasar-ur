@@ -204,29 +204,29 @@ export default defineComponent({
       //   console.log("123123",response1.args.rows);
       // }
 
-            const response1 = await this.$q.ws.sendRequest({
-        type: 'query',
-        iface: 'ticket',
-        method: 'getList',
-        args: {
-          where: {ownerId:1}
-        }
-      });
-      // Если ошибка получения списка пользователей
-      if (response1.type === 'error') {
-        this.$q.dialogStore.set({
-          show: true,
-          title: 'Ошибка',
-          text: 'Ошибка !',
-          ok: {
-            color: 'red'
-          }
+      //   const response1 = await this.$q.ws.sendRequest({
+      //   type: 'query',
+      //   iface: 'ticket',
+      //   method: 'getList',
+      //   args: {
+      //     where: {ownerId:1}
+      //   }
+      // });
+      // // Если ошибка получения списка пользователей
+      // if (response1.type === 'error') {
+      //   this.$q.dialogStore.set({
+      //     show: true,
+      //     title: 'Ошибка',
+      //     text: 'Ошибка !',
+      //     ok: {
+      //       color: 'red'
+      //     }
 
-        });
-      }
-      // Если получен список пользователей
-      else if (response1.type === 'answer') {
-      }
+      //   });
+      // }
+      // // Если получен список пользователей
+      // else if (response1.type === 'answer') {
+      // }
     }
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {

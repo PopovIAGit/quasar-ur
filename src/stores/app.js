@@ -18,5 +18,6 @@ export const useAppStore = defineStore("app", {
         this[key] = value;
       });
     },
+    
   },
 });

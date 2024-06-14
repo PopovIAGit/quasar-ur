@@ -44,13 +44,11 @@
                         <q-chat-message
                           v-for="message in messages"
                           :key="message.id"
-                          :name="
-                            message.ownerId == this.User.id
+                          :name="message.ownerId == this.User.id
                               ? this.User.name
-                              : this.$q.appStore.usersList.find(
+                              : this.nameOfAuthors.find(
                                   (obj) => obj.id == message.ownerId
-                                ).name
-                          "
+                                ).name"
                           :stamp="message.ticketId"
                           :text="[message.content]"
                           :sent="message.ownerId == this.User.id ? true : false"
@@ -61,10 +59,10 @@
                           v-for="(freeMessage, id) in freeMessages"
                           :key="id"
                           :name="
-                            message.ownerId == this.User.id
+                            freeMessage.ownerId == this.User.id
                               ? this.User.name
                               : this.$q.appStore.usersList.find(
-                                  (obj) => obj.id == message.ownerId
+                                  (obj) => obj.id == freeMessage.ownerId
                                 ).name
                           "
                           :text="[freeMessage.content]"
@@ -286,6 +284,7 @@ export default defineComponent({
       msgFromFreeChat,
       localStore,
       freeMessagesAll: ref([]),
+      nameOfAuthors: ref([]),
     };
   },
 
@@ -351,9 +350,7 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
-              where: {id: this.User.id},
-          // limit: this.$q.appStore.numOfMsgInTicket >= 10 ? 10 : 0,
-          // offset: this.$q.appStore.numOfMsgInTicket - 10 > 0 ? this.$q.appStore.numOfMsgInTicket - 10 : 0,
+          where: {ticketId: this.$q.appStore.selectedTicket.id}
         },
       });
 
@@ -370,6 +367,12 @@ export default defineComponent({
         this.messages = response.args.rows.filter(
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
+        const filteredArray =  this.messages.filter(item => item.ownerId !== this.User.id);
+        console.log("filteredArray", filteredArray);
+        this.nameOfAuthors = await Promise.all(filteredArray.map(async item => {
+            return await this.getAuthorName(item.ownerId);
+          }));
+          console.log("this.nameOfAuthors", this.nameOfAuthors);
       }
 
       const responseFreeChat = await this.$q.ws.sendRequest({
@@ -508,6 +511,12 @@ export default defineComponent({
     async addNewMessage(message) {
       this.messages.push(message);
 
+
+      if (message.ownerId !== this.User.id && !this.nameOfAuthors.some(author => author.id === message.ownerId)) {
+        const authorName = await this.getAuthorName(message.ownerId);
+        this.nameOfAuthors.push(authorName);
+        }
+
       await nextTick(() => {
         this.scrollToEnd();
       });
@@ -519,6 +528,45 @@ export default defineComponent({
         this.scrollToEnd();
       });
     },
+    async getName(message) {
+    if (message.ownerId === this.User.id) {
+      return this.User.name;
+    } else {
+      const authorName = await this.getAuthorName(message.ownerId);
+      return authorName;
+    }
+  },
+  async getAuthorName(nameId) {
+    if (nameId === null || nameId === undefined) return '';
+
+    const response = await this.$q.ws.sendRequest({
+      type: 'query',
+      iface: 'person',
+      method: 'getList',
+      args: {
+        where: { id: nameId }
+      }
+    });
+
+    if (response.type === 'error') {
+      this.$q.dialogStore.set({
+        show: true,
+        title: 'Ошибка',
+        text: 'Ошибка получения имени пользователя',
+        ok: {
+          color: 'red'
+        }
+      });
+    } else if (response.type === 'answer') {
+      const rows = response.args.rows;
+      if (rows.length > 0) {
+        const row = rows[0];
+        return row;
+      }
+    }
+    return '';
+  },
+
   },
 });
 </script>

@@ -33,7 +33,7 @@ class Service {
         min: 2,
         max: 3000,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 3000;
+          return val && val.length >= 0 && val.length <= 3000;
         },
       },
       groupId: {
@@ -67,48 +67,48 @@ class Service {
     };
   }
 
-    /**
+  /**
    * Сохранение тикета (add или update)
    * @param method
    * @param data
    * @param dataWas
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
-  async save (method, data, dataWas) {
+  async save(method, data, dataWas) {
     // Если add
-    if (method === 'add' && data) {
+    if (method === "add" && data) {
       const _data = structuredClone(data);
       const response = await this.$q.ws.sendRequest({
-        type: 'query',
-        iface: 'service',
-        method: 'add',
+        type: "query",
+        iface: "service",
+        method: "add",
         args: {
           service: {
-            ..._data
-          }
-        }
+            ..._data,
+          },
+        },
       });
       // Если ошибка сохранения
-      if (response.type === 'error') {
+      if (response.type === "error") {
         return {
           success: false,
-          message: response.args.message || 'Ошибка'
-        }
+          message: response.args.message || "Ошибка",
+        };
       }
       // Если всё ОК
-      else if (response.type === 'answer') {
+      else if (response.type === "answer") {
         const user = response.args;
         return {
           success: true,
-          user
-        }
+          user,
+        };
       }
     }
     // Если update и переданы data и dataWas для сравнения
-    else if (method === 'update' && data && dataWas) {
+    else if (method === "update" && data && dataWas) {
       const _data = {};
-      Object.keys(data).forEach(key => {
-        if(data[key] !== dataWas[key]){
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== dataWas[key]) {
           _data[key] = data[key];
         }
       });
@@ -116,75 +116,75 @@ class Service {
       if (Object.keys(_data).length === 0) {
         return {
           success: false,
-          noChanges: true
-        }
+          noChanges: true,
+        };
       }
       // Если есть изменения, то сохраняем их
       else {
         const response = await this.$q.ws.sendRequest({
-          type: 'query',
-          iface: 'service',
-          method: 'update',
+          type: "query",
+          iface: "service",
+          method: "update",
           args: {
             service: {
               id: data.id,
-              ..._data
-            }
-          }
+              ..._data,
+            },
+          },
         });
         // Если ошибка сохранения
-        if (response.type === 'error') {
+        if (response.type === "error") {
           return {
             success: false,
-            message: response.args.message || 'Ошибка'
-          }
+            message: response.args.message || "Ошибка",
+          };
         }
         // Если всё ОК
-        else if (response.type === 'answer') {
+        else if (response.type === "answer") {
           const ticket = response.args;
           return {
             success: true,
-            ticket
-          }
+            ticket,
+          };
         }
       }
     }
   }
 
-  async remove (serviceId){
+  async remove(serviceId) {
     const response = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'service',
-      method: 'remove',
+      type: "query",
+      iface: "service",
+      method: "remove",
       args: {
         service: {
-          id: serviceId
-        }
-      }
+          id: serviceId,
+        },
+      },
     });
 
-        // Если ошибка удаления
-        if (response.type === 'error') {
-          return {
-            success: false,
-            message: response.args.message || 'Ошибка'
-          }
-        }
-        // Если получен ответ от login
-        else if (response.type === 'answer') {
-          // Если в ответе по каким-то причинам нет данных пользователя
-          if (!response.args || !response.args.id || !response.args.token) {
-            return {
-              success: false
-            }
-          }
-          // Если всё ОК
-          else {
-            return {
-              success: true,
-            }
-          }
-        }
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных пользователя
+      if (!response.args || !response.args.id || !response.args.token) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        return {
+          success: true,
+        };
+      }
+    }
   }
 }
 

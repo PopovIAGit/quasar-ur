@@ -59,7 +59,7 @@
           </q-card>
         </div>
         <!-- для всех-->
-        <div class="q-pa-sm col-lg-8 col-md-12 col-xs-12 col-grow">
+        <div class="q-pa-sm col-lg-8 col-md-12 col-xs-12 col-grow" hidden>
           <q-table
             v-if="ready"
             class="table--users"

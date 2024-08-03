@@ -527,19 +527,20 @@ export default defineComponent({
       this.$router.push({ path: "/tickets" });
     },
     onLazyLoad({ node: parent, key, done }) {
-      console.log("1", parent,"2",  key);
-      let children = this.themeList.filter(item => item.parentId === parent.id)
+      console.log("1", parent, "2", key);
+      let children = this.themeList
+        .filter((item) => item.parentId === parent.id)
         .concat(parent.services || []);
 
-        children.forEach((item) => {
-          item.lazy = true;
-          item.selectable = true;
-          if (item.groupId) {
-            item.expandable = false;
-          }
-        });
+      children.forEach((item) => {
+        item.lazy = true;
+        item.selectable = true;
+        if (item.groupId) {
+          item.expandable = false;
+        }
+      });
 
-        console.log("onLazyLoad", children);
+      console.log("onLazyLoad", children);
       done(children);
     },
 

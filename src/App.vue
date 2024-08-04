@@ -184,7 +184,7 @@ export default defineComponent({
         console.log("data.args", data.args);
         this.$q.notify({
           message: data.args.action,
-          position: "top-right",
+          position: "top",
           timeout: 3000,
           textColor: "white",
           actions: [{ icon: "close", color: "white" }],

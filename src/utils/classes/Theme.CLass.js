@@ -45,6 +45,15 @@ class Theme {
           return (typeof val === "number" && val > 0) || val === null;
         },
       },
+      hidden: {
+        label: "Скрытая группа",
+        type: "boolean",
+        default: false,
+        required: false,
+        rules: (val) => {
+          return typeof val === "boolean";
+        },
+      },
     };
 
     // Dialog add/update

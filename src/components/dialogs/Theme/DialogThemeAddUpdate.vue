@@ -69,6 +69,19 @@
               :rules="[(val) => Theme.fields.description.rules(val)]"
             />
           </div>
+          <!-- Скрыть -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Theme.fields.hidden.label }}
+              {{ Theme.fields.hidden.required ? "*" : "" }}
+            </div>
+            <q-checkbox
+              outlined
+              hide-bottom-space
+              v-model="dialog.data.hidden"
+              :rules="[(val) => Theme.fields.hidden.rules(val)]"
+            />
+          </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
           <q-btn

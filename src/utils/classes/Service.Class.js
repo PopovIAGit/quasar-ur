@@ -97,10 +97,10 @@ class Service {
       }
       // Если всё ОК
       else if (response.type === "answer") {
-        const user = response.args;
+        const service = response.args;
         return {
           success: true,
-          user,
+          service,
         };
       }
     }
@@ -141,10 +141,10 @@ class Service {
         }
         // Если всё ОК
         else if (response.type === "answer") {
-          const ticket = response.args;
+          const service = response.args;
           return {
             success: true,
-            ticket,
+            service,
           };
         }
       }
@@ -173,7 +173,7 @@ class Service {
     // Если получен ответ от login
     else if (response.type === "answer") {
       // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id || !response.args.token) {
+      if (!response.args || !response.args.id) {
         return {
           success: false,
         };

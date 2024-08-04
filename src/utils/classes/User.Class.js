@@ -43,17 +43,19 @@ class User {
         min: 0,
         max: 30,
         rules: (val) => {
-          return val && val.length >= 0 && val.length <= 30;
+          return (val && val.length >= 0 && val.length <= 30) || !val;
         },
       },
       email: {
         label: "Email",
         type: "string",
         default: "",
-        min: 5,
+        min: 0,
         max: 100,
         rules: (val) => {
-          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(val);
+          return (
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(val) || !val
+          );
         },
       },
       phone: {

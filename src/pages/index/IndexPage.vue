@@ -59,7 +59,7 @@
           </q-card>
         </div>
         <!-- для всех-->
-        <div class="q-pa-sm col-lg-8 col-md-12 col-xs-12 col-grow" hidden>
+        <div class="q-pa-sm col-lg-8 col-md-12 col-xs-12 col-grow">
           <q-table
             v-if="ready"
             class="table--users"
@@ -102,6 +102,7 @@
                         bg-color="white"
                         v-model="selectStatus"
                         :options="optionsStatus"
+                        @update:model-value="filterByStatus"
                       />
                     </div>
                   </div>
@@ -282,23 +283,6 @@ export default defineComponent({
 
   async beforeMount() {
     await this.getData();
-
-    // получили список тем
-    const resultTakeTheme = await this.Theme.takeTheme();
-    if (!resultTakeTheme.success) {
-      if (resultTakeTheme.message) {
-        this.$q.dialogStore.set({
-          show: true,
-          title: "Ошибка",
-          html: resultTakeTheme.message,
-          ok: {
-            color: "red",
-          },
-        });
-      }
-      window["splash-screen"].classList.add("ready", "error");
-      return;
-    }
   },
 
   methods: {
@@ -356,6 +340,7 @@ export default defineComponent({
             (row) => row.ownerId === this.$q.appStore.user.id
           );
         }
+        console.log(answer);
 
         this.rows = answer;
         this.pagination.page = page;
@@ -366,15 +351,6 @@ export default defineComponent({
         this.pagesNumber = Math.ceil(
           answer.length / this.pagination.rowsPerPage
         );
-        // this.rows = response.args.rows;
-        // this.pagination.page = page;
-        // this.pagination.rowsPerPage = rowsPerPage;
-        // this.pagination.rowsNumber = response.args.count;
-        // this.pagination.sortBy = sortBy;
-        // this.pagination.descending = descending;
-        // this.pagesNumber = Math.ceil(
-        //   response.args.count / this.pagination.rowsPerPage
-        // );
       }
 
       const responseTheme = await this.$q.ws.sendRequest({
@@ -425,7 +401,6 @@ export default defineComponent({
         this.$q.appStore.set({ servicesList: responseServece.args.rows });
         this.serviceList = responseServece.args.rows;
       }
-
       this.ready = true;
       this.loading = false;
     },
@@ -466,7 +441,7 @@ export default defineComponent({
             color: "red",
           },
         });
-      } else if (result.success && result.theme) {
+      } else if (result.success && result.group) {
         this.$q.dialogStore.set({
           show: true,
           title: "Тема создана",
@@ -527,39 +502,82 @@ export default defineComponent({
       this.$router.push({ path: "/tickets" });
     },
     onLazyLoad({ node: parent, key, done }) {
-      console.log("1", parent, "2", key);
       let children = this.themeList
         .filter((item) => item.parentId === parent.id)
         .concat(parent.services || []);
 
-      children.forEach((item) => {
-        item.lazy = true;
-        item.selectable = true;
-        if (item.groupId) {
-          item.expandable = false;
-        }
-      });
-
-      console.log("onLazyLoad", children);
+      // children.forEach((item) => {
+      //   item.lazy = true;
+      //   item.selectable = true;
+      //   if (item.groupId) {
+      //     item.expandable = false;
+      //   }
+      // }
+      // );
       done(children);
     },
 
     handleDoubleClick(item) {
-      const row = this.themeList.find(
-        (key) => key.title === item.target.innerText
-      );
+      const title = item.target.innerText;
+      let rowService;
+      let rowTheme = this.themeList.find((key) => key.title === title);
+      if (!rowTheme) {
+        rowService = this.serviceList.find((key) => key.title === title);
+      }
+      console.log(rowTheme, rowService);
 
-      console.log(row);
-      this.dialogThemeAddUpdate = {
-        show: true,
-        method: "update",
-        onHide: () =>
-          (this.dialogThemeAddUpdate = structuredClone(
-            this.dialogThemeAddUpdateDefault
-          )),
-        dataWas: structuredClone(row),
-        data: structuredClone(row),
-      };
+      if (rowTheme) {
+        this.dialogThemeAddUpdate = {
+          show: true,
+          method: "update",
+          onHide: () =>
+            (this.dialogThemeAddUpdate = structuredClone(
+              this.dialogThemeAddUpdateDefault
+            )),
+          dataWas: structuredClone(rowTheme),
+          data: structuredClone(rowTheme),
+        };
+      } else if (rowService) {
+        this.dialogServiceAddUpdate = {
+          show: true,
+          method: "update",
+          onHide: () =>
+            (this.dialogServiceAddUpdate = structuredClone(
+              this.dialogServiceAddUpdateDefault
+            )),
+          dataWas: structuredClone(rowService),
+          data: structuredClone(rowService),
+        };
+      }
+    },
+    filterByStatus() {
+      const rows = structuredClone(this.$q.appStore.ticketsList);
+      console.log(this.selectStatus);
+
+      switch (this.selectStatus) {
+        case "Все":
+          this.rows = rows;
+          break;
+        case "Новый":
+          this.rows = rows.filter((item) => item.ticketStatusId === 1);
+          break;
+        case "Открыт":
+          this.rows = rows.filter((item) => item.ticketStatusId === 2);
+          break;
+        case "Закрыт":
+          this.rows = rows.filter((item) => item.ticketStatusId === 3);
+          break;
+        case "Восстановлен":
+          this.rows = rows.filter((item) => item.ticketStatusId === 4);
+          break;
+        default:
+          this.rows = [];
+          console.log("sfd");
+
+          break;
+      }
+
+      console.log(this.rows);
     },
   },
 });

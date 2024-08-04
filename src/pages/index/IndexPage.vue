@@ -504,16 +504,10 @@ export default defineComponent({
     onLazyLoad({ node: parent, key, done }) {
       let children = this.themeList
         .filter((item) => item.parentId === parent.id)
-        .concat(parent.services || []);
+        .concat(parent.services || [])
+        .filter((item) => !item.hidden);
 
-      // children.forEach((item) => {
-      //   item.lazy = true;
-      //   item.selectable = true;
-      //   if (item.groupId) {
-      //     item.expandable = false;
-      //   }
-      // }
-      // );
+      console.log(children);
       done(children);
     },
 

@@ -551,8 +551,20 @@ export default defineComponent({
       }
     },
     filterByStatus() {
-      const rows = structuredClone(this.$q.appStore.ticketsList);
-      console.log(this.selectStatus);
+      let rows = [];
+      if (this.$q.appStore.user.roleId === 4) {
+        rows = structuredClone(this.$q.appStore.ticketsList).filter(
+          (row) => row.ownerId === this.$q.appStore.user.id
+        );
+        if (rows.length === 0) {
+          return;
+        }
+        rows = structuredClone(this.$q.appStore.ticketsList);
+      }
+
+      if (rows.length === 0) {
+        return;
+      }
 
       switch (this.selectStatus) {
         case "Все":
@@ -576,8 +588,6 @@ export default defineComponent({
 
           break;
       }
-
-      console.log(this.rows);
     },
   },
 });

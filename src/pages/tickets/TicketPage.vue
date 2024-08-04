@@ -11,7 +11,10 @@
 
       <h1>Тикеты</h1>
       <!--Создание тикета-->
-      <div class="q-gutter-md q-pb-md" v-if="selectTicketID == null">
+      <div
+        class="q-gutter-md q-pb-md"
+        v-if="selectTicketID == null && this.$q.appStore.user.roleId < 4"
+      >
         <q-card>
           <q-card-section>
             <div class="q-pb-md">
@@ -71,7 +74,7 @@
               <div class="text-grey col-lg-2">Заголовок тикета</div>
             </div>
             <div class="q-pb-md">
-              <q-input outlined bg-color="white" v-model="ticketTitle"/>
+              <q-input outlined bg-color="white" v-model="ticketTitle" />
             </div>
             <div class="q-pb-md row justify-end">
               <div class="text-grey col-lg-2">Красткое описание тикета</div>
@@ -111,22 +114,21 @@
         <q-card>
           <q-card-section>
             <div class="row justify-between">
-              <div class="col-lg-8 col-md-8 col-xs-12 ">
-
+              <div class="col-lg-8 col-md-8 col-xs-12">
                 <div class="q-dialog__title">ТИКЕТ</div>
                 <p>{{ selectTicketID.title }}</p>
                 <div class="q-dialog__title">Текст тикета</div>
                 <p>{{ selectTicketID.description }}</p>
-
               </div>
               <div class="col-grow">
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
-                  <div class="col-lg-10 col-md-9 col-xs-12  q-dialog__title">
+                  <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
                     Статус
                   </div>
-                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md" >
-
-                     <q-badge align="middle" :class = "colorStatus"> {{ textStatus }}</q-badge>
+                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
+                    <q-badge align="middle" :class="colorStatus">
+                      {{ textStatus }}</q-badge
+                    >
                   </div>
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
@@ -137,7 +139,9 @@
                     заглушка
                   </div>
                 </div>
-                <div class="q-pb-md col-lg-9 col-md-9 col-xs-12 row  justify-evenly  ">
+                <div
+                  class="q-pb-md col-lg-9 col-md-9 col-xs-12 row justify-evenly"
+                >
                   <q-btn
                     unelevated
                     no-caps
@@ -147,7 +151,7 @@
                     to="/chat"
                   />
                   <q-btn
-                    v-if ="this.$q.appStore.user.roleId <=2"
+                    v-if="this.$q.appStore.user.roleId <= 2"
                     unelevated
                     no-caps
                     color="primary"
@@ -158,30 +162,34 @@
                 </div>
                 <div class="col-lg-9 col-md-9 col-xs-12 q-pb-md">
                   <div class="q-dialog__title">
-                    <div class="row ">
-                      <div class="col-lg-10 col-md-9 col-xs-9  q-dialog__title">
+                    <div class="row">
+                      <div class="col-lg-10 col-md-9 col-xs-9 q-dialog__title">
                         Файлы
                       </div>
 
-                      <q-btn class="q-p-md" @click="uploadTicketFile" icon="attach_file"  round  flat />
-                  </div>
-
+                      <q-btn
+                        class="q-p-md"
+                        @click="uploadTicketFile"
+                        icon="attach_file"
+                        round
+                        flat
+                      />
                     </div>
-                    <q-scroll-area style="height: 350px">
-                      <q-list separator>
-                    <q-item
-                      v-for="(option, index) in ticketFileList"
-                      :key="index"
-                      class="q-my-sm"
-                      clickable
-                      v-ripple
-                       @click="downloadTicketSelectedFile(option)"
-                    >
-                      <q-item-section>{{ option.fileName }}</q-item-section>
-                    </q-item>
-                  </q-list>
-                    </q-scroll-area>
-
+                  </div>
+                  <q-scroll-area style="height: 350px">
+                    <q-list separator>
+                      <q-item
+                        v-for="(option, index) in ticketFileList"
+                        :key="index"
+                        class="q-my-sm"
+                        clickable
+                        v-ripple
+                        @click="downloadTicketSelectedFile(option)"
+                      >
+                        <q-item-section>{{ option.fileName }}</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-scroll-area>
                 </div>
               </div>
             </div>
@@ -192,17 +200,16 @@
   </q-page>
 
   <dialog-ticket-add-update
-  :dialog="dialogTicketAddUpdate"
+    :dialog="dialogTicketAddUpdate"
     @onSave="onTicketSave"
     @onRemove="onTicketRemove"
   />
-
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
 import { useRoute } from "vue-router";
-import DialogTicketAddUpdate from 'components/dialogs/Ticket/DialogTicketAddUpdate';
+import DialogTicketAddUpdate from "components/dialogs/Ticket/DialogTicketAddUpdate";
 import TicketClass from "src/utils/classes/Tiket.Class";
 import Buffer from "vue-buffer";
 
@@ -221,15 +228,15 @@ export default defineComponent({
       servicesTitles: ref([]),
       modelusersForOwner: ref(null),
       usersForOwner: ref([]),
-      ticketFileList:  ref([]),
+      ticketFileList: ref([]),
       selectTicketID: ref(null),
-      colorStatus: ref('bg-positive'),
+      colorStatus: ref("bg-positive"),
       textStatus: ref("Новый"),
-      ticketTitle: ref(''),
+      ticketTitle: ref(""),
       ticketDiscription: ref(""),
       dialogTicketAddUpdate: ref({}),
       dialogTicketAddUpdateDefault,
-      newFile: ref(null)
+      newFile: ref(null),
     };
   },
   async beforeMount() {
@@ -251,28 +258,31 @@ export default defineComponent({
       this.selectTicketID = this.$q.appStore.selectedTicket;
 
       if (this.selectTicketID == null) {
+        console.log("this.selectTicketID == null");
 
-        this.$q.appStore.set({numOfMsgInTicket:0})
+        this.$q.appStore.set({ numOfMsgInTicket: 0 });
         if (this.$q.appStore.usersList != null) {
-
-          this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
+          this.usersForOwner = this.$q.appStore.usersList.filter(
+            (obj) => obj.roleId == 4 && obj.isDeleted == false
+          );
         }
 
         if (this.$q.appStore.servicesList != null) {
-          this.servicesTitles = this.$q.appStore.servicesList.map((obj) => obj.title);
+          this.servicesTitles = this.$q.appStore.servicesList.map(
+            (obj) => obj.title
+          );
         }
       } else {
-
         const response = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "message",
-        method: "getList",
-        args: {
-
-            },
-          });
-          const elementsWithTicketId = response.args.rows.filter(element => element.ticketId === this.selectTicketID.id);
-          this.$q.appStore.set({numOfMsgInTicket:elementsWithTicketId.length})
+          type: "query",
+          iface: "message",
+          method: "getList",
+          args: {},
+        });
+        const elementsWithTicketId = response.args.rows.filter(
+          (element) => element.ticketId === this.selectTicketID.id
+        );
+        this.$q.appStore.set({ numOfMsgInTicket: elementsWithTicketId.length });
 
         switch (this.selectTicketID.ticketStatusId) {
           case 1:
@@ -300,24 +310,25 @@ export default defineComponent({
       const item = data.find((obj) => obj.title === title);
       return item ? item.id : null;
     },
-   async createTicket() {
-        const foundItem = this.$q.appStore.servicesList.find(item => item.title === this.model);
-        const foundId = foundItem ? foundItem.id : null;
-        const response = await this.$q.ws.sendRequest({
-        type: 'query',
-        iface: 'ticket',
-        method: 'add',
+    async createTicket() {
+      const foundItem = this.$q.appStore.servicesList.find(
+        (item) => item.title === this.model
+      );
+      const foundId = foundItem ? foundItem.id : null;
+      const response = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "ticket",
+        method: "add",
         args: {
           ticket: {
             serviceId: foundId,
             ownerId: this.modelusersForOwner,
             title: this.ticketTitle,
             description: this.ticketDiscription,
-            startDateTime : new Date(),
-          }
-        }
+            startDateTime: new Date(),
+          },
+        },
       });
-
 
       if (response.type === "error") {
         this.$q.dialogStore.set({
@@ -331,123 +342,122 @@ export default defineComponent({
       }
       // Если тикет успешно создан
       else if (response.type === "answer") {
-        this.$router.push({ path: '/'});
+        this.$router.push({ path: "/" });
       }
     },
-    showDialogTicketAddUpdate () {
-      const excludeFields = ['id', 'token', 'isDeleted', 'online', 'active'];
+    showDialogTicketAddUpdate() {
+      const excludeFields = ["id", "token", "isDeleted", "online", "active"];
       const data = {};
-      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach(key => {
-        if (!excludeFields.includes(key)){
+      Object.keys(this.dialogTicketAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
           data[key] = this.dialogTicketAddUpdateDefault.data[key];
         }
       });
 
-
       this.dialogTicketAddUpdate = {
         show: true,
-        method: 'update',
-        onHide: () => this.dialogTicketAddUpdate = structuredClone(this.dialogTicketAddUpdateDefault),
-        dataWas:structuredClone(this.selectTicketID),
-        data:structuredClone(this.selectTicketID)
-      }
+        method: "update",
+        onHide: () =>
+          (this.dialogTicketAddUpdate = structuredClone(
+            this.dialogTicketAddUpdateDefault
+          )),
+        dataWas: structuredClone(this.selectTicketID),
+        data: structuredClone(this.selectTicketID),
+      };
     },
-    onTicketSave (result) {
-
+    onTicketSave(result) {
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Ошибка',
+          title: "Ошибка",
           text: result.message,
           ok: {
-            color: 'red'
-          }
+            color: "red",
+          },
         });
-      }
-      else if (result.success && result.ticket) {
+      } else if (result.success && result.ticket) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Тикет создан'
+          title: "Тикет создан",
         });
-        this.$q.appStore.set({selectedTicket: result.ticket} );
+        this.$q.appStore.set({ selectedTicket: result.ticket });
         this.dialogTicketAddUpdate.show = false;
         this.getData();
       }
     },
-    onTicketRemove (result) {
+    onTicketRemove(result) {
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Ошибка',
+          title: "Ошибка",
           text: result.message,
           ok: {
-            color: 'red'
-          }
+            color: "red",
+          },
         });
-      }
-      else if (result.success) {
+      } else if (result.success) {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Тикет удален'
+          title: "Тикет удален",
         });
         this.dialogTicketAddUpdate.show = false;
-        this.$router.push('/')
+        this.$router.push("/");
       }
     },
 
-    async getTicketFileList(){
-        /** Получаем все списки файлов **/
-    const responseFileList = await this.$q.ws.sendRequest({
+    async getTicketFileList() {
+      /** Получаем все списки файлов **/
+      const responseFileList = await this.$q.ws.sendRequest({
         type: "query",
         iface: "file",
         method: "getList",
-        args: {
-        },
+        args: {},
       });
       console.log("responseFileList", responseFileList);
 
       this.ticketFileList = responseFileList.args.rows.filter(
-    (file) => file.ticketId === this.selectTicketID.id );
+        (file) => file.ticketId === this.selectTicketID.id
+      );
     },
 
     async downloadTicketSelectedFile(file) {
-    try {
-      const responseFile = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "file",
-        method: "get",
-        args: {
-          file: {
-            id: file.id
-          }
+      try {
+        const responseFile = await this.$q.ws.sendRequest({
+          type: "query",
+          iface: "file",
+          method: "get",
+          args: {
+            file: {
+              id: file.id,
+            },
+          },
+        });
+        if (responseFile.type == "answer") {
+          const fileData = responseFile.args;
+          const buf = Buffer.from(fileData.data.data);
+          // const data1 = JSON.parse(buf);
+          console.log("buf", buf);
+          const blob = new Blob([buf], { type: fileData.type });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileData.fileName;
+          link.click();
+          URL.revokeObjectURL(url);
+        } else {
+          console.error("Failed to download file:", responseFile);
         }
-      });
-      if (responseFile.type == "answer") {
-        const fileData = responseFile.args;
-        const buf =  Buffer.from(fileData.data.data);
-        // const data1 = JSON.parse(buf);
-        console.log("buf",buf);
-        const blob = new Blob([buf], { type: fileData.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileData.fileName;
-        link.click();
-        URL.revokeObjectURL(url);
-      } else {
-        console.error("Failed to download file:", responseFile);
+      } catch (error) {
+        console.error("Error occurred while downloading file:", error);
       }
-    } catch (error) {
-      console.error("Error occurred while downloading file:", error);
-    }
-},
+    },
     async uploadTicketFile() {
-      var input = document.createElement('input');
-      input.type = 'file';
+      var input = document.createElement("input");
+      input.type = "file";
       let buf = null;
       let filename = null;
 
-      input.onchange = e => {
+      input.onchange = (e) => {
         // getting a hold of the file reference
         let file = e.target.files[0];
         let preparedFile = null;
@@ -456,36 +466,36 @@ export default defineComponent({
         reader.readAsArrayBuffer(file);
 
         // here we tell the reader what to do when it's done reading...
-        reader.onload = readerEvent => {
+        reader.onload = (readerEvent) => {
           let arrBuf = readerEvent.target.result; // this is the content as ArrayBuffer
           // Convert ArrayBuffer to Buffer
-           buf = Buffer.from(arrBuf);
-           filename = file.name;
+          buf = Buffer.from(arrBuf);
+          filename = file.name;
           this.sendFileToServer(buf, filename);
-        }
-      }
+        };
+      };
       input.click();
     },
     async sendFileToServer(buf, filename) {
       // Send the prepared file to the server
       console.log("готовимся к отправке", buf);
-      let rand
-      const responseUploadFile =  await this.$q.ws.sendRequest({
-            type: "query",
-            iface: "file",
-            method: "add",
-            args: {
-              file: {
-                ownerId: this.$q.appStore.user.id,
-                ticketId: this.selectTicketID.id,
-                fileName: filename,
-                data: buf
-              }
-            }
+      let rand;
+      const responseUploadFile = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "add",
+        args: {
+          file: {
+            ownerId: this.$q.appStore.user.id,
+            ticketId: this.selectTicketID.id,
+            fileName: filename,
+            data: buf,
+          },
+        },
       });
       console.log("responseUploadFile", responseUploadFile);
       this.getTicketFileList();
-    }
+    },
   },
 });
 </script>

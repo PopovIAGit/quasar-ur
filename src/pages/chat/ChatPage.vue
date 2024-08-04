@@ -112,6 +112,10 @@
                 v-model="msgDataToSend"
                 label="Напишите сообщение"
                 @keyup.enter="sendMsg"
+                :disable="
+                  this.ticketsList.length == 0 &&
+                  this.$q.appStore.user.roleId == 4
+                "
               >
                 <template v-slot:after>
                   <q-btn round dense flat icon="send" @click="sendMsg" />

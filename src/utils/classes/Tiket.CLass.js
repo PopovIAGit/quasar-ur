@@ -7,13 +7,13 @@ class Tiket {
     // DB fields
     this.fields = {
       id: {
-        label: 'ID',
-        type: 'number',
+        label: "ID",
+        type: "number",
         default: undefined,
         index: true,
         rules: (val) => {
-          return val !== null && typeof val === 'number';
-        }
+          return val !== null && typeof val === "number";
+        },
       },
       title: {
         label: "Заголовок",
@@ -30,10 +30,10 @@ class Tiket {
         label: "Описание",
         type: "string",
         default: "",
-        min: 2,
-        max: 3000,
+        min: 0,
+        max: 30000,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 3000;
+          return val && val.length >= 0 && val.length <= 3000;
         },
       },
       startDateTime: {
@@ -55,12 +55,12 @@ class Tiket {
         },
       },
       isDeleted: {
-        label: 'Удален',
-        type: 'boolean',
+        label: "Удален",
+        type: "boolean",
         default: false,
         rules: (val) => {
-          return typeof val === 'boolean';
-        }
+          return typeof val === "boolean";
+        },
       },
       ticketStatusId: {
         label: "Статус тикета",
@@ -112,48 +112,48 @@ class Tiket {
     };
   }
 
-    /**
+  /**
    * Сохранение тикета (add или update)
    * @param method
    * @param data
    * @param dataWas
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
-  async save (method, data, dataWas) {
+  async save(method, data, dataWas) {
     // Если add
-    if (method === 'add' && data) {
+    if (method === "add" && data) {
       const _data = structuredClone(data);
       const response = await this.$q.ws.sendRequest({
-        type: 'query',
-        iface: 'ticket',
-        method: 'add',
+        type: "query",
+        iface: "ticket",
+        method: "add",
         args: {
           ticket: {
-            ..._data
-          }
-        }
+            ..._data,
+          },
+        },
       });
       // Если ошибка сохранения
-      if (response.type === 'error') {
+      if (response.type === "error") {
         return {
           success: false,
-          message: response.args.message || 'Ошибка'
-        }
+          message: response.args.message || "Ошибка",
+        };
       }
       // Если всё ОК
-      else if (response.type === 'answer') {
+      else if (response.type === "answer") {
         const user = response.args;
         return {
           success: true,
-          user
-        }
+          user,
+        };
       }
     }
     // Если update и переданы data и dataWas для сравнения
-    else if (method === 'update' && data && dataWas) {
+    else if (method === "update" && data && dataWas) {
       const _data = {};
-      Object.keys(data).forEach(key => {
-        if(data[key] !== dataWas[key]){
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== dataWas[key]) {
           _data[key] = data[key];
         }
       });
@@ -161,36 +161,36 @@ class Tiket {
       if (Object.keys(_data).length === 0) {
         return {
           success: false,
-          noChanges: true
-        }
+          noChanges: true,
+        };
       }
       // Если есть изменения, то сохраняем их
       else {
         const response = await this.$q.ws.sendRequest({
-          type: 'query',
-          iface: 'ticket',
-          method: 'update',
+          type: "query",
+          iface: "ticket",
+          method: "update",
           args: {
             ticket: {
               id: data.id,
-              ..._data
-            }
-          }
+              ..._data,
+            },
+          },
         });
         // Если ошибка сохранения
-        if (response.type === 'error') {
+        if (response.type === "error") {
           return {
             success: false,
-            message: response.args.message || 'Ошибка'
-          }
+            message: response.args.message || "Ошибка",
+          };
         }
         // Если всё ОК
-        else if (response.type === 'answer') {
+        else if (response.type === "answer") {
           const ticket = response.args;
           return {
             success: true,
-            ticket
-          }
+            ticket,
+          };
         }
       }
     }

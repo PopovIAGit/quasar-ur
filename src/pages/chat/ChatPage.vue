@@ -44,11 +44,13 @@
                         <q-chat-message
                           v-for="message in messages"
                           :key="message.id"
-                          :name="message.ownerId == this.User.id
+                          :name="
+                            message.ownerId == this.User.id
                               ? this.User.name
                               : this.nameOfAuthors.find(
                                   (obj) => obj.id == message.ownerId
-                                ).name"
+                                ).name
+                          "
                           :stamp="message.ticketId"
                           :text="[message.content]"
                           :sent="message.ownerId == this.User.id ? true : false"
@@ -59,11 +61,11 @@
                           v-for="(freeMessage, id) in freeMessages"
                           :key="id"
                           :name="
-                            freeMessage.ownerId == this.User.id
+                            freeMessage.ownerId === this.User.id
                               ? this.User.name
                               : this.$q.appStore.usersList.find(
-                                  (obj) => obj.id == freeMessage.ownerId
-                                ).name
+                                  (obj) => obj.id === freeMessage.ownerId
+                                )?.name || freeMessage.ownerId
                           "
                           :text="[freeMessage.content]"
                           :sent="
@@ -84,11 +86,12 @@
                           "
                           :text="[freeMessageAll.message]"
                           :sent="
-                            freeMessageAll.ownerId == this.User.id ? true : false
+                            freeMessageAll.ownerId == this.User.id
+                              ? true
+                              : false
                           "
                         />
                       </div>
-
                     </div>
                   </div>
                   <template v-slot:loading>
@@ -109,6 +112,10 @@
                 v-model="msgDataToSend"
                 label="Напишите сообщение"
                 @keyup.enter="sendMsg"
+                :disable="
+                  this.ticketsList.length == 0 &&
+                  this.$q.appStore.user.roleId == 4
+                "
               >
                 <template v-slot:after>
                   <q-btn round dense flat icon="send" @click="sendMsg" />
@@ -179,7 +186,10 @@
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
-              <q-tab-panel name="freechat" v-if="this.$q.appStore.user.roleId < 3">
+              <q-tab-panel
+                name="freechat"
+                v-if="this.$q.appStore.user.roleId < 3"
+              >
                 <q-card-section>
                   <q-scroll-area style="height: 350px; max-width: 300px">
                     <q-list
@@ -208,8 +218,8 @@
               </q-tab-panel>
               <q-tab-panel name="freechatAll">
                 <q-card-section>
-                   <q-scroll-area style="height: 350px; max-width: 300px">
-                  <!--  <q-list
+                  <q-scroll-area style="height: 350px; max-width: 300px">
+                    <!--  <q-list
                       separator
                       v-for="room in this.msgFromFreeChat"
                       :key="room.roomId"
@@ -350,7 +360,7 @@ export default defineComponent({
         iface: "message",
         method: "getList",
         args: {
-          where: {ticketId: this.$q.appStore.selectedTicket.id}
+          where: { ticketId: this.$q.appStore.selectedTicket.id },
         },
       });
 
@@ -367,21 +377,24 @@ export default defineComponent({
         this.messages = response.args.rows.filter(
           (row) => row.ticketId === this.$q.appStore.selectedTicket.id
         );
-        const filteredArray =  this.messages.filter(item => item.ownerId !== this.User.id);
+        const filteredArray = this.messages.filter(
+          (item) => item.ownerId !== this.User.id
+        );
         console.log("filteredArray", filteredArray);
-        this.nameOfAuthors = await Promise.all(filteredArray.map(async item => {
+        this.nameOfAuthors = await Promise.all(
+          filteredArray.map(async (item) => {
             return await this.getAuthorName(item.ownerId);
-          }));
-          console.log("this.nameOfAuthors", this.nameOfAuthors);
+          })
+        );
+        console.log("this.nameOfAuthors", this.nameOfAuthors);
       }
 
       const responseFreeChat = await this.$q.ws.sendRequest({
         type: "query",
         iface: "freechat",
         method: "getList",
-        args: {
-        },
-      })
+        args: {},
+      });
 
       if (responseFreeChat.type === "error") {
         this.$q.dialogStore.set({
@@ -393,7 +406,9 @@ export default defineComponent({
           },
         });
       } else if (responseFreeChat.type === "answer") {
-        this.freeMessagesAll = responseFreeChat.args.rows.filter(row => row.message !== "!msg to destroy room!");
+        this.freeMessagesAll = responseFreeChat.args.rows.filter(
+          (row) => row.message !== "!msg to destroy room!"
+        );
       }
 
       await nextTick(() => {
@@ -488,7 +503,7 @@ export default defineComponent({
               iface: "message",
               method: "getList",
               args: {
-                limit:  dynamicLimit,
+                limit: dynamicLimit,
                 offset: tmpOffset,
               },
             });
@@ -511,11 +526,13 @@ export default defineComponent({
     async addNewMessage(message) {
       this.messages.push(message);
 
-
-      if (message.ownerId !== this.User.id && !this.nameOfAuthors.some(author => author.id === message.ownerId)) {
+      if (
+        message.ownerId !== this.User.id &&
+        !this.nameOfAuthors.some((author) => author.id === message.ownerId)
+      ) {
         const authorName = await this.getAuthorName(message.ownerId);
         this.nameOfAuthors.push(authorName);
-        }
+      }
 
       await nextTick(() => {
         this.scrollToEnd();
@@ -529,44 +546,43 @@ export default defineComponent({
       });
     },
     async getName(message) {
-    if (message.ownerId === this.User.id) {
-      return this.User.name;
-    } else {
-      const authorName = await this.getAuthorName(message.ownerId);
-      return authorName;
-    }
-  },
-  async getAuthorName(nameId) {
-    if (nameId === null || nameId === undefined) return '';
-
-    const response = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'person',
-      method: 'getList',
-      args: {
-        where: { id: nameId }
+      if (message.ownerId === this.User.id) {
+        return this.User.name;
+      } else {
+        const authorName = await this.getAuthorName(message.ownerId);
+        return authorName;
       }
-    });
+    },
+    async getAuthorName(nameId) {
+      if (nameId === null || nameId === undefined) return "";
 
-    if (response.type === 'error') {
-      this.$q.dialogStore.set({
-        show: true,
-        title: 'Ошибка',
-        text: 'Ошибка получения имени пользователя',
-        ok: {
-          color: 'red'
-        }
+      const response = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "person",
+        method: "getList",
+        args: {
+          where: { id: nameId },
+        },
       });
-    } else if (response.type === 'answer') {
-      const rows = response.args.rows;
-      if (rows.length > 0) {
-        const row = rows[0];
-        return row;
-      }
-    }
-    return '';
-  },
 
+      if (response.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения имени пользователя",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (response.type === "answer") {
+        const rows = response.args.rows;
+        if (rows.length > 0) {
+          const row = rows[0];
+          return row;
+        }
+      }
+      return "";
+    },
   },
 });
 </script>

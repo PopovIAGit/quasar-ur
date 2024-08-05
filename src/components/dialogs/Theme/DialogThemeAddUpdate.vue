@@ -37,7 +37,7 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.parentId"
-              :options= "optionsWithTitles"
+              :options="optionsWithTitles"
               option-label="name"
               option-value="id"
               map-options
@@ -67,6 +67,19 @@
               :max="Theme.fields.description.max"
               :required="Theme.fields.description.required"
               :rules="[(val) => Theme.fields.description.rules(val)]"
+            />
+          </div>
+          <!-- Скрыть -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Theme.fields.hidden.label }}
+              {{ Theme.fields.hidden.required ? "*" : "" }}
+            </div>
+            <q-checkbox
+              outlined
+              hide-bottom-space
+              v-model="dialog.data.hidden"
+              :rules="[(val) => Theme.fields.hidden.rules(val)]"
             />
           </div>
         </q-card-section>
@@ -112,31 +125,33 @@ export default defineComponent({
     };
   },
 
-  computed:{
-
+  computed: {
     optionsWithTitles() {
+      const tmp = [
+        { id: null, name: "Без родительской темы" },
+        ...this.$q.appStore.groupsList.map((item) => ({
+          id: item.id,
+          name: item.title,
+        })),
+      ];
 
-      const tmp =
-     [
-      { id: null, name: 'Без родительской темы' },
-      ...this.$q.appStore.groupsList.map(item => ({ id: item.id, name: item.title }))
-
-    ];
-
-     console.log(tmp);
-     return tmp;
-  }
-
+      console.log(tmp);
+      return tmp;
+    },
   },
 
   methods: {
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Theme.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
-        console.log("this.dialog.data",result);
+      const result = await this.Theme.addGroup(
+        this.dialog.method,
+        this.dialog.data,
+        this.dialog.dataWas
+      );
+      console.log("this.dialog.data", result);
       this.processing = false;
-      this.$emit('onSave', result);
+      this.$emit("onSave", result);
     },
   },
 });

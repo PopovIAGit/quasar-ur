@@ -1,77 +1,79 @@
 <template>
-  <div class="login-window">
-    <q-form @submit="onSubmit">
-      <div class="q-mb-md">
-        <div class="label">Телефон</div>
-        <!-- Телефон -->
-        <q-input
-          outlined
-          bg-color="white"
-          hide-bottom-space
-          v-model="phone"
-          prefix="+7"
-          :mask="User.fields.phone.mask"
-          unmasked-value
-          :min="User.fields.phone.min"
-          :max="User.fields.phone.max"
-          required
-          :rules="[(val) => User.fields.phone.rules(val)]"
-        >
-          <template v-slot:prepend>
-            <q-icon name="phone" />
-          </template>
-        </q-input>
-      </div>
-      <!-- Пароль -->
-      <div class="q-mb-md">
-        <div class="label">
-          {{ User.fields.password.label }}
-          {{ User.fields.password.required ? "*" : "" }}
+  <div class="login-window row justify-evenly">
+    <div class="col-lg-4 col-md-4 col-xs-12">
+      <q-form @submit="onSubmit">
+        <div class="q-mb-md">
+          <div class="label">Телефон</div>
+          <!-- Телефон -->
+          <q-input
+            outlined
+            bg-color="white"
+            hide-bottom-space
+            v-model="phone"
+            prefix="+7"
+            :mask="User.fields.phone.mask"
+            unmasked-value
+            :min="User.fields.phone.min"
+            :max="User.fields.phone.max"
+            required
+            :rules="[(val) => User.fields.phone.rules(val)]"
+          >
+            <template v-slot:prepend>
+              <q-icon name="phone" />
+            </template>
+          </q-input>
         </div>
-        <q-input
-          outlined
-          bg-color="white"
-          hide-bottom-space
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          :min="User.fields.password.min"
-          :max="User.fields.password.max"
-          :required="User.fields.password.required"
-          :rules="[(val) => User.fields.password.rules(val)]"
-        >
-          <template v-slot:prepend>
-            <q-icon name="lock" />
-          </template>
-          <template v-slot:append>
-            <q-icon
-              :name="showPassword ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="showPassword = !showPassword"
-            />
-          </template>
-        </q-input>
-      </div>
-      <div class="q-mb-lg row justify-between items-center">
-        <q-checkbox v-model="remember" label="Запомнить" />
-        <span class="text-primary cursor-pointer">Забыли пароль?</span>
-      </div>
-      <q-btn
-        unelevated
-        no-caps
-        color="primary"
-        class="full-width"
-        type="submit"
-        label="Войти"
-      />
-    </q-form>
+        <!-- Пароль -->
+        <div class="q-mb-md">
+          <div class="label">
+            {{ User.fields.password.label }}
+            {{ User.fields.password.required ? "*" : "" }}
+          </div>
+          <q-input
+            outlined
+            bg-color="white"
+            hide-bottom-space
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            :min="User.fields.password.min"
+            :max="User.fields.password.max"
+            :required="User.fields.password.required"
+            :rules="[(val) => User.fields.password.rules(val)]"
+          >
+            <template v-slot:prepend>
+              <q-icon name="lock" />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                :name="showPassword ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="showPassword = !showPassword"
+              />
+            </template>
+          </q-input>
+        </div>
+        <div class="q-mb-lg row justify-between items-center">
+          <q-checkbox v-model="remember" label="Запомнить" />
+          <span class="text-primary cursor-pointer">Забыли пароль?</span>
+        </div>
+        <q-btn
+          unelevated
+          no-caps
+          color="primary"
+          class="full-width"
+          type="submit"
+          label="Войти"
+        />
+      </q-form>
+    </div>
 
-    <div class="q-gutter-md q-pb-md row justify-center">
-      <div style="max-width: 800px" class="col-9">
+    <div
+      class="q-gutter-md q-pb-md row justify-center col-lg-4 col-md-4 col-xs-12"
+    >
+      <div style="max-width: 800px">
         <q-card style="min-width: 320px">
           <q-card-section class="row q-dialog__header">
             <div class="text-grey">Свободный чат - пишите кто хочет</div>
-            <!--    <q-btn icon="chevron_left" dense flat to="/" unelevated no-caps />
-           <div class="text-grey">{{ User.name + " " + User.surname }}</div>-->
           </q-card-section>
           <q-separator />
           <q-card-section>
@@ -79,26 +81,26 @@
               style="height: 400px; max-height: 750px"
               ref="scrollAreaRef"
             >
-                <div class="row justify-evenly q-pa-md">
-                  <div style="width: 100%; max-width: 800px">
-                    <q-chat-message
-                      v-for="(message, key) in messages"
-                      :key="key"
-                      :name="
-                          message.ownerId == this.freeUserId
-                            ? this.freeUserId
-                            : message.ownerId
-                        "
-                      :text="[message.content]"
-                      :sent="message.ownerId == this.freeUserId ? true : false"
-                    />
-                  </div>
+              <div class="row justify-evenly q-pa-md">
+                <div style="width: 100%; max-width: 800px">
+                  <q-chat-message
+                    v-for="(message, key) in messages"
+                    :key="key"
+                    :name="
+                      message.ownerId == this.freeUserId
+                        ? this.freeUserId
+                        : message.ownerId
+                    "
+                    :text="[message.content]"
+                    :sent="message.ownerId == this.freeUserId ? true : false"
+                  />
                 </div>
-                <template v-slot:loading>
-                  <div class="row justify-center q-my-md">
-                    <q-spinner-dots color="primary" size="40px" />
-                  </div>
-                </template>
+              </div>
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="40px" />
+                </div>
+              </template>
             </q-scroll-area>
           </q-card-section>
           <q-separator />
@@ -110,7 +112,9 @@
               v-model="msgDataToSend"
               label="Напишите сообщение"
               @keyup.enter="sendMsg"
-              :rules="[val => val.trim().length !== 0 && !val.includes('\\n')]"
+              :rules="[
+                (val) => val.trim().length !== 0 && !val.includes('\\n'),
+              ]"
             >
               <template v-slot:after>
                 <q-btn round dense flat icon="send" @click="sendMsg" />
@@ -153,8 +157,6 @@ export default defineComponent({
   },
 
   async beforeMount() {
-
-
     window.addEventListener("beforeunload", () => {
       /// TODO: тут нужно удалять фричат
       const response = this.$q.ws.sendRequest({
@@ -182,7 +184,6 @@ export default defineComponent({
         if (data.args.args.message.roomId == this.roomId) {
           this.addNewMessage(data.args.args.message);
         }
-
       }
     });
   },
@@ -195,6 +196,14 @@ export default defineComponent({
       });
       // Если ошибка логина TODO
       if (!result.success) {
+          this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
       }
       // Если успешный логин
       else if (result.success) {
@@ -249,7 +258,11 @@ export default defineComponent({
     async addNewMessage(message) {
       this.messages.push(message);
       console.log("addNewMessage", message);
-      this.$q.freeChat.addMsgToRoom(message.ownerId, message.roomId, message.content);
+      this.$q.freeChat.addMsgToRoom(
+        message.ownerId,
+        message.roomId,
+        message.content
+      );
       await nextTick(() => {
         this.scrollToEnd();
       });
@@ -264,7 +277,6 @@ export default defineComponent({
     async onLoad(index, done) {
       setTimeout(() => {
         if (index > 1) {
-
           done();
         } else {
           done();

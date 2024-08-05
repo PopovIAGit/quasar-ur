@@ -26,7 +26,7 @@ class Tiket {
           return val && val.length >= 2 && val.length <= 300;
         },
       },
-      description: {
+      discription: {
         label: "Описание",
         type: "string",
         default: "",

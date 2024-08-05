@@ -1,6 +1,8 @@
 <template>
-  <div class="login-window row justify-evenly">
-    <div class="col-lg-4 col-md-4 col-xs-12">
+  <div class="login-window row justify-center content-center">
+    <div
+      class="q-gutter-sm q-pb-md row justify-center col-lg-4 col-md-4 col-xs-12"
+    >
       <q-form @submit="onSubmit">
         <div class="q-mb-md">
           <div class="label">Телефон</div>
@@ -68,7 +70,7 @@
     </div>
 
     <div
-      class="q-gutter-md q-pb-md row justify-center col-lg-4 col-md-4 col-xs-12"
+      class="q-gutter-sm q-pb-sm row justify-center col-lg-4 col-md-4 col-xs-12"
     >
       <div style="max-width: 800px">
         <q-card style="min-width: 320px">
@@ -196,7 +198,7 @@ export default defineComponent({
       });
       // Если ошибка логина TODO
       if (!result.success) {
-          this.$q.dialogStore.set({
+        this.$q.dialogStore.set({
           show: true,
           title: "Ошибка",
           text: result.message,

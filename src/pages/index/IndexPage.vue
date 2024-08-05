@@ -5,15 +5,15 @@
       <div
         class="q-pa-md fit row wrap justify-center items-stretch content-stretch full-width"
       >
-        <!-- для пользователей   -->
-        <div
-          class="q-pa-sm col-lg-4 col-md-12 col-xs-12"
-          v-if="this.$q.appStore.user.roleId < 3"
-        >
+        <!-- Для админов и операторов   -->
+        <div class="q-pa-sm col-lg-4 col-md-12 col-xs-12">
           <q-card>
             <q-card-section>
               <h4>ТЕМЫ</h4>
-              <div class="q-gutter-md q-pb-md">
+              <div
+                class="q-gutter-md q-pb-md"
+                v-if="this.$q.appStore.user.roleId < 4"
+              >
                 <q-btn
                   unelevated
                   no-caps
@@ -30,16 +30,50 @@
                 />
               </div>
               <q-tree
+                v-if="this.$q.appStore.user.roleId < 4"
                 :nodes="themeList.filter((item) => item.parentId === null)"
                 node-key="title"
                 no-transition
                 @lazy-load="onLazyLoad"
                 ref="tree"
                 accordion="true"
+                @dblclick="handleDoubleClick"
               >
                 <template v-slot:default-header="prop">
                   <div class="row items-center">
-                    <div class="text-weight-bold" @dblclick="handleDoubleClick">
+                    <div class="text-weight-bold">
+                      {{ prop.node.title }}
+                    </div>
+                  </div>
+                </template>
+
+                <template v-slot:default-body="prop">
+                  <div v-if="prop.node.id">id : {{ prop.node.id }}</div>
+                  <div v-if="prop.node.description">
+                    Описание: {{ prop.node.description }}
+                  </div>
+                  <span v-else class="text-weight-light text-black"
+                    >Нет описания</span
+                  >
+                </template>
+              </q-tree>
+              <q-tree
+                v-else
+                :nodes="
+                  themeList.filter(
+                    (item) => item.parentId === null && item.hidden === false
+                  )
+                "
+                node-key="title"
+                no-transition
+                @lazy-load="onLazyLoad"
+                ref="tree"
+                accordion="true"
+                @dblclick="handleDoubleClick"
+              >
+                <template v-slot:default-header="prop">
+                  <div class="row items-center">
+                    <div class="text-weight-bold">
                       {{ prop.node.title }}
                     </div>
                   </div>
@@ -340,7 +374,6 @@ export default defineComponent({
             (row) => row.ownerId === this.$q.appStore.user.id
           );
         }
-        console.log(answer);
 
         this.rows = answer;
         this.pagination.page = page;
@@ -359,6 +392,7 @@ export default defineComponent({
         method: "getGroupList",
         args: {},
       });
+      console.log(responseTheme);
 
       if (responseTheme.type === "error") {
         this.$q.dialogStore.set({
@@ -504,10 +538,7 @@ export default defineComponent({
     onLazyLoad({ node: parent, key, done }) {
       let children = this.themeList
         .filter((item) => item.parentId === parent.id)
-        .concat(parent.services || [])
-        .filter((item) => !item.hidden);
-
-      console.log(children);
+        .concat(parent.services || []);
       done(children);
     },
 
@@ -518,7 +549,6 @@ export default defineComponent({
       if (!rowTheme) {
         rowService = this.serviceList.find((key) => key.title === title);
       }
-      console.log(rowTheme, rowService);
 
       if (rowTheme) {
         this.dialogThemeAddUpdate = {
@@ -578,7 +608,6 @@ export default defineComponent({
           break;
         default:
           this.rows = [];
-          console.log("sfd");
 
           break;
       }

@@ -99,6 +99,60 @@
             label="Сохранить"
           />
         </q-card-section>
+        <q-splitter />
+        <q-card-section
+          class="q-dialog__body"
+          v-if="dialog.method === 'update' && this.$q.appStore.user.roleId < 3"
+        >
+          <!-- Добавить/Убрать доступ для  пользователя -->
+          <div class="q-mb-md">
+            <div class="label">
+              Выберете пользователя для добавления/снятия доступа к группе
+            </div>
+            <q-select
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="this.selectedUser"
+              :options="
+                this.$q.appStore.usersList
+                  .filter((item) => item.roleId === 4)
+                  .map((item) => ({ id: item.id, name: item.name }))
+              "
+              option-label="name"
+              option-value="id"
+              map-options
+              emit-value
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-italic text-grey">
+                    No options slot
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="q-dialog__footer"
+          v-if="dialog.method === 'update' && this.$q.appStore.user.roleId < 3"
+        >
+          <q-btn
+            unelevated
+            color="negative"
+            no-caps
+            @click="removeGroupAccessList"
+            label="Убарать доступ"
+          />
+          <q-btn
+            unelevated
+            color="primary"
+            no-caps
+            @click="addGroupAccessList"
+            label="Добавить доступ"
+          />
+        </q-card-section>
       </q-form>
     </q-card>
   </q-dialog>
@@ -122,6 +176,7 @@ export default defineComponent({
     const Theme = new ThemeClass();
     return {
       Theme,
+      selectedUser: ref(null),
     };
   },
 
@@ -152,6 +207,68 @@ export default defineComponent({
       console.log("this.dialog.data", result);
       this.processing = false;
       this.$emit("onSave", result);
+    },
+
+    async addGroupAccessList() {
+      if (this.processing) return;
+      this.processing = true;
+      console.log(this.selectedUser, this.dialog.data.id);
+
+      const result = await this.Theme.addGroupAccessList(
+        this.dialog.data.id,
+        this.selectedUser
+      );
+      console.log(result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.group) {
+        console.log(result.group);
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "доступ добавлен",
+        });
+      }
+
+      this.processing = false;
+    },
+
+    async removeGroupAccessList() {
+      if (this.processing) return;
+      this.processing = true;
+      console.log(this.selectedUser, this.dialog.data.id);
+
+      const result = await this.Theme.removeGroupAccessList(
+        this.dialog.data.id,
+        this.selectedUser
+      );
+      console.log(result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.group) {
+        console.log(result.group);
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "доступ удален",
+        });
+      }
     },
   },
 });

@@ -29,18 +29,18 @@
           <!-- Описание -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Ticket.fields.description.label }}
-              {{ Ticket.fields.description.required ? "*" : "" }}
+              {{ Ticket.fields.discription.label }}
+              {{ Ticket.fields.discription.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.description"
-              :min="Ticket.fields.description.min"
-              :max="Ticket.fields.description.max"
-              :required="Ticket.fields.description.required"
-              :rules="[(val) => Ticket.fields.description.rules(val)]"
+              v-model="dialog.data.discription"
+              :min="Ticket.fields.discription.min"
+              :max="Ticket.fields.discription.max"
+              :required="Ticket.fields.discription.required"
+              :rules="[(val) => Ticket.fields.discription.rules(val)]"
             />
           </div>
           <!-- ticketStatusId -->
@@ -54,9 +54,9 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.ticketStatusId"
-              :options= "optionsTicketsStatus"
-              option-label = "name"
-              option-value = "id"
+              :options="optionsTicketsStatus"
+              option-label="name"
+              option-value="id"
               map-options
               emit-value
               :rules="[(val) => Ticket.fields.ticketStatusId.rules(val)]"
@@ -70,8 +70,8 @@
               </template>
             </q-select>
           </div>
-<!-- ownerID               -->
-      <div class="q-mb-md" >
+          <!-- ownerID               -->
+          <div class="q-mb-md">
             <div class="label">
               {{ Ticket.fields.ownerId.label }}
               {{ Ticket.fields.ownerId.required ? "*" : "" }}
@@ -81,9 +81,14 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.ownerId"
-              :options= "usersForOwner"
-              :option-label="(item) => item === null ? 'Null value' : (`id: ${item.id} - ${item.name} ${item.surname}`)"
-              :option-value="(item) => item === null ? 'Null value' : item.id "
+              :options="usersForOwner"
+              :option-label="
+                (item) =>
+                  item === null
+                    ? 'Null value'
+                    : `id: ${item.id} - ${item.name} ${item.surname}`
+              "
+              :option-value="(item) => (item === null ? 'Null value' : item.id)"
               map-options
               emit-value
               :rules="[(val) => Ticket.fields.ownerId.rules(val)]"
@@ -98,8 +103,8 @@
             </q-select>
           </div>
 
-        <!-- serviceID -->
-        <div class="q-mb-md" >
+          <!-- serviceID -->
+          <div class="q-mb-md">
             <div class="label">
               {{ Ticket.fields.serviceId.label }}
               {{ Ticket.fields.serviceId.required ? "*" : "" }}
@@ -109,7 +114,7 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.serviceId"
-              :options= "servicesTitles"
+              :options="servicesTitles"
               option-label="title"
               option-value="id"
               map-options
@@ -126,7 +131,10 @@
             </q-select>
           </div>
           <!-- Удален -->
-          <div class="q-mb-md" v-if="dialog.dataWas && dialog.dataWas.isDeleted === true">
+          <div
+            class="q-mb-md"
+            v-if="dialog.dataWas && dialog.dataWas.isDeleted === true"
+          >
             <div class="label">
               {{ Ticket.fields.isDeleted.label }}
               {{ Ticket.fields.isDeleted.required ? "*" : "" }}
@@ -194,30 +202,27 @@ export default defineComponent({
 
   emits: {
     onSave: null,
-    onRemove: null
+    onRemove: null,
   },
   setup() {
     const Ticket = new TicketClass();
 
-
     return {
       Ticket,
       optionsTicketsStatus: [
-        { id: 1, name: 'Новый' },
-        { id: 2, name: 'Открыт' },
-        { id: 3, name: 'Закры' },
-        { id: 4, name: 'Восстановлен' }
+        { id: 1, name: "Новый" },
+        { id: 2, name: "Открыт" },
+        { id: 3, name: "Закры" },
+        { id: 4, name: "Восстановлен" },
       ],
       usersForOwner: ref([]),
       servicesTitles: ref([]),
     };
   },
 
-   beforeMount() {
-     this.getUsersForOwner();
-     this.getServiseTitles();
-
-
+  beforeMount() {
+    this.getUsersForOwner();
+    this.getServiseTitles();
   },
 
   updated() {
@@ -228,9 +233,13 @@ export default defineComponent({
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Ticket.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
+      const result = await this.Ticket.save(
+        this.dialog.method,
+        this.dialog.data,
+        this.dialog.dataWas
+      );
       this.processing = false;
-      this.$emit('onSave', result);
+      this.$emit("onSave", result);
     },
 
     async onRemove() {
@@ -238,43 +247,42 @@ export default defineComponent({
       this.processing = true;
       const result = await this.Ticket.remove(this.dialog.data.id);
       this.processing = false;
-      this.$emit('onRemove', result);
+      this.$emit("onRemove", result);
     },
-    async getUsersForOwner(){
+    async getUsersForOwner() {
       // if (this.$q.appStore.usersList != null) {
       //   this.usersForOwner = this.$q.appStore.usersList.filter((obj) => obj.roleId == 4 && obj.isDeleted == false);
       // }
 
       const response = await this.$q.ws.sendRequest({
-        type: 'query',
-        iface: 'person',
-        method: 'getList',
+        type: "query",
+        iface: "person",
+        method: "getList",
         args: {
-          where:{roleId: 4, isDeleted: false}
-        }
+          where: { roleId: 4, isDeleted: false },
+        },
       });
       // Если ошибка получения списка пользователей
-      if (response.type === 'error') {
+      if (response.type === "error") {
         this.$q.dialogStore.set({
           show: true,
-          title: 'Ошибка',
-          text: 'Ошибка получения списка пользователей',
+          title: "Ошибка",
+          text: "Ошибка получения списка пользователей",
           ok: {
-            color: 'red'
-          }
+            color: "red",
+          },
         });
       }
       // Если получен список пользователей
-      else if (response.type === 'answer') {
-
+      else if (response.type === "answer") {
         this.usersForOwner = response.args.rows;
       }
     },
     getServiseTitles() {
       if (this.$q.appStore.servicesList != null) {
-         this.servicesTitles = this.$q.appStore.servicesList;
+        this.servicesTitles = this.$q.appStore.servicesList;
       }
-    }
+    },
   },
 });
 </script>

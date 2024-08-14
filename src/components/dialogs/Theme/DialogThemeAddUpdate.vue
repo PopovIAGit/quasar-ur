@@ -189,8 +189,6 @@ export default defineComponent({
           name: item.title,
         })),
       ];
-
-      console.log(tmp);
       return tmp;
     },
   },

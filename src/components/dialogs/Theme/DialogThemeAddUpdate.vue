@@ -70,7 +70,7 @@
             />
           </div>
           <!-- Скрыть -->
-          <div class="q-mb-md">
+          <div class="q-mb-md" v-if="this.$q.appStore.user.roleId < 3">
             <div class="label">
               {{ Theme.fields.hidden.label }}
               {{ Theme.fields.hidden.required ? "*" : "" }}
@@ -104,10 +104,39 @@
           class="q-dialog__body"
           v-if="dialog.method === 'update' && this.$q.appStore.user.roleId < 3"
         >
-          <!-- Добавить/Убрать доступ для  пользователя -->
-          <div class="q-mb-md">
+          <!-- Добавить/Убрать доступ для  пользователя open group -->
+          <div class="q-mb-md" v-if="dialog.data.hidden === false">
             <div class="label">
               Выберете пользователя для добавления/снятия доступа к группе
+            </div>
+            <q-select
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="this.selectedUser"
+              :options="
+                this.$q.appStore.usersList
+                  .filter((item) => item.roleId === 4)
+                  .map((item) => ({ id: item.id, name: item.name }))
+              "
+              option-label="name"
+              option-value="id"
+              map-options
+              emit-value
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-italic text-grey">
+                    No options slot
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </div>
+          <div class="q-mb-md" v-if="dialog.data.hidden === true">
+            <div class="label">
+              Выберете пользователя для добавления/снятия доступа к скрытой
+              группе
             </div>
             <q-select
               outlined
@@ -138,20 +167,38 @@
           class="q-dialog__footer"
           v-if="dialog.method === 'update' && this.$q.appStore.user.roleId < 3"
         >
-          <q-btn
-            unelevated
-            color="negative"
-            no-caps
-            @click="removeGroupAccessList"
-            label="Убарать доступ"
-          />
-          <q-btn
-            unelevated
-            color="primary"
-            no-caps
-            @click="addGroupAccessList"
-            label="Добавить доступ"
-          />
+          <div v-if="dialog.data.hidden === false">
+            <q-btn
+              unelevated
+              color="negative"
+              no-caps
+              @click="removeGroupAccessList"
+              label="Убарать доступ"
+            />
+            <q-btn
+              unelevated
+              color="primary"
+              no-caps
+              @click="addGroupAccessList"
+              label="Добавить доступ"
+            />
+          </div>
+          <div v-else>
+            <q-btn
+              unelevated
+              color="negative"
+              no-caps
+              @click="removeHiddenGroupAccessList"
+              label="Убарать доступ"
+            />
+            <q-btn
+              unelevated
+              color="primary"
+              no-caps
+              @click="addHiddenGroupAccessList"
+              label="Добавить доступ"
+            />
+          </div>
         </q-card-section>
       </q-form>
     </q-card>
@@ -245,6 +292,68 @@ export default defineComponent({
       console.log(this.selectedUser, this.dialog.data.id);
 
       const result = await this.Theme.removeGroupAccessList(
+        this.dialog.data.id,
+        this.selectedUser
+      );
+      console.log(result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.group) {
+        console.log(result.group);
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "доступ удален",
+        });
+      }
+    },
+
+    async addHiddenGroupAccessList() {
+      if (this.processing) return;
+      this.processing = true;
+      console.log(this.selectedUser, this.dialog.data.id);
+
+      const result = await this.Theme.addHiddenGroupAccessList(
+        this.dialog.data.id,
+        this.selectedUser
+      );
+      console.log(result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.group) {
+        console.log(result.group);
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "доступ добавлен",
+        });
+      }
+
+      this.processing = false;
+    },
+
+    async removeHiddenGroupAccessList() {
+      if (this.processing) return;
+      this.processing = true;
+      console.log(this.selectedUser, this.dialog.data.id);
+
+      const result = await this.Theme.removeHiddenGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );

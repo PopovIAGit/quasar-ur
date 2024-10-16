@@ -61,7 +61,8 @@
                 v-else
                 :nodes="
                   themeList.filter(
-                    (item) => item.parentId === null && item.hidden === false
+                    (item) =>
+                      item.parentId === null /*&& item.hidden === false*/
                   )
                 "
                 node-key="title"

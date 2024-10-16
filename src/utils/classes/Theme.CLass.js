@@ -315,6 +315,86 @@ class Theme {
       }
     }
   }
+
+  async addHiddenGroupAccessList(groupId, userId) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "service",
+      method: "addHiddenGroupAccessList",
+      args: {
+        acl: {
+          servicesGroupId: groupId,
+          personId: userId,
+        },
+      },
+    });
+
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных
+      if (!response.args || !response.args.id) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        const group = response.args;
+        return {
+          success: true,
+          group,
+        };
+      }
+    }
+  }
+
+  async removeHiddenGroupAccessList(groupId, userId) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "service",
+      method: "removeHiddenGroupAccessList",
+      args: {
+        acl: {
+          servicesGroupId: groupId,
+          personId: userId,
+        },
+      },
+    });
+
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных
+      if (!response.args || !response.args.id) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        const group = response.args;
+        return {
+          success: true,
+          group,
+        };
+      }
+    }
+  }
 }
 
 export default Theme;

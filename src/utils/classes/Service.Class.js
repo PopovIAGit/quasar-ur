@@ -69,9 +69,9 @@ class Service {
 
   /**
    * Сохранение тикета (add или update)
-   * @param method
-   * @param data
-   * @param dataWas
+   * @param method add/update
+   * @param data now data
+   * @param dataWas data was
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
   async save(method, data, dataWas) {
@@ -151,6 +151,11 @@ class Service {
     }
   }
 
+  /**
+   * Удаление сервиса
+   * @param {*} serviceId
+   * @returns
+   */
   async remove(serviceId) {
     const response = await this.$q.ws.sendRequest({
       type: "query",

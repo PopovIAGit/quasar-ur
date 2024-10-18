@@ -323,8 +323,8 @@ class Theme {
       method: "addHiddenGroupAccessList",
       args: {
         acl: {
-          servicesGroupId: groupId,
           personId: userId,
+          servicesGroupId: groupId,
         },
       },
     });
@@ -363,8 +363,8 @@ class Theme {
       method: "removeHiddenGroupAccessList",
       args: {
         acl: {
-          servicesGroupId: groupId,
           personId: userId,
+          servicesGroupId: groupId,
         },
       },
     });

@@ -300,7 +300,7 @@ class Theme {
     // Если получен ответ от login
     else if (response.type === "answer") {
       // Если в ответе по каким-то причинам нет данных
-      if (!response.args || !response.args.id) {
+      if (!response.args) {
         return {
           success: false,
         };
@@ -380,7 +380,7 @@ class Theme {
     // Если получен ответ от login
     else if (response.type === "answer") {
       // Если в ответе по каким-то причинам нет данных
-      if (!response.args || !response.args.id) {
+      if (!response.args) {
         return {
           success: false,
         };

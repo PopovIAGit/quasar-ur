@@ -195,6 +195,85 @@ class Tiket {
       }
     }
   }
+  async addAccessList(ticketId, userId) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "ticket",
+      method: "addAccessList",
+      args: {
+        acl: {
+          personId: userId,
+          ticketId: ticketId,
+        },
+      },
+    });
+
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных
+      if (!response.args || !response.args.id) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        const group = response.args;
+        return {
+          success: true,
+          group,
+        };
+      }
+    }
+  }
+
+  async removeAccessList(ticketId, userId) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "ticket",
+      method: "removeAccessList",
+      args: {
+        acl: {
+          personId: userId,
+          ticketId: ticketId,
+        },
+      },
+    });
+
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных
+      if (!response.args) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        const group = response.args;
+        return {
+          success: true,
+          group,
+        };
+      }
+    }
+  }
 }
 
 export default Tiket;

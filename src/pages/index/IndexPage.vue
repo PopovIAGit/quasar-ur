@@ -349,6 +349,7 @@ export default defineComponent({
           // offset: 0
         },
       });
+      console.log("ticket", response);
 
       // Если ошибка получения списка тикетов
       if (response.type === "error") {

@@ -133,10 +133,21 @@
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
                   <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
-                    Опертатор
+                    Опертатор {{ selectTicketID.operators.length }}
                   </div>
                   <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
-                    заглушка
+                    <q-btn
+                      @click="showOperatorAddRemove"
+                      unelevated
+                      no-caps
+                      color="primary"
+                    >
+                      {{
+                        selectTicketID.operators.length == 0
+                          ? "Добавить"
+                          : "Удалить"
+                      }}</q-btn
+                    >
                   </div>
                 </div>
                 <div
@@ -197,6 +208,80 @@
         </q-card>
       </div>
     </div>
+    <!-- модальное окно добавления удаления оператора -->
+    <div>
+      <q-dialog v-model="inception">
+        <q-card v-if="selectTicketID.operators.length == 0">
+          <q-card-section>
+            <div class="text-h6">Добавить оператора</div>
+          </q-card-section>
+
+          <q-card-section class="q-pa-md">
+            <q-select
+              outlined
+              v-model="selectOperator"
+              option-label="name"
+              option-value="id"
+              map-options
+              emit-value
+              :options="
+                this.$q.appStore.usersList
+                  .filter((obj) => obj.roleId == 3 && obj.isDeleted == false)
+                  .map((item) => ({
+                    id: item.id,
+                    name: item.name + ' ' + item.surname,
+                  }))
+              "
+              label="Оператор"
+            />
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn
+              class="q-btn--outline-muted"
+              outline
+              no-caps
+              label="Отмена"
+              v-close-popup
+            />
+            <q-btn
+              unelevated
+              color="primary"
+              no-caps
+              label="Добавить"
+              :disable="selectOperator == null ? true : false"
+              @click="addOperator(selectTicketID.id, selectTicketID.id)"
+              hint="добавить оператора в тикет"
+            />
+          </q-card-actions>
+        </q-card>
+        <q-card v-else>
+          <q-card-section>
+            <div class="text-h6">Удалить оператора</div>
+          </q-card-section>
+
+          <q-card-section class="q-pa-md"> </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn
+              class="q-btn--outline-muted"
+              outline
+              no-caps
+              label="Отмена"
+              v-close-popup
+            />
+            <q-btn
+              unelevated
+              color="negative"
+              no-caps
+              label="Удалить"
+              @click="removeOperator(selectOperator, selectTicketID.id)"
+              hint="Удалить оператора из тикета"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
   </q-page>
 
   <dialog-ticket-add-update
@@ -237,6 +322,10 @@ export default defineComponent({
       dialogTicketAddUpdate: ref({}),
       dialogTicketAddUpdateDefault,
       newFile: ref(null),
+      Ticket,
+      // модальное окно добавления удаления оператора
+      inception: ref(false),
+      selectOperator: ref(null),
     };
   },
   async beforeMount() {
@@ -246,9 +335,6 @@ export default defineComponent({
     }
   },
 
-  // async beforeUnmount(){
-  //   this.ticketFileList = null;
-  // },
   methods: {
     async getData(props) {
       if (this.loading) return;
@@ -495,6 +581,56 @@ export default defineComponent({
       });
       console.log("responseUploadFile", responseUploadFile);
       this.getTicketFileList();
+    },
+    showOperatorAddRemove() {
+      this.inception = true;
+    },
+    async addOperator(userId, ticketId) {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Ticket.addAccessList(ticketId, userId);
+      this.processing = false;
+      console.log(result);
+
+      if (!result.success) {
+        this.selectOperator = null;
+        this.inception = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.selectOperator = null;
+        this.inception = false;
+        this.getData();
+      }
+    },
+    async removeOperator(ticketId, userId) {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Ticket.removeAccessList(ticketId, userId);
+      this.processing = false;
+
+      if (!result.success) {
+        this.selectOperator = null;
+        this.inception = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.selectOperator = null;
+        this.inception = false;
+        this.getData();
+      }
     },
   },
 });

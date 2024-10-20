@@ -145,7 +145,7 @@
               v-model="this.selectedUser"
               :options="
                 this.$q.appStore.usersList
-                  .filter((item) => item.roleId === 4)
+                  .filter((item) => item.roleId === 4 && obj.isDeleted == false)
                   .map((item) => ({ id: item.id, name: item.name }))
               "
               option-label="name"

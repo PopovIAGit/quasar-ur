@@ -262,6 +262,7 @@ class Tiket {
       if (!response.args) {
         return {
           success: false,
+          message: "Ошибка",
         };
       }
       // Если всё ОК

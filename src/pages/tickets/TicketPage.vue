@@ -133,7 +133,12 @@
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
                   <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
-                    Опертатор {{ selectTicketID.operators.length }}
+                    Опертатор:
+                    {{
+                      selectTicketID.operators.length == 0
+                        ? "не назначен"
+                        : "ДОПИСАТЬ НОМЕР!"
+                    }}
                   </div>
                   <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
                     <q-btn
@@ -584,6 +589,7 @@ export default defineComponent({
     },
     showOperatorAddRemove() {
       this.inception = true;
+      console.log(this.$q.appStore.usersList);
     },
     async addOperator(userId, ticketId) {
       if (this.processing) return;

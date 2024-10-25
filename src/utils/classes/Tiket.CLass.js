@@ -227,7 +227,7 @@ class Tiket {
       }
       // Если всё ОК
       else {
-        const tickets = response.args;
+        const tickets = response.args.rows;
         return {
           success: true,
           tickets,
@@ -260,8 +260,10 @@ class Tiket {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
+      const tickets = response.args.rows;
       return {
         success: true,
+        tickets,
       };
     }
   }

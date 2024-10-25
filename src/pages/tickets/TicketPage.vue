@@ -255,7 +255,7 @@
               no-caps
               label="Добавить"
               :disable="selectOperator == null ? true : false"
-              @click="addOperator(selectTicketID.id, selectTicketID.id)"
+              @click="addOperator(selectOperator, selectTicketID.id)"
               hint="добавить оператора в тикет"
             />
           </q-card-actions>
@@ -280,7 +280,9 @@
               color="negative"
               no-caps
               label="Удалить"
-              @click="removeOperator(selectOperator, selectTicketID.id)"
+              @click="
+                removeOperator(selectTicketID.id, selectTicketID.operators[0])
+              "
               hint="Удалить оператора из тикета"
             />
           </q-card-actions>
@@ -346,9 +348,12 @@ export default defineComponent({
 
       this.loading = true;
 
+      console.log("list", this.$q.appStore.ticketsList);
+
       this.selectTicketID = this.$q.appStore.ticketsList.find(
         (obj) => obj.id == this.$q.appStore.selectedTicket
       );
+
       console.log("selectTicketID", this.selectTicketID);
 
       if (this.selectTicketID == null) {
@@ -608,7 +613,7 @@ export default defineComponent({
         });
       } else {
         this.$q.appStore.set({ ticketsList: result.tickets });
-        this.this.selectOperator = null;
+        if (this.selectOperator) this.selectOperator = null;
         this.inception = false;
         await this.getData();
       }
@@ -631,6 +636,7 @@ export default defineComponent({
           },
         });
       } else {
+        this.$q.appStore.set({ ticketsList: result.tickets });
         this.selectOperator = null;
         this.inception = false;
         await this.getData();

@@ -346,11 +346,12 @@ export default defineComponent({
 
       this.loading = true;
 
-      this.selectTicketID = this.$q.appStore.selectedTicket;
+      this.selectTicketID = this.$q.appStore.ticketsList.find(
+        (obj) => obj.id == this.$q.appStore.selectedTicket
+      );
+      console.log("selectTicketID", this.selectTicketID);
 
       if (this.selectTicketID == null) {
-        console.log("this.selectTicketID == null");
-
         this.$q.appStore.set({ numOfMsgInTicket: 0 });
         if (this.$q.appStore.usersList != null) {
           this.usersForOwner = this.$q.appStore.usersList.filter(
@@ -504,7 +505,6 @@ export default defineComponent({
         method: "getList",
         args: {},
       });
-      console.log("responseFileList", responseFileList);
 
       this.ticketFileList = responseFileList.args.rows.filter(
         (file) => file.ticketId === this.selectTicketID.id
@@ -527,7 +527,6 @@ export default defineComponent({
           const fileData = responseFile.args;
           const buf = Buffer.from(fileData.data.data);
           // const data1 = JSON.parse(buf);
-          console.log("buf", buf);
           const blob = new Blob([buf], { type: fileData.type });
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
@@ -584,7 +583,6 @@ export default defineComponent({
           },
         },
       });
-      console.log("responseUploadFile", responseUploadFile);
       this.getTicketFileList();
     },
     showOperatorAddRemove() {
@@ -596,7 +594,6 @@ export default defineComponent({
       this.processing = true;
       const result = await this.Ticket.addAccessList(ticketId, userId);
       this.processing = false;
-      console.log(result);
 
       if (!result.success) {
         this.selectOperator = null;
@@ -610,9 +607,10 @@ export default defineComponent({
           },
         });
       } else {
-        this.selectOperator = null;
+        this.$q.appStore.set({ ticketsList: result.tickets });
+        this.this.selectOperator = null;
         this.inception = false;
-        this.getData();
+        await this.getData();
       }
     },
     async removeOperator(ticketId, userId) {
@@ -635,7 +633,7 @@ export default defineComponent({
       } else {
         this.selectOperator = null;
         this.inception = false;
-        this.getData();
+        await this.getData();
       }
     },
   },

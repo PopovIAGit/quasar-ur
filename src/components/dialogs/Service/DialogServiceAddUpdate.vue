@@ -121,7 +121,6 @@ export default defineComponent({
       this.$q.appStore.servicesList.map(item => ({ id: item.id, name: item.title }))
     ];
 
-     console.log(tmp);
      return tmp;
   }
 
@@ -132,7 +131,6 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
       const result = await this.Service.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
-        console.log("this.dialog.data",result);
       this.processing = false;
       this.$emit('onSave', result);
     },

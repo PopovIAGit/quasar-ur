@@ -349,7 +349,6 @@ export default defineComponent({
           // offset: 0
         },
       });
-      console.log("ticket", response);
 
       // Если ошибка получения списка тикетов
       if (response.type === "error") {
@@ -526,7 +525,7 @@ export default defineComponent({
     handleRowDoubleClick(event, row) {
       // Получите данные строки и выполните переход на другую страницу
       this.$q.appStore.set({
-        selectedTicket: row,
+        selectedTicket: row.id,
       });
       this.$router.push({ path: "/tickets" });
     },

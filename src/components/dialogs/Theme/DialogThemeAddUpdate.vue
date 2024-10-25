@@ -249,7 +249,6 @@ export default defineComponent({
         this.dialog.data,
         this.dialog.dataWas
       );
-      console.log("this.dialog.data", result);
       this.processing = false;
       this.$emit("onSave", result);
     },
@@ -257,13 +256,11 @@ export default defineComponent({
     async addGroupAccessList() {
       if (this.processing) return;
       this.processing = true;
-      console.log(this.selectedUser, this.dialog.data.id);
 
       const result = await this.Theme.addGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );
-      console.log(result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -275,7 +272,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-        console.log(result.group);
 
         this.$q.dialogStore.set({
           show: true,
@@ -289,13 +285,11 @@ export default defineComponent({
     async removeGroupAccessList() {
       if (this.processing) return;
       this.processing = true;
-      console.log(this.selectedUser, this.dialog.data.id);
 
       const result = await this.Theme.removeGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );
-      console.log(result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -307,7 +301,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-        console.log(result.group);
 
         this.$q.dialogStore.set({
           show: true,
@@ -319,13 +312,13 @@ export default defineComponent({
     async addHiddenGroupAccessList() {
       if (this.processing) return;
       this.processing = true;
-      console.log(this.selectedUser, this.dialog.data.id);
+
 
       const result = await this.Theme.addHiddenGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );
-      console.log(result);
+
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -337,7 +330,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-        console.log(result.group);
 
         this.$q.dialogStore.set({
           show: true,
@@ -351,13 +343,11 @@ export default defineComponent({
     async removeHiddenGroupAccessList() {
       if (this.processing) return;
       this.processing = true;
-      console.log(this.selectedUser, this.dialog.data.id);
 
       const result = await this.Theme.removeHiddenGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );
-      console.log(result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -369,8 +359,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-        console.log(result.group);
-
         this.$q.dialogStore.set({
           show: true,
           title: "доступ удален",

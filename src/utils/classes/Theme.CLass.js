@@ -329,7 +329,6 @@ class Theme {
       },
     });
 
-    console.log(response);
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -369,7 +368,6 @@ class Theme {
       },
     });
 
-    console.log(response);
     // Если ошибка удаления
     if (response.type === "error") {
       return {

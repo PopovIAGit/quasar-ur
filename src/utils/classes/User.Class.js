@@ -173,7 +173,6 @@ class User {
         },
       },
     });
-    console.log(response);
     // Если ошибка логина
     if (response.type === "error") {
       // На всякий случай удаляем токен из localStorage

@@ -380,13 +380,11 @@ export default defineComponent({
         const filteredArray = this.messages.filter(
           (item) => item.ownerId !== this.User.id
         );
-        console.log("filteredArray", filteredArray);
         this.nameOfAuthors = await Promise.all(
           filteredArray.map(async (item) => {
             return await this.getAuthorName(item.ownerId);
           })
         );
-        console.log("this.nameOfAuthors", this.nameOfAuthors);
       }
 
       const responseFreeChat = await this.$q.ws.sendRequest({

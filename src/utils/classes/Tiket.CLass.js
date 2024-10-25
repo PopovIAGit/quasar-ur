@@ -208,7 +208,8 @@ class Tiket {
       },
     });
 
-    console.log(response);
+    console.log("addAccessList", response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -219,17 +220,17 @@ class Tiket {
     // Если получен ответ от login
     else if (response.type === "answer") {
       // Если в ответе по каким-то причинам нет данных
-      if (!response.args || !response.args.id) {
+      if (!response.args) {
         return {
           success: false,
         };
       }
       // Если всё ОК
       else {
-        const group = response.args;
+        const tickets = response.args;
         return {
           success: true,
-          group,
+          tickets,
         };
       }
     }
@@ -248,7 +249,8 @@ class Tiket {
       },
     });
 
-    console.log(response);
+    console.log("removeAccessList", response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -258,21 +260,9 @@ class Tiket {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных
-      if (!response.args) {
-        return {
-          success: false,
-          message: "Ошибка",
-        };
-      }
-      // Если всё ОК
-      else {
-        const group = response.args;
-        return {
-          success: true,
-          group,
-        };
-      }
+      return {
+        success: true,
+      };
     }
   }
 }

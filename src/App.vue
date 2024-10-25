@@ -158,6 +158,7 @@ export default defineComponent({
         method: "getList",
         args: {},
       });
+
       // Если ошибка получения списка пользователей
       if (responseUser.type === "error") {
         this.$q.dialogStore.set({
@@ -181,7 +182,7 @@ export default defineComponent({
         data.args.action !== "freechatMessage" &&
         this.$q.appStore.user
       ) {
-        console.log("data.args", data.args);
+
         this.$q.notify({
           message: data.args.action,
           position: "top",

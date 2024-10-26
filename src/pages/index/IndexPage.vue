@@ -36,7 +36,7 @@
                 no-transition
                 @lazy-load="onLazyLoad"
                 ref="tree"
-                accordion="true"
+                accordion
                 @dblclick="handleDoubleClick"
               >
                 <template v-slot:default-header="prop">
@@ -69,7 +69,7 @@
                 no-transition
                 @lazy-load="onLazyLoad"
                 ref="tree"
-                accordion="true"
+                accordion
                 @dblclick="handleDoubleClick"
               >
                 <template v-slot:default-header="prop">

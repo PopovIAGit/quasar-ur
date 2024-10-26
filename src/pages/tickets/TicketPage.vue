@@ -125,23 +125,32 @@
                   <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
                     Статус
                   </div>
-                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
+                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md text-right">
                     <q-badge align="middle" :class="colorStatus">
                       {{ textStatus }}</q-badge
                     >
                   </div>
                 </div>
                 <div class="row col-lg-9 col-md-9 col-xs-12 q-pb-md">
-                  <div class="col-lg-10 col-md-9 col-xs-12 q-dialog__title">
+                  <div class="col-lg-8 col-md-7 col-xs-12 q-dialog__title">
                     Опертатор:
                     {{
                       selectTicketID.operators.length == 0
                         ? "не назначен"
-                        : "ДОПИСАТЬ НОМЕР!"
+                        : `${
+                            this.$q.appStore.usersList.find(
+                              (obj) => obj.id == selectTicketID.operators[0]
+                            ).name
+                          } ${
+                            this.$q.appStore.usersList.find(
+                              (obj) => obj.id == selectTicketID.operators[0]
+                            ).surname
+                          } (ID: ${selectTicketID.operators[0]})`
                     }}
                   </div>
-                  <div class="col-lg-2 col-md-2 col-xs-12 q-pb-md">
+                  <div class="col-lg-4 col-md-3 col-xs-12 q-pb-md text-right">
                     <q-btn
+                      style="width: auto"
                       @click="showOperatorAddRemove"
                       unelevated
                       no-caps

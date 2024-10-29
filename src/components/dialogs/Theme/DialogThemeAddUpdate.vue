@@ -249,6 +249,7 @@ export default defineComponent({
         this.dialog.data,
         this.dialog.dataWas
       );
+
       this.processing = false;
       this.$emit("onSave", result);
     },
@@ -272,7 +273,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-
         this.$q.dialogStore.set({
           show: true,
           title: "доступ добавлен",
@@ -301,7 +301,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-
         this.$q.dialogStore.set({
           show: true,
           title: "доступ удален",
@@ -313,12 +312,10 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
 
-
       const result = await this.Theme.addHiddenGroupAccessList(
         this.dialog.data.id,
         this.selectedUser
       );
-
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -330,7 +327,6 @@ export default defineComponent({
           },
         });
       } else if (result.success && result.group) {
-
         this.$q.dialogStore.set({
           show: true,
           title: "доступ добавлен",

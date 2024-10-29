@@ -209,20 +209,11 @@ class Theme {
         message: response.args.message || "Ошибка",
       };
     }
-    // Если получен ответ от login
+    // Если получен ответ от
     else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id) {
-        return {
-          success: false,
-        };
-      }
-      // Если всё ОК
-      else {
-        return {
-          success: true,
-        };
-      }
+      return {
+        success: true,
+      };
     }
   }
   async sortGroup(ids) {

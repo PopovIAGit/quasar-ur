@@ -4,7 +4,12 @@
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
-            <div class="q-dialog__title">Добавить сервис</div>
+            <div class="q-dialog__title" v-if="this.dialog.method === 'add'">
+              Добавить сервис
+            </div>
+            <div class="q-dialog__title" v-if="this.dialog.method === 'update'">
+              Изменить сервис
+            </div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -37,7 +42,12 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.groupId"
-              :options= "this.$q.appStore.groupsList.map(item => ({ id: item.id, name: item.title }))"
+              :options="
+                this.$q.appStore.groupsList.map((item) => ({
+                  id: item.id,
+                  name: item.title,
+                }))
+              "
               option-label="name"
               option-value="id"
               map-options
@@ -71,6 +81,17 @@
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
+          <q-btn
+            unelevated
+            color="negative"
+            no-caps
+            @click="onRemove"
+            label="Удалить"
+            v-if="
+              this.dialog.method === 'update' &&
+              this.$q.appStore.user.roleId < 3
+            "
+          />
           <q-btn
             class="q-btn--outline-muted"
             outline
@@ -112,27 +133,38 @@ export default defineComponent({
     };
   },
 
-  computed:{
-
+  computed: {
     optionsWithTitles() {
+      const tmp = [
+        this.$q.appStore.servicesList.map((item) => ({
+          id: item.id,
+          name: item.title,
+        })),
+      ];
 
-      const tmp =
-    [
-      this.$q.appStore.servicesList.map(item => ({ id: item.id, name: item.title }))
-    ];
-
-     return tmp;
-  }
-
+      return tmp;
+    },
   },
 
   methods: {
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Service.save(this.dialog.method, this.dialog.data, this.dialog.dataWas);
+      const result = await this.Service.save(
+        this.dialog.method,
+        this.dialog.data,
+        this.dialog.dataWas
+      );
       this.processing = false;
-      this.$emit('onSave', result);
+      this.$emit("onSave", result);
+    },
+
+    async onRemove() {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Service.remove(this.dialog.data.id);
+      this.processing = false;
+      this.$emit("onRemove", result);
     },
   },
 });

@@ -181,10 +181,12 @@
   <dialog-theme-add-update
     :dialog="dialogThemeAddUpdate"
     @onSave="onThemeSave"
+    @onRemove="onThemeRemove"
   />
   <dialog-service-add-update
     :dialog="dialogServiceAddUpdate"
     @onSave="onServiceSave"
+    @onRemove="onServiceRemove"
   />
 </template>
 
@@ -485,6 +487,27 @@ export default defineComponent({
         this.getData();
       }
     },
+
+    onThemeRemove(result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Тема удалена",
+        });
+        this.dialogThemeAddUpdate.show = false;
+        this.getData();
+      }
+    },
+
     showDialogServiceAddUpdate() {
       const excludeFields = ["id", "token", "isDeleted", "online", "active"];
       const data = {};
@@ -517,6 +540,25 @@ export default defineComponent({
         this.$q.dialogStore.set({
           show: true,
           title: "Сервис создан",
+        });
+        this.dialogServiceAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onServiceRemove(result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Сервис удален",
         });
         this.dialogServiceAddUpdate.show = false;
         this.getData();

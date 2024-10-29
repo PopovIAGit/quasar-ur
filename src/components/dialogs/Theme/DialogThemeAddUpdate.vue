@@ -4,7 +4,12 @@
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
-            <div class="q-dialog__title">Добавить группу</div>
+            <div class="q-dialog__title" v-if="this.dialog.method === 'add'">
+              Добавить группу
+            </div>
+            <div class="q-dialog__title" v-if="this.dialog.method === 'update'">
+              Изменить группу
+            </div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -84,6 +89,16 @@
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
+          <q-btn
+            v-if="
+              dialog.method === 'update' && this.$q.appStore.user.roleId < 3
+            "
+            unelevated
+            color="negative"
+            no-caps
+            @click="onRemove"
+            label="Удалить"
+          />
           <q-btn
             class="q-btn--outline-muted"
             outline
@@ -264,6 +279,14 @@ export default defineComponent({
 
       this.processing = false;
       this.$emit("onSave", result);
+    },
+
+    async onRemove() {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Theme.removeGroup(this.dialog.data.id);
+      this.processing = false;
+      this.$emit("onRemove", result);
     },
 
     async addGroupAccessList() {

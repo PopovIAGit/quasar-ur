@@ -116,8 +116,13 @@
               v-model="this.selectedUser"
               :options="
                 this.$q.appStore.usersList
-                  .filter((item) => item.roleId === 4)
-                  .map((item) => ({ id: item.id, name: item.name }))
+                  .filter(
+                    (item) => item.roleId === 3 && item.isDeleted == false
+                  )
+                  .map((item) => ({
+                    id: item.id,
+                    name: item.name + ' ' + item.surname,
+                  }))
               "
               option-label="name"
               option-value="id"
@@ -145,8 +150,15 @@
               v-model="this.selectedUser"
               :options="
                 this.$q.appStore.usersList
-                  .filter((item) => item.roleId === 4 && obj.isDeleted == false)
-                  .map((item) => ({ id: item.id, name: item.name }))
+                  .filter(
+                    (item) =>
+                      (item.roleId === 3 || item.roleId === 4) &&
+                      item.isDeleted == false
+                  )
+                  .map((item) => ({
+                    id: item.id,
+                    name: item.name + ' ' + item.surname,
+                  }))
               "
               option-label="name"
               option-value="id"

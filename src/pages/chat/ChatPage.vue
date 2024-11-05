@@ -150,10 +150,13 @@
               >
               </q-tab>
             </q-tabs>
-            <q-tab-panels v-model="tab" animated>
-              <q-tab-panel name="tickets">
-                <q-card-section>
-                  <q-scroll-area style="height: 350px; max-width: 300px">
+            <q-tab-panels v-model="tab" animated class="q-pa-none">
+              <q-tab-panel name="tickets" class="q-pa-none">
+                <q-card-section class="q-pa-xs">
+                  <q-scroll-area
+                    style="height: 200px; max-width: 300px"
+                    class="q-pa-none"
+                  >
                     <q-list
                       separator
                       v-for="ticket in ticketsList"
@@ -187,6 +190,7 @@
                 </q-card-section>
               </q-tab-panel>
               <q-tab-panel
+                class="q-pa-none"
                 name="freechat"
                 v-if="this.$q.appStore.user.roleId < 3"
               >
@@ -216,13 +220,16 @@
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
-              <q-tab-panel name="freechatAll">
+              <q-tab-panel name="freechatAll" class="q-pa-none">
                 <q-card-section>
                   <q-scroll-area style="height: 350px; max-width: 300px">
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>
             </q-tab-panels>
+          </q-card>
+          <q-card style="min-width: 320px" class="q-mt-md">
+            <div>место под файлы</div>
           </q-card>
         </div>
       </div>

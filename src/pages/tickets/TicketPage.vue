@@ -358,8 +358,10 @@ export default defineComponent({
       this.loading = true;
 
       this.selectTicketID = this.$q.appStore.ticketsList.find(
-        (obj) => obj.id == this.$q.appStore.selectedTicket.id
+        (obj) => obj.id == this.$q.appStore.selectedTicket?.id
       );
+
+      console.log(this.selectTicketID);
 
       if (this.selectTicketID == null) {
         this.$q.appStore.set({ numOfMsgInTicket: 0 });
@@ -379,8 +381,14 @@ export default defineComponent({
           type: "query",
           iface: "message",
           method: "getList",
-          args: {},
+          args: {
+            where: {
+              ticketId: this.selectTicketID.id,
+            },
+          },
         });
+        console.log(response.args.rows);
+
         const elementsWithTicketId = response.args.rows.filter(
           (element) => element.ticketId === this.selectTicketID.id
         );
@@ -428,6 +436,7 @@ export default defineComponent({
             title: this.ticketTitle,
             description: this.ticketDiscription,
             startDateTime: new Date(),
+            ticketStatusId: 1,
           },
         },
       });
@@ -447,6 +456,7 @@ export default defineComponent({
         this.$router.push({ path: "/" });
       }
     },
+    // Диалог добавления/редактирования тикета
     showDialogTicketAddUpdate() {
       const excludeFields = ["id", "token", "isDeleted", "online", "active"];
       const data = {};
@@ -506,7 +516,7 @@ export default defineComponent({
         this.$router.push("/");
       }
     },
-
+    // файл сервер
     async getTicketFileList() {
       /** Получаем все списки файлов **/
       const responseFileList = await this.$q.ws.sendRequest({
@@ -520,7 +530,6 @@ export default defineComponent({
         (file) => file.ticketId === this.selectTicketID.id
       );
     },
-
     async downloadTicketSelectedFile(file) {
       try {
         const responseFile = await this.$q.ws.sendRequest({
@@ -594,6 +603,7 @@ export default defineComponent({
       });
       this.getTicketFileList();
     },
+    // Открытие модального окна добавления/удаления операторов
     showOperatorAddRemove() {
       this.inception = true;
     },

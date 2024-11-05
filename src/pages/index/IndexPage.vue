@@ -441,7 +441,7 @@ export default defineComponent({
       this.ready = true;
       this.loading = false;
     },
-
+    // theme
     showDialogThemeAddUpdate() {
       const excludeFields = [
         "id",
@@ -507,7 +507,7 @@ export default defineComponent({
         this.getData();
       }
     },
-
+    // services
     showDialogServiceAddUpdate() {
       const excludeFields = ["id", "token", "isDeleted", "online", "active"];
       const data = {};
@@ -564,6 +564,7 @@ export default defineComponent({
         this.getData();
       }
     },
+    // tickets
     handleRowDoubleClick(event, row) {
       // Получите данные строки и выполните переход на другую страницу
       this.$q.appStore.set({
@@ -577,45 +578,6 @@ export default defineComponent({
         selectedTicket: null,
       });
       this.$router.push({ path: "/tickets" });
-    },
-    onLazyLoad({ node: parent, key, done }) {
-      let children = this.themeList
-        .filter((item) => item.parentId === parent.id)
-        .concat(parent.services || []);
-      done(children);
-    },
-
-    handleDoubleClick(item) {
-      const title = item.target.innerText;
-      let rowService;
-      let rowTheme = this.themeList.find((key) => key.title === title);
-      if (!rowTheme) {
-        rowService = this.serviceList.find((key) => key.title === title);
-      }
-
-      if (rowTheme) {
-        this.dialogThemeAddUpdate = {
-          show: true,
-          method: "update",
-          onHide: () =>
-            (this.dialogThemeAddUpdate = structuredClone(
-              this.dialogThemeAddUpdateDefault
-            )),
-          dataWas: structuredClone(rowTheme),
-          data: structuredClone(rowTheme),
-        };
-      } else if (rowService) {
-        this.dialogServiceAddUpdate = {
-          show: true,
-          method: "update",
-          onHide: () =>
-            (this.dialogServiceAddUpdate = structuredClone(
-              this.dialogServiceAddUpdateDefault
-            )),
-          dataWas: structuredClone(rowService),
-          data: structuredClone(rowService),
-        };
-      }
     },
     filterByStatus() {
       let rows = [];
@@ -655,17 +617,47 @@ export default defineComponent({
           break;
       }
     },
+    // tree
+    onLazyLoad({ node: parent, key, done }) {
+      let children = this.themeList
+        .filter((item) => item.parentId === parent.id)
+        .concat(parent.services || []);
+      done(children);
+    },
+
+    handleDoubleClick(item) {
+      const title = item.target.innerText;
+      let rowService;
+      let rowTheme = this.themeList.find((key) => key.title === title);
+      if (!rowTheme) {
+        rowService = this.serviceList.find((key) => key.title === title);
+      }
+
+      if (rowTheme) {
+        this.dialogThemeAddUpdate = {
+          show: true,
+          method: "update",
+          onHide: () =>
+            (this.dialogThemeAddUpdate = structuredClone(
+              this.dialogThemeAddUpdateDefault
+            )),
+          dataWas: structuredClone(rowTheme),
+          data: structuredClone(rowTheme),
+        };
+      } else if (rowService) {
+        this.dialogServiceAddUpdate = {
+          show: true,
+          method: "update",
+          onHide: () =>
+            (this.dialogServiceAddUpdate = structuredClone(
+              this.dialogServiceAddUpdateDefault
+            )),
+          dataWas: structuredClone(rowService),
+          data: structuredClone(rowService),
+        };
+      }
+    },
   },
 });
 </script>
 
-<style lang="scss">
-.example-row-column-width {
-  .row > div {
-    padding: 10px 15px;
-  }
-  .row + .row {
-    margin-top: 1rem;
-  }
-}
-</style>

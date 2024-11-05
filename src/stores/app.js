@@ -4,12 +4,12 @@ export const useAppStore = defineStore("app", {
   state: () => ({
     ready: false,
     user: null,
+    selectedTicket: null,
+    numOfMsgInTicket: null,
     usersList: [],
     groupsList: [],
     servicesList: [],
     ticketsList: [],
-    selectedTicket: null,
-    numOfMsgInTicket: null,
   }),
   getters: {},
   actions: {
@@ -18,6 +18,5 @@ export const useAppStore = defineStore("app", {
         this[key] = value;
       });
     },
-    
   },
 });

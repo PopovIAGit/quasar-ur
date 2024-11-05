@@ -182,7 +182,6 @@ export default defineComponent({
         data.args.action !== "freechatMessage" &&
         this.$q.appStore.user
       ) {
-
         this.$q.notify({
           message: data.args.action,
           position: "top",
@@ -220,21 +219,21 @@ export default defineComponent({
   },
 
   methods: {
-    test() {
-      this.$q.ws.sendRequest({
-        type: "query",
-        iface: "message",
-        method: "send",
-        args: {
-          message: {
-            ownerId: 1,
-            content: "Текст сообщения",
-            ticketId: 17,
-            sentDateTime: new Date(),
-          },
-        },
-      });
-    },
+    // test() {
+    //   this.$q.ws.sendRequest({
+    //     type: "query",
+    //     iface: "message",
+    //     method: "send",
+    //     args: {
+    //       message: {
+    //         ownerId: 1,
+    //         content: "Текст сообщения",
+    //         ticketId: 17,
+    //         sentDateTime: new Date(),
+    //       },
+    //     },
+    //   });
+    // },
   },
 });
 </script>

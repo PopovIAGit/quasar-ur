@@ -195,6 +195,8 @@ class Tiket {
       }
     }
   }
+
+  // Access list
   async addAccessList(ticketId, userId) {
     const response = await this.$q.ws.sendRequest({
       type: "query",

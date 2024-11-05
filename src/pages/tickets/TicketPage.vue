@@ -357,13 +357,9 @@ export default defineComponent({
 
       this.loading = true;
 
-      console.log("list", this.$q.appStore.ticketsList);
-
       this.selectTicketID = this.$q.appStore.ticketsList.find(
-        (obj) => obj.id == this.$q.appStore.selectedTicket
+        (obj) => obj.id == this.$q.appStore.selectedTicket.id
       );
-
-      console.log("selectTicketID", this.selectTicketID);
 
       if (this.selectTicketID == null) {
         this.$q.appStore.set({ numOfMsgInTicket: 0 });
@@ -582,7 +578,6 @@ export default defineComponent({
     },
     async sendFileToServer(buf, filename) {
       // Send the prepared file to the server
-      console.log("готовимся к отправке", buf);
       let rand;
       const responseUploadFile = await this.$q.ws.sendRequest({
         type: "query",
@@ -601,7 +596,6 @@ export default defineComponent({
     },
     showOperatorAddRemove() {
       this.inception = true;
-      console.log(this.$q.appStore.usersList);
     },
     async addOperator(userId, ticketId) {
       if (this.processing) return;

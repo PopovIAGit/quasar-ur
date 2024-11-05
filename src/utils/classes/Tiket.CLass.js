@@ -210,8 +210,6 @@ class Tiket {
       },
     });
 
-    console.log("addAccessList", response);
-
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -250,8 +248,6 @@ class Tiket {
         },
       },
     });
-
-    console.log("removeAccessList", response);
 
     // Если ошибка удаления
     if (response.type === "error") {

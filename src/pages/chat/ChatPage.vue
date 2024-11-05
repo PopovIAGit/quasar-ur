@@ -219,27 +219,6 @@
               <q-tab-panel name="freechatAll">
                 <q-card-section>
                   <q-scroll-area style="height: 350px; max-width: 300px">
-                    <!--  <q-list
-                      separator
-                      v-for="room in this.msgFromFreeChat"
-                      :key="room.roomId"
-                      class="q-py-xs"
-                    >
-                      <q-item
-                        clickable
-                        :active="room.roomId == this.selectRoomId"
-                        v-ripple
-                        active-class="my-menu-link"
-                        @click="clickFreeChat(room)"
-                      >
-                        <q-item-section>
-                          <q-item-label caption>
-                            roomId:{{ room.roomId }}</q-item-label
-                          >
-                        </q-item-section>
-                      </q-item>
-                      <q-separator />
-                    </q-list>-->
                   </q-scroll-area>
                 </q-card-section>
               </q-tab-panel>

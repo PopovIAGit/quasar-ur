@@ -568,7 +568,7 @@ export default defineComponent({
     handleRowDoubleClick(event, row) {
       // Получите данные строки и выполните переход на другую страницу
       this.$q.appStore.set({
-        selectedTicket: row.id,
+        selectedTicket: row,
       });
       this.$router.push({ path: "/tickets" });
     },

@@ -314,7 +314,6 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
       const result = await this.User.delete(this.dialog.data.id);
-      console.log(result);
       this.processing = false;
       this.$emit("onRemove", result);
     },

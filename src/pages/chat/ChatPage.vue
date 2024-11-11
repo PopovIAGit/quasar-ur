@@ -152,7 +152,7 @@
             </q-tabs>
             <q-tab-panels v-model="tab" animated class="q-pa-none">
               <q-tab-panel name="tickets" class="q-pa-none">
-                <q-card-section class="q-pa-xs">
+                <div class="q-pa-xs">
                   <q-scroll-area
                     style="height: 200px; max-width: 300px"
                     class="q-pa-none"
@@ -173,21 +173,27 @@
                         v-ripple
                         active-class="my-menu-link"
                         @click="clickTicket(ticket)"
+                        class="q-pa-none"
                       >
                         <q-item-section>
                           <q-item-label> {{ ticket.title }}</q-item-label>
                           <q-item-label caption>
-                            ID:{{ ticket.id }}</q-item-label
+                            ID тикета: {{ ticket.id }}</q-item-label
                           >
                           <q-item-label caption>
-                            ownerID:{{ ticket.ownerId }}</q-item-label
+                            Владелец:
+                            {{
+                              this.$q.appStore.usersList.find(
+                                (obj) => obj.id == ticket.ownerId
+                              )?.name || ticket.ownerId
+                            }}</q-item-label
                           >
                         </q-item-section>
                       </q-item>
                       <q-separator />
                     </q-list>
                   </q-scroll-area>
-                </q-card-section>
+                </div>
               </q-tab-panel>
               <q-tab-panel
                 class="q-pa-none"
@@ -228,8 +234,31 @@
               </q-tab-panel>
             </q-tab-panels>
           </q-card>
-          <q-card style="min-width: 320px" class="q-mt-md">
-            <div>место под файлы</div>
+          <!-- Файлы тикета -->
+          <q-card
+            style="min-width: 320px"
+            class="q-mt-md"
+            v-if="tab == 'tickets'"
+          >
+            <div class="row q-pa-xs">
+              <div class="q-dialog__title text-left col">Файлы тикета</div>
+              <q-btn @click="uploadTicketFile" icon="attach_file" round flat />
+            </div>
+            <q-separator />
+            <q-scroll-area style="height: 260px">
+              <q-list separator>
+                <q-item
+                  v-for="(option, index) in this.ticketFileList"
+                  :key="index"
+                  class="q-my-sm"
+                  clickable
+                  v-ripple
+                  @click="downloadTicketSelectedFile(option)"
+                >
+                  <q-item-section>{{ option.fileName }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-scroll-area>
           </q-card>
         </div>
       </div>
@@ -244,6 +273,7 @@ import { useRoute } from "vue-router";
 import UserClass from "src/utils/classes/User.Class";
 import { storeToRefs } from "pinia";
 import { useFreeChatStore } from "stores/freeChat";
+import Buffer from "vue-buffer";
 
 export default defineComponent({
   name: "ChatPage",
@@ -274,18 +304,23 @@ export default defineComponent({
       scrollAreaRef: ref(null),
       infinitescrollAreaRef: ref(null),
       position: ref(500),
-      ticketsList: ref([]),
-      tab: ref("tickets"),
+      ticketsList: ref([]), // список тикетов
+      tab: ref("tickets"), // tabs
       selectRoomId,
       msgFromFreeChat,
       localStore,
-      freeMessagesAll: ref([]),
-      nameOfAuthors: ref([]),
+      freeMessagesAll: ref([]), // сообщения в общем чате
+      nameOfAuthors: ref([]), // файлы тикета
+      ticketFileList: ref([]),
     };
   },
 
   async beforeMount() {
     await this.getData();
+
+    if (this.$q.appStore.selectedTicket !== null) {
+      await this.getTicketFileList(this.$q.appStore.selectedTicket.id);
+    }
 
     await this.$q.ws.onUnpackedMessage.addListener((data) => {
       if (data.type === "notice" && data.args.action === "message") {
@@ -302,15 +337,17 @@ export default defineComponent({
         selectedTicket: data,
       });
 
+      await this.getTicketFileList(data.id);
+
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "message",
         method: "getList",
-        args: {},
+        args: {
+          where: { ticketId: data.id },
+        },
       });
-      const elementsWithTicketId = response.args.rows.filter(
-        (element) => element.ticketId === data.id
-      );
+      const elementsWithTicketId = response.args.rows;
       this.$q.appStore.set({ numOfMsgInTicket: elementsWithTicketId.length });
 
       await this.getData();
@@ -329,7 +366,9 @@ export default defineComponent({
         this.ticketsList = this.$q.appStore.ticketsList;
       } else if (this.$q.appStore.user.roleId === 3) {
         //TODO заполнять для операторов.
-        this.ticketsList = this.$q.appStore.ticketsList;
+        this.ticketsList = this.$q.appStore.ticketsList.filter(
+          (row) => row.operators[0].id === this.$q.appStore.user.id
+        );
       } else if (this.$q.appStore.user.roleId === 4) {
         this.ticketsList = this.$q.appStore.ticketsList.filter(
           (row) => row.ownerId === this.$q.appStore.user.id
@@ -566,6 +605,98 @@ export default defineComponent({
         }
       }
       return "";
+    },
+    // файл сервер
+    async getTicketFileList(id) {
+      /** Получаем все списки файлов **/
+      const responseFileList = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "getList",
+        args: {
+          where: { ticketId: id },
+        },
+      });
+
+      this.ticketFileList = responseFileList.args.rows
+        ? responseFileList.args.rows
+        : [];
+
+      console.log(this.ticketFileList);
+      console.log(Array.isArray(this.ticketFileList));
+    },
+    async downloadTicketSelectedFile(file) {
+      try {
+        const responseFile = await this.$q.ws.sendRequest({
+          type: "query",
+          iface: "file",
+          method: "get",
+          args: {
+            file: {
+              id: file.id,
+            },
+          },
+        });
+        if (responseFile.type == "answer") {
+          const fileData = responseFile.args;
+          const buf = Buffer.from(fileData.data.data);
+          // const data1 = JSON.parse(buf);
+          const blob = new Blob([buf], { type: fileData.type });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileData.fileName;
+          link.click();
+          URL.revokeObjectURL(url);
+        } else {
+          console.error("Failed to download file:", responseFile);
+        }
+      } catch (error) {
+        console.error("Error occurred while downloading file:", error);
+      }
+    },
+    async uploadTicketFile() {
+      var input = document.createElement("input");
+      input.type = "file";
+      let buf = null;
+      let filename = null;
+
+      input.onchange = (e) => {
+        // getting a hold of the file reference
+        let file = e.target.files[0];
+        let preparedFile = null;
+        // setting up the reader
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+
+        // here we tell the reader what to do when it's done reading...
+        reader.onload = (readerEvent) => {
+          let arrBuf = readerEvent.target.result; // this is the content as ArrayBuffer
+          // Convert ArrayBuffer to Buffer
+          buf = Buffer.from(arrBuf);
+          filename = file.name;
+          this.sendFileToServer(buf, filename);
+        };
+      };
+      input.click();
+    },
+    async sendFileToServer(buf, filename) {
+      // Send the prepared file to the server
+      let rand;
+      const responseUploadFile = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "file",
+        method: "add",
+        args: {
+          file: {
+            ownerId: this.$q.appStore.user.id,
+            ticketId: this.$q.appStore.selectedTicket.id,
+            fileName: filename,
+            data: buf,
+          },
+        },
+      });
+      this.getTicketFileList(this.$q.appStore.selectedTicket.id);
     },
   },
 });
